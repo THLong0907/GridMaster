@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:grid_master/core/constants/colors.dart';
+import 'package:grid_master/features/game/domain/models/game_mode.dart';
 import 'package:grid_master/shared/services/high_score_service.dart';
+import 'package:grid_master/shared/widgets/animated_block_background.dart';
 import '../game/grid_master_game.dart';
 import '../game/overlays/score_overlay.dart';
 import '../game/overlays/game_over_overlay.dart';
 
-/// Main game screen that wraps the Flame GameWidget
+/// Main game screen — receives GameMode from route
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final GameMode mode;
+
+  const GameScreen({super.key, required this.mode});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -24,22 +29,28 @@ class _GameScreenState extends State<GameScreen> {
   int _finalScore = 0;
   int _highScore = 0;
   bool _isNewHigh = false;
-  int _hammerCharges = 3;
+  int _hammerCharges = 0;
+
+  Color _accentColor = const Color(0xFF6C5CE7);
+  Color _bgColor1 = const Color(0xFF0D0D1A);
+  Color _bgColor2 = const Color(0xFF1A1A3E);
+  Key _bgKey = UniqueKey();
 
   @override
   void initState() {
     super.initState();
-    _game = GridMasterGame();
+    _hammerCharges = widget.mode.hammerCharges;
+    _game = GridMasterGame(mode: widget.mode);
     _game.onScoreChanged = _onScoreChanged;
     _game.onGameOver = _onGameOver;
     _game.onHammerChanged = _onHammerChanged;
+    _game.onThemeChanged = _onThemeChanged;
 
-    // Load high score
     _loadHighScore();
   }
 
   Future<void> _loadHighScore() async {
-    final hs = await HighScoreService.load();
+    final hs = await HighScoreService.load(widget.mode);
     _game.setHighScore(hs);
     setState(() => _highScore = hs);
   }
@@ -56,22 +67,15 @@ class _GameScreenState extends State<GameScreen> {
       _comboMessage = message;
     });
 
-    // Clear combo message after delay
     if (message != null) {
       Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() => _comboMessage = null);
-        }
+        if (mounted) setState(() => _comboMessage = null);
       });
     }
   }
 
   void _onGameOver(int score, int highScore, bool isNewHigh) {
-    // Persist high score
-    if (isNewHigh) {
-      HighScoreService.save(score);
-    }
-
+    if (isNewHigh) HighScoreService.save(score, widget.mode);
     setState(() {
       _isGameOver = true;
       _finalScore = score;
@@ -84,35 +88,87 @@ class _GameScreenState extends State<GameScreen> {
     setState(() => _hammerCharges = charges);
   }
 
+  void _onThemeChanged(GridTheme theme) {
+    setState(() {
+      _accentColor = theme.accentGlow;
+      _bgColor1 = _darken(theme.bgColor, 0.4);
+      _bgColor2 = theme.bgColor;
+      _bgKey = UniqueKey();
+    });
+  }
+
+  Color _darken(Color c, double amount) {
+    final hsl = HSLColor.fromColor(c);
+    return hsl
+        .withLightness((hsl.lightness - amount).clamp(0.0, 1.0))
+        .toColor();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D1A),
       body: Stack(
         children: [
-          // Flame Game — wrapped in GestureDetector for hammer taps
-          GestureDetector(
-            onTapUp: (details) {
-              if (_game.isHammerMode) {
-                _game.useHammerAt(
-                  details.localPosition.dx,
-                  details.localPosition.dy,
-                );
-              }
-            },
-            child: GameWidget(game: _game),
+          // Animated block background
+          AnimatedBlockBackground(
+            key: _bgKey,
+            accentColor: _accentColor,
+            bgColor1: _bgColor1,
+            bgColor2: _bgColor2,
+            shapeCount: 14,
           ),
 
-          // Score overlay
+          // Flame Game
+          GameWidget(game: _game),
+
+          // Score overlay with mode name
           ScoreOverlay(
             score: _score,
             streak: _streak,
             comboMessage: _comboMessage,
+            modeName: widget.mode.displayName,
             onHomeTap: () => context.go('/'),
           ),
 
-          // Hammer button (bottom right)
-          Positioned(bottom: 32, right: 24, child: _buildHammerButton()),
+          // Hammer indicator (hide for zen)
+          if (widget.mode != GameMode.zen)
+            Positioned(bottom: 32, right: 24, child: _buildHammerIndicator()),
+
+          // Memory mode indicator
+          if (widget.mode == GameMode.memory)
+            Positioned(
+              bottom: 32,
+              left: 24,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFA29BFE).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFA29BFE).withValues(alpha: 0.4),
+                  ),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.psychology, color: Color(0xFFA29BFE), size: 18),
+                    SizedBox(width: 6),
+                    Text(
+                      'Memory',
+                      style: TextStyle(
+                        color: Color(0xFFA29BFE),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
           // Combo message popup
           if (_comboMessage != null)
@@ -134,14 +190,18 @@ class _GameScreenState extends State<GameScreen> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53)],
+                      gradient: LinearGradient(
+                        colors: [
+                          _accentColor,
+                          _accentColor.withValues(alpha: 0.7),
+                        ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFF6B6B).withValues(alpha: 0.5),
-                          blurRadius: 15,
+                          color: _accentColor.withValues(alpha: 0.5),
+                          blurRadius: 20,
+                          spreadRadius: 2,
                         ),
                       ],
                     ),
@@ -169,7 +229,11 @@ class _GameScreenState extends State<GameScreen> {
                   _isGameOver = false;
                   _score = 0;
                   _streak = 0;
-                  _hammerCharges = 3;
+                  _hammerCharges = widget.mode.hammerCharges;
+                  _accentColor = const Color(0xFF6C5CE7);
+                  _bgColor1 = const Color(0xFF0D0D1A);
+                  _bgColor2 = const Color(0xFF1A1A3E);
+                  _bgKey = UniqueKey();
                 });
                 _game.restartGame();
               },
@@ -180,89 +244,43 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildHammerButton() {
-    final isActive = _game.isHammerMode;
+  Widget _buildHammerIndicator() {
     final hasCharges = _hammerCharges > 0;
-
-    return GestureDetector(
-      onTap: hasCharges
-          ? () {
-              _game.toggleHammerMode();
-              setState(() {});
-            }
-          : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          gradient: isActive
-              ? const LinearGradient(
-                  colors: [Color(0xFFFF8E53), Color(0xFFFF6B6B)],
-                )
-              : LinearGradient(
-                  colors: hasCharges
-                      ? [const Color(0xFF2D2D5E), const Color(0xFF3D3D7E)]
-                      : [const Color(0xFF1A1A2E), const Color(0xFF1A1A2E)],
-                ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isActive
-                ? const Color(0xFFFF8E53)
-                : hasCharges
-                ? Colors.white.withValues(alpha: 0.2)
-                : Colors.white.withValues(alpha: 0.05),
-            width: isActive ? 2 : 1,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: hasCharges
+            ? _accentColor.withValues(alpha: 0.15)
+            : const Color(0xFF1A1A2E).withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: hasCharges
+              ? _accentColor.withValues(alpha: 0.4)
+              : Colors.white.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.hardware,
+            color: hasCharges
+                ? _accentColor
+                : Colors.white.withValues(alpha: 0.3),
+            size: 18,
           ),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFFFF8E53).withValues(alpha: 0.5),
-                    blurRadius: 12,
-                    spreadRadius: 2,
-                  ),
-                ]
-              : [],
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Icon(
-              Icons.hardware,
+          const SizedBox(width: 6),
+          Text(
+            'x$_hammerCharges',
+            style: TextStyle(
               color: hasCharges
-                  ? Colors.white.withValues(alpha: isActive ? 1.0 : 0.7)
-                  : Colors.white.withValues(alpha: 0.2),
-              size: 28,
+                  ? Colors.white.withValues(alpha: 0.9)
+                  : Colors.white.withValues(alpha: 0.3),
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
             ),
-            // Charge count badge
-            Positioned(
-              top: 4,
-              right: 4,
-              child: Container(
-                width: 18,
-                height: 18,
-                decoration: BoxDecoration(
-                  color: hasCharges
-                      ? const Color(0xFFFF6B6B)
-                      : Colors.grey.shade800,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    '$_hammerCharges',
-                    style: TextStyle(
-                      color: Colors.white.withValues(
-                        alpha: hasCharges ? 1.0 : 0.4,
-                      ),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

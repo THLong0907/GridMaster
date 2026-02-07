@@ -1,27 +1,15 @@
 import 'dart:ui';
 import 'package:flame/components.dart';
-import 'package:flame/events.dart';
-import 'package:grid_master/core/constants/game_constants.dart';
 import 'package:grid_master/features/game/domain/models/block_piece.dart';
 import 'block_cell.dart';
 
-/// Callback types for drag events
-typedef PieceDragStartCallback = void Function(BlockPieceComponent comp);
-typedef PieceDragUpdateCallback =
-    void Function(BlockPieceComponent comp, Vector2 worldPos);
-typedef PieceDragEndCallback =
-    void Function(BlockPieceComponent comp, Vector2 worldPos);
-
-/// A draggable block piece in the pieces panel
-class BlockPieceComponent extends PositionComponent with DragCallbacks {
+/// A block piece in the pieces panel (no longer draggable by itself)
+class BlockPieceComponent extends PositionComponent {
   final BlockPiece piece;
   final int index; // 0, 1, or 2
   final double cellSize;
-  final PieceDragUpdateCallback onPieceDragUpdate;
-  final PieceDragEndCallback onPieceDragEnd;
-  final PieceDragStartCallback onPieceDragStart;
 
-  bool _isDragging = false;
+  bool isDragging = false;
   Vector2 _originalPosition = Vector2.zero();
   bool _used = false;
 
@@ -29,9 +17,6 @@ class BlockPieceComponent extends PositionComponent with DragCallbacks {
     required this.piece,
     required this.index,
     required this.cellSize,
-    required this.onPieceDragUpdate,
-    required this.onPieceDragEnd,
-    required this.onPieceDragStart,
     required Vector2 position,
   }) : super(
          position: position,
@@ -53,7 +38,7 @@ class BlockPieceComponent extends PositionComponent with DragCallbacks {
     super.render(canvas);
     if (_used) return;
 
-    final drawScale = _isDragging ? 1.0 : 0.7;
+    final drawScale = isDragging ? 1.0 : 0.7;
     final drawCellSize = cellSize * drawScale;
 
     // Center in component
@@ -69,46 +54,27 @@ class BlockPieceComponent extends PositionComponent with DragCallbacks {
             offsetY + r * drawCellSize,
             drawCellSize,
             piece.colorIndex,
-            opacity: _isDragging ? 0.85 : 1.0,
+            opacity: isDragging ? 0.85 : 1.0,
           );
         }
       }
     }
   }
 
-  @override
-  void onDragStart(DragStartEvent event) {
-    super.onDragStart(event);
-    if (_used) return;
-    _isDragging = true;
-    onPieceDragStart(this);
-  }
-
-  @override
-  void onDragUpdate(DragUpdateEvent event) {
-    super.onDragUpdate(event);
-    if (!_isDragging) return;
-    position += event.localDelta;
-    // Apply finger offset — show block above touch point
-    onPieceDragUpdate(
-      this,
-      Vector2(position.x, position.y - GameConstants.fingerOffset),
-    );
-  }
-
-  @override
-  void onDragEnd(DragEndEvent event) {
-    super.onDragEnd(event);
-    if (!_isDragging) return;
-    _isDragging = false;
-    onPieceDragEnd(
-      this,
-      Vector2(position.x, position.y - GameConstants.fingerOffset),
-    );
-  }
-
   /// Reset to original position
   void resetPosition() {
+    isDragging = false;
     position = _originalPosition.clone();
+  }
+
+  /// Check if a world position is within this component
+  bool containsWorldPoint(Vector2 worldPos) {
+    if (_used) return false;
+    final halfW = size.x / 2;
+    final halfH = size.y / 2;
+    return worldPos.x >= position.x - halfW &&
+        worldPos.x <= position.x + halfW &&
+        worldPos.y >= position.y - halfH &&
+        worldPos.y <= position.y + halfH;
   }
 }

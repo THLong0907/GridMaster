@@ -1,76 +1,106 @@
 import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:grid_master/core/constants/game_constants.dart';
+import 'package:grid_master/core/constants/colors.dart';
 import 'package:grid_master/features/game/domain/models/grid_model.dart';
 import 'block_cell.dart';
 
-/// Renders the 10x10 game grid with placed blocks
+/// Renders the game grid with placed blocks and dynamic theme
 class GridComponent extends PositionComponent {
   GridModel _grid;
   final double cellSize;
+  final int gridSize;
 
   // Ghost block state
   List<(int, int)>? ghostCells;
   int ghostColorIndex = 0;
   bool ghostValid = true;
 
-  // Hammer mode visual
-  bool _hammerMode = false;
+  // Theme
+  GridTheme _theme = GridTheme.themes[0];
+
+  // Memory mode: which cells are visible
+  bool memoryMode = false;
+  Set<(int, int)> visibleCells = {};
 
   GridComponent({
     required GridModel grid,
     required this.cellSize,
+    required this.gridSize,
     required Vector2 position,
   }) : _grid = grid,
-       super(
-         position: position,
-         size: Vector2.all(cellSize * GameConstants.gridSize),
-       );
+       super(position: position, size: Vector2.all(cellSize * gridSize));
 
   set grid(GridModel value) => _grid = value;
   GridModel get grid => _grid;
 
-  double get gridPixelSize => cellSize * GameConstants.gridSize;
+  double get gridPixelSize => cellSize * gridSize;
 
-  void setHammerMode(bool enabled) {
-    _hammerMode = enabled;
+  void setTheme(GridTheme theme) {
+    _theme = theme;
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    final size = GameConstants.gridSize;
 
-    // Draw grid background
-    final bgPaint = Paint()..color = const Color(0xFF1A1A2E);
+    // Draw grid background with theme color
+    final bgPaint = Paint()..color = _theme.bgColor;
     final bgRRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(-4, -4, gridPixelSize + 8, gridPixelSize + 8),
       const Radius.circular(12),
     );
     canvas.drawRRect(bgRRect, bgPaint);
 
-    // Draw grid border (orange in hammer mode)
-    final borderPaint = Paint()
-      ..color = _hammerMode ? const Color(0xFFFF8E53) : const Color(0xFF2D2D5E)
+    // Accent glow border
+    final glowPaint = Paint()
+      ..color = _theme.accentGlow.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _hammerMode ? 3 : 2;
+      ..strokeWidth = 3
+      ..maskFilter = const MaskFilter.blur(BlurStyle.outer, 6);
+    canvas.drawRRect(bgRRect, glowPaint);
+
+    // Grid border
+    final borderPaint = Paint()
+      ..color = _theme.borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
     canvas.drawRRect(bgRRect, borderPaint);
 
     // Draw grid lines
     final linePaint = Paint()
-      ..color = const Color(0xFF2A2A4A)
+      ..color = _theme.gridLineColor
       ..strokeWidth = 0.5;
-    for (int i = 1; i < size; i++) {
+    for (int i = 1; i < gridSize; i++) {
       final pos = i * cellSize;
       canvas.drawLine(Offset(pos, 0), Offset(pos, gridPixelSize), linePaint);
       canvas.drawLine(Offset(0, pos), Offset(gridPixelSize, pos), linePaint);
     }
 
+    // Draw subtle cell dot pattern for empty cells
+    final dotPaint = Paint()
+      ..color = _theme.gridLineColor.withValues(alpha: 0.3);
+    for (int r = 0; r < gridSize; r++) {
+      for (int c = 0; c < gridSize; c++) {
+        if (_grid.isEmpty(r, c)) {
+          canvas.drawCircle(
+            Offset(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2),
+            1.5,
+            dotPaint,
+          );
+        }
+      }
+    }
+
     // Draw placed blocks
-    for (int r = 0; r < size; r++) {
-      for (int c = 0; c < size; c++) {
+    for (int r = 0; r < gridSize; r++) {
+      for (int c = 0; c < gridSize; c++) {
         final value = _grid.getCell(r, c);
         if (value != 0) {
+          // Memory mode: only render visible cells
+          if (memoryMode && !visibleCells.contains((r, c))) {
+            continue;
+          }
           BlockCellRenderer.drawCell(
             canvas,
             c * cellSize,
@@ -84,32 +114,19 @@ class GridComponent extends PositionComponent {
 
     // Draw ghost block
     if (ghostCells != null) {
+      final opacity = ghostValid
+          ? GameConstants.ghostOpacity
+          : GameConstants.ghostOpacity * 0.5;
       for (final (r, c) in ghostCells!) {
-        if (r >= 0 && r < size && c >= 0 && c < size) {
-          if (ghostValid) {
-            BlockCellRenderer.drawCell(
-              canvas,
-              c * cellSize,
-              r * cellSize,
-              cellSize,
-              ghostColorIndex,
-              opacity: GameConstants.ghostOpacity,
-            );
-          } else {
-            final paint = Paint()..color = const Color(0x44FF0000);
-            canvas.drawRRect(
-              RRect.fromRectAndRadius(
-                Rect.fromLTWH(
-                  c * cellSize + 2,
-                  r * cellSize + 2,
-                  cellSize - 4,
-                  cellSize - 4,
-                ),
-                const Radius.circular(4),
-              ),
-              paint,
-            );
-          }
+        if (r >= 0 && r < gridSize && c >= 0 && c < gridSize) {
+          BlockCellRenderer.drawCell(
+            canvas,
+            c * cellSize,
+            r * cellSize,
+            cellSize,
+            ghostColorIndex,
+            opacity: opacity,
+          );
         }
       }
     }
@@ -125,5 +142,21 @@ class GridComponent extends PositionComponent {
   /// Clear ghost block
   void clearGhost() {
     ghostCells = null;
+  }
+
+  /// Memory mode: make all cells visible temporarily
+  void revealAll() {
+    for (int r = 0; r < gridSize; r++) {
+      for (int c = 0; c < gridSize; c++) {
+        if (!_grid.isEmpty(r, c)) {
+          visibleCells.add((r, c));
+        }
+      }
+    }
+  }
+
+  /// Memory mode: hide all cells
+  void hideAll() {
+    visibleCells.clear();
   }
 }

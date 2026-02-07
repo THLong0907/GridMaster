@@ -6,6 +6,7 @@ class ScoreOverlay extends StatelessWidget {
   final int score;
   final int streak;
   final String? comboMessage;
+  final String? modeName;
   final VoidCallback onHomeTap;
 
   const ScoreOverlay({
@@ -13,6 +14,7 @@ class ScoreOverlay extends StatelessWidget {
     required this.score,
     required this.streak,
     this.comboMessage,
+    this.modeName,
     required this.onHomeTap,
   });
 
@@ -31,6 +33,19 @@ class ScoreOverlay extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (modeName != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 2),
+                    child: Text(
+                      modeName!,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.4),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
                 Text(
                   GameStrings.score,
                   style: TextStyle(

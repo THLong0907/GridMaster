@@ -87,3 +87,80 @@ class BlockColorSet {
     required this.glow,
   });
 }
+
+/// Theme colors for grid background — changes on line clear
+class GridTheme {
+  final Color bgColor;
+  final Color gridLineColor;
+  final Color borderColor;
+  final Color accentGlow;
+  final String name;
+
+  const GridTheme({
+    required this.bgColor,
+    required this.gridLineColor,
+    required this.borderColor,
+    required this.accentGlow,
+    required this.name,
+  });
+
+  /// All available grid themes
+  static const List<GridTheme> themes = [
+    GridTheme(
+      name: 'Midnight',
+      bgColor: Color(0xFF1A1A2E),
+      gridLineColor: Color(0xFF2A2A4A),
+      borderColor: Color(0xFF2D2D5E),
+      accentGlow: Color(0xFF6C5CE7),
+    ),
+    GridTheme(
+      name: 'Crimson',
+      bgColor: Color(0xFF2E1A1A),
+      gridLineColor: Color(0xFF4A2A2A),
+      borderColor: Color(0xFF5E2D2D),
+      accentGlow: Color(0xFFFF4757),
+    ),
+    GridTheme(
+      name: 'Ocean',
+      bgColor: Color(0xFF1A2A2E),
+      gridLineColor: Color(0xFF2A3A4A),
+      borderColor: Color(0xFF2D4D5E),
+      accentGlow: Color(0xFF3498DB),
+    ),
+    GridTheme(
+      name: 'Emerald',
+      bgColor: Color(0xFF1A2E1A),
+      gridLineColor: Color(0xFF2A4A2A),
+      borderColor: Color(0xFF2D5E2D),
+      accentGlow: Color(0xFF2ECC71),
+    ),
+    GridTheme(
+      name: 'Royal',
+      bgColor: Color(0xFF2A1A2E),
+      gridLineColor: Color(0xFF3A2A4A),
+      borderColor: Color(0xFF4D2D5E),
+      accentGlow: Color(0xFF9B59B6),
+    ),
+    GridTheme(
+      name: 'Sunset',
+      bgColor: Color(0xFF2E2A1A),
+      gridLineColor: Color(0xFF4A3A2A),
+      borderColor: Color(0xFF5E4D2D),
+      accentGlow: Color(0xFFE67E22),
+    ),
+    GridTheme(
+      name: 'Frost',
+      bgColor: Color(0xFF1A2E2A),
+      gridLineColor: Color(0xFF2A4A3A),
+      borderColor: Color(0xFF2D5E4D),
+      accentGlow: Color(0xFF1ABC9C),
+    ),
+    GridTheme(
+      name: 'Rose',
+      bgColor: Color(0xFF2E1A2A),
+      gridLineColor: Color(0xFF4A2A3A),
+      borderColor: Color(0xFF5E2D4D),
+      accentGlow: Color(0xFFE84393),
+    ),
+  ];
+}

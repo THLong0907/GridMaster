@@ -1,25 +1,22 @@
-import 'package:grid_master/core/constants/game_constants.dart';
-
-/// Represents the 10x10 game grid.
+/// Represents the game grid.
 /// Each cell value: 0 = empty, 1-8 = color index
 class GridModel {
   final List<List<int>> cells;
+  final int gridSize;
 
-  const GridModel(this.cells);
+  const GridModel(this.cells, this.gridSize);
 
-  /// Create an empty grid
-  factory GridModel.empty() {
-    return GridModel(
-      List.generate(
-        GameConstants.gridSize,
-        (_) => List.filled(GameConstants.gridSize, 0),
-      ),
-    );
+  /// Create an empty grid of given size
+  factory GridModel.empty(int size) {
+    return GridModel(List.generate(size, (_) => List.filled(size, 0)), size);
   }
 
   /// Create a deep copy
   GridModel copy() {
-    return GridModel(cells.map((row) => List<int>.from(row)).toList());
+    return GridModel(
+      cells.map((row) => List<int>.from(row)).toList(),
+      gridSize,
+    );
   }
 
   /// Get cell value at (row, col)
@@ -30,17 +27,14 @@ class GridModel {
 
   /// Check if position is within bounds
   bool inBounds(int row, int col) {
-    return row >= 0 &&
-        row < GameConstants.gridSize &&
-        col >= 0 &&
-        col < GameConstants.gridSize;
+    return row >= 0 && row < gridSize && col >= 0 && col < gridSize;
   }
 
   /// Set a cell value (returns new GridModel for immutability)
   GridModel setCell(int row, int col, int value) {
     final newCells = copy().cells;
     newCells[row][col] = value;
-    return GridModel(newCells);
+    return GridModel(newCells, gridSize);
   }
 
   /// Count filled cells

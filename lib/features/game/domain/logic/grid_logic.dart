@@ -61,7 +61,7 @@ class GridLogic {
     int cellsPlaced,
     int streak,
   ) {
-    final size = GameConstants.gridSize;
+    final size = grid.gridSize;
     final clearedRows = <int>[];
     final clearedCols = <int>[];
 
@@ -105,7 +105,7 @@ class GridLogic {
           cells[r][c] = 0;
         }
       }
-      newGrid = GridModel(cells);
+      newGrid = GridModel(cells, size);
     }
 
     // Calculate points
@@ -131,9 +131,10 @@ class GridLogic {
 
   /// Check if any of the available pieces can be placed anywhere on the grid
   static bool isGameOver(GridModel grid, List<BlockPiece> availablePieces) {
+    final size = grid.gridSize;
     for (final piece in availablePieces) {
-      for (int r = 0; r <= GameConstants.gridSize - piece.rows; r++) {
-        for (int c = 0; c <= GameConstants.gridSize - piece.cols; c++) {
+      for (int r = 0; r <= size - piece.rows; r++) {
+        for (int c = 0; c <= size - piece.cols; c++) {
           if (canPlace(grid, piece, r, c)) {
             return false;
           }
@@ -150,13 +151,11 @@ class GridLogic {
     double cellSize,
     double gridOriginX,
     double gridOriginY,
+    int gridSize,
   ) {
     final col = ((px - gridOriginX) / cellSize).floor();
     final row = ((py - gridOriginY) / cellSize).floor();
-    if (row >= 0 &&
-        row < GameConstants.gridSize &&
-        col >= 0 &&
-        col < GameConstants.gridSize) {
+    if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
       return (row, col);
     }
     return null;

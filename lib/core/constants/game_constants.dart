@@ -2,9 +2,7 @@
 class GameConstants {
   GameConstants._();
 
-  // Grid
-  static const int gridSize = 10;
-  static const int totalCells = gridSize * gridSize; // 100
+  // Grid — size now comes from GameMode.gridSize
 
   // Scoring
   static const int basePointsPerCell = 10;
@@ -30,7 +28,7 @@ class GameConstants {
 
   // Streak multipliers
   static const List<double> streakMultipliers = [
-    1.0, // streak 0 (no streak)
+    1.0, // streak 0
     1.0, // streak 1
     1.5, // streak 2
     2.0, // streak 3
@@ -51,11 +49,14 @@ class GameConstants {
   // Rendering
   static const double cellBorderRadius = 4.0;
   static const double gridPadding = 8.0;
-  static const double fingerOffset = 40.0; // pixels above touch point
+  static const double fingerOffset = 40.0;
   static const double ghostOpacity = 0.3;
 
-  // Hammer (power-up)
+  // Hammer
   static const int hammerRadius = 3; // 3x3 area
-  static const int hammerScoreCost = 100; // score cost to use hammer
-  static const int maxHammerCharges = 3; // max hammers per game
+  static const int hammerScoreCost = 100;
+
+  // Memory mode
+  static const int memoryShowDurationMs = 2000; // 2 seconds normal
+  static const int memoryComboShowDurationMs = 5000; // 5 seconds on combo
 }
