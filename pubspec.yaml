@@ -1,0 +1,35 @@
+name: grid_master
+description: "Grid Master - A puzzle block game"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  # Game Engine
+  flame: ^1.22.0
+  # State Management
+  flutter_riverpod: ^2.5.0
+  # Navigation
+  go_router: ^14.0.0
+  # Storage (High Score)
+  shared_preferences: ^2.2.0
+  # Audio
+  audioplayers: ^6.0.0
+  # Haptic Feedback
+  vibration: ^2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/audio/
