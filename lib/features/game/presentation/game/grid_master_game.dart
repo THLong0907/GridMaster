@@ -11,9 +11,13 @@ import 'package:grid_master/features/game/domain/models/block_piece.dart';
 import 'package:grid_master/features/game/domain/models/game_mode.dart';
 import 'package:grid_master/features/game/domain/logic/grid_logic.dart';
 import 'package:grid_master/shared/services/haptic_service.dart';
+import 'package:grid_master/shared/services/audio_service.dart';
 import 'components/grid_component.dart';
 import 'components/block_piece_component.dart';
 import 'effects/clear_effect.dart';
+import 'effects/effects_manager.dart';
+import 'effects/screen_effects.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Main Grid Master game powered by Flame Engine
 /// Supports 5 game modes with different grid sizes and mechanics
@@ -59,6 +63,14 @@ class GridMasterGame extends FlameGame with PanDetector {
   Map<(int, int), int> _memoryCellExpiry = {};
   int? _nextPeriodicRevealMs;
 
+  // Effects system
+  bool _tetEffectsEnabled = true;
+  int _lastMilestone = 0;
+  final ScreenShakeManager _shakeManager = ScreenShakeManager();
+  GlowTrailComponent? _glowTrail;
+  HoaDaoComponent? _hoaDaoComponent;
+  int _clearCountSinceThemeChange = 0;
+
   // Callbacks to Flutter overlay
   Function(int score, int streak, int linesCleared, String? message)?
   onScoreChanged;
@@ -90,12 +102,26 @@ class GridMasterGame extends FlameGame with PanDetector {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    // Load Tết effects preference
+    final prefs = await SharedPreferences.getInstance();
+    _tetEffectsEnabled = prefs.getBool('tet_effects_enabled') ?? true;
     _startNewGame();
+
+    // Add glow trail (persistent component)
+    _glowTrail = GlowTrailComponent();
+    add(_glowTrail!);
+
+    // Add hoa đào if Tết effects enabled
+    if (_tetEffectsEnabled) {
+      _hoaDaoComponent = HoaDaoComponent();
+      add(_hoaDaoComponent!);
+    }
   }
 
   @override
   void update(double dt) {
     super.update(dt);
+    _shakeManager.update(dt);
 
     // Memory mode logic
     if (mode == GameMode.memory) {
@@ -129,7 +155,7 @@ class GridMasterGame extends FlameGame with PanDetector {
           }
         }
         _nextPeriodicRevealMs = now + GameConstants.memoryPeriodicRevealMs;
-        onScoreChanged?.call(_score, _streak, 0, '👁️ Memory Reveal!');
+        onScoreChanged?.call(_score, _streak, 0, 'memoryReveal');
       }
     }
 
@@ -170,6 +196,9 @@ class GridMasterGame extends FlameGame with PanDetector {
     if (comp == null) return;
 
     comp.position += info.delta.global;
+
+    // Glow trail when dragging
+    _glowTrail?.addPoint(comp.position);
 
     final piece = comp.piece;
     final worldPos = Vector2(
@@ -250,11 +279,11 @@ class GridMasterGame extends FlameGame with PanDetector {
         _streak++;
         message = _getClearText(result.linesCleared);
 
-        // Particle effects
+        // Enhanced particle effects
         _spawnClearParticles(
           result.clearedRows,
           result.clearedCols,
-          isTriple: result.linesCleared >= 3,
+          linesCleared: result.linesCleared,
         );
 
         // Haptic
@@ -264,12 +293,15 @@ class GridMasterGame extends FlameGame with PanDetector {
           HapticService.lineClear();
         }
 
-        // Theme change on clear
-        final newTheme =
-            GridTheme.themes[_rng.nextInt(GridTheme.themes.length)];
-        _gridComponent.setTheme(newTheme);
-        onThemeChanged?.call(newTheme);
-
+        // Theme change every 10 clears
+        _clearCountSinceThemeChange += result.linesCleared;
+        if (_clearCountSinceThemeChange >= 10) {
+          _clearCountSinceThemeChange = 0;
+          final newTheme =
+              GridTheme.themes[_rng.nextInt(GridTheme.themes.length)];
+          _gridComponent.setTheme(newTheme);
+          onThemeChanged?.call(newTheme);
+        }
         // Memory mode: reveal ALL cells for 5s on combo
         if (mode == GameMode.memory) {
           final comboExpiry =
@@ -415,7 +447,7 @@ class GridMasterGame extends FlameGame with PanDetector {
     _gridComponent.grid = _grid;
 
     HapticService.lineClear();
-    onScoreChanged?.call(_score, _streak, 0, '🧘 Zen Clear!');
+    onScoreChanged?.call(_score, _streak, 0, 'zenClear');
   }
 
   /// Auto-hammer rescue: destroy a 3x3 area
@@ -471,7 +503,7 @@ class GridMasterGame extends FlameGame with PanDetector {
       _score,
       _streak,
       0,
-      '🔨 Auto Hammer! ($destroyed cells)',
+      'autoHammer:$destroyed',
     );
     onHammerChanged?.call(_hammerCharges);
 
@@ -526,7 +558,7 @@ class GridMasterGame extends FlameGame with PanDetector {
     _gridComponent.grid = _grid;
 
     HapticService.lineClear();
-    onScoreChanged?.call(_score, _streak, 0, '⬆️ Hàng dâng!');
+    onScoreChanged?.call(_score, _streak, 0, 'risingRow');
 
     _isRising = false;
 
@@ -609,14 +641,18 @@ class GridMasterGame extends FlameGame with PanDetector {
       _spawnClearParticles(
         result.clearedRows,
         result.clearedCols,
-        isTriple: result.linesCleared >= 3,
+        linesCleared: result.linesCleared,
       );
-      final newTheme = GridTheme.themes[_rng.nextInt(GridTheme.themes.length)];
-      _gridComponent.setTheme(newTheme);
-      // Defer theme callback
-      Future.delayed(Duration.zero, () {
-        onThemeChanged?.call(newTheme);
-      });
+      // Theme change every 10 clears
+      _clearCountSinceThemeChange += result.linesCleared;
+      if (_clearCountSinceThemeChange >= 10) {
+        _clearCountSinceThemeChange = 0;
+        final newTheme = GridTheme.themes[_rng.nextInt(GridTheme.themes.length)];
+        _gridComponent.setTheme(newTheme);
+        Future.delayed(Duration.zero, () {
+          onThemeChanged?.call(newTheme);
+        });
+      }
     } else {
       _streak = 0;
     }
@@ -627,7 +663,7 @@ class GridMasterGame extends FlameGame with PanDetector {
     final scoreSnapshot = _score;
     final streakSnapshot = _streak;
     final linesCleared = result.linesCleared;
-    final autoMsg = '⏰ Auto Drop!${message != null ? ' $message' : ''}';
+    final autoMsg = 'autoDrop:${message ?? ""}';
     Future.delayed(Duration.zero, () {
       onScoreChanged?.call(
         scoreSnapshot,
@@ -795,10 +831,12 @@ class GridMasterGame extends FlameGame with PanDetector {
   void _spawnClearParticles(
     List<int> clearedRows,
     List<int> clearedCols, {
-    bool isTriple = false,
+    int linesCleared = 1,
   }) {
     final gridSize = mode.gridSize;
+    final intensity = EffectsManager.getIntensity(_streak, linesCleared);
 
+    // Always spawn basic cell burst particles
     for (final r in clearedRows) {
       for (int c = 0; c < gridSize; c++) {
         add(
@@ -807,7 +845,7 @@ class GridMasterGame extends FlameGame with PanDetector {
             y: _gridOriginY + r * _cellSize,
             cellSize: _cellSize,
             colorIndex: 1 + (c % 8),
-            isTriple: isTriple,
+            isTriple: linesCleared >= 3,
           ),
         );
       }
@@ -821,17 +859,76 @@ class GridMasterGame extends FlameGame with PanDetector {
               y: _gridOriginY + r * _cellSize,
               cellSize: _cellSize,
               colorIndex: 1 + (r % 8),
-              isTriple: isTriple,
+              isTriple: linesCleared >= 3,
             ),
           );
         }
       }
     }
 
-    if (isTriple) {
+    // ═══ USE MASTER TRIGGER — full-screen effects + audio ═══
+    final centerX = size.x / 2;
+    final centerY = _gridOriginY + (_cellSize * gridSize / 2);
+
+    final effects = EffectsManager.spawnClearEffects(
+      screenWidth: size.x,
+      screenHeight: size.y,
+      centerX: centerX,
+      centerY: centerY,
+      cellSize: _cellSize,
+      streak: _streak,
+      linesCleared: linesCleared,
+      tetEnabled: _tetEffectsEnabled,
+    );
+    for (final c in effects) {
+      add(c);
+    }
+
+    // ═══ Screen shake for strong+ ═══
+    if (intensity.index >= EffectIntensity.medium.index) {
+      final shakeIntensity = switch (intensity) {
+        EffectIntensity.extreme => 14.0,
+        EffectIntensity.strong => 10.0,
+        EffectIntensity.medium => 6.0,
+        _ => 3.0,
+      };
+      _shakeManager.shake(intensity: shakeIntensity, duration: 0.3);
+      AudioService.instance.playShakeRumble(EffectsManager.getPitchMultiplier(_streak));
+    }
+
+    // ═══ Combo text animation ═══
+    if (_streak >= 2) {
+      add(ComboTextComponent(
+        text: 'x${_streak} COMBO!',
+        x: centerX,
+        y: centerY - 60,
+        color: _streak >= 8
+            ? const Color(0xFFFF0000)
+            : _streak >= 5
+                ? const Color(0xFF00BFFF)
+                : const Color(0xFFFFD700),
+      ));
+    }
+
+    // ═══ Star burst on score milestones ═══
+    if (_tetEffectsEnabled) {
+      final milestone = (_score ~/ 500) * 500;
+      if (milestone > _lastMilestone && milestone > 0) {
+        _lastMilestone = milestone;
+        add(StarBurstComponent(
+          centerX: size.x * 0.5,
+          centerY: 50,
+          count: 20,
+        ));
+        AudioService.instance.playLiXiSound();
+      }
+    }
+
+    // Triple+ confetti from original
+    if (linesCleared >= 3) {
       final confetti = ClearEffectFactory.createConfetti(
-        centerX: size.x / 2,
-        centerY: _gridOriginY + (_cellSize * gridSize / 2),
+        centerX: centerX,
+        centerY: centerY,
         width: size.x,
       );
       for (final c in confetti) {
@@ -845,19 +942,32 @@ class GridMasterGame extends FlameGame with PanDetector {
   String _getClearText(int lines) {
     switch (lines) {
       case 1:
-        return 'Clear!';
+        return 'clear';
       case 2:
-        return 'Double Clear!';
+        return 'doubleClear';
       case 3:
-        return 'TRIPLE CLEAR!';
+        return 'tripleClear';
       default:
-        return 'MEGA CLEAR! x$lines';
+        return 'megaClear:$lines'; // Special format to parse later or just return key and handle args in UI
     }
   }
 
   void restartGame() {
     _startNewGame();
     onScoreChanged?.call(0, 0, 0, null);
+  }
+
+  @override
+  void render(Canvas canvas) {
+    // Apply screen shake offset
+    if (_shakeManager.isShaking) {
+      canvas.save();
+      canvas.translate(_shakeManager.offset.x, _shakeManager.offset.y);
+      super.render(canvas);
+      canvas.restore();
+    } else {
+      super.render(canvas);
+    }
   }
 
   @override

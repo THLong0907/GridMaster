@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:grid_master/core/constants/strings.dart';
+import 'package:grid_master/l10n/generated/app_localizations.dart';
 import 'package:grid_master/features/game/domain/models/game_mode.dart';
 import 'package:grid_master/shared/services/leaderboard_service.dart';
 
@@ -89,9 +89,9 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Game Over title
-              const Text(
-                'Game Over',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.gameOver,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
@@ -137,7 +137,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        GameStrings.newHighScore,
+                        AppLocalizations.of(context)!.newHighScore,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -150,7 +150,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
 
               // Score
               Text(
-                GameStrings.score,
+                AppLocalizations.of(context)!.score,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 14,
@@ -170,7 +170,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
 
               // High score
               Text(
-                '${GameStrings.highScore}: ${widget.highScore}',
+                '${AppLocalizations.of(context)!.highScore}: ${widget.highScore}',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 14,
@@ -182,7 +182,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
               if (!widget.isPractice && widget.rivalName == null)
                 if (!_uploadSuccess)
                   _buildButton(
-                    _isUploading ? 'Uploading...' : 'Submit to Leaderboard',
+                    _isUploading ? 'Đang tải...' : 'Gửi lên bảng xếp hạng',
                     [
                       const Color(0xFFFFD700).withValues(alpha: 0.2),
                       const Color(0xFFFFA500).withValues(alpha: 0.1),
@@ -217,7 +217,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Score Submitted!',
+                        'Đã gửi điểm!',
                         style: TextStyle(
                           color: Colors.green.shade300,
                           fontWeight: FontWeight.bold,
@@ -229,7 +229,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
               const SizedBox(height: 32),
 
               // Play Again button
-              _buildButton(GameStrings.playAgain, const [
+              _buildButton(AppLocalizations.of(context)!.playAgain, const [
                 Color(0xFF6C5CE7),
                 Color(0xFFA29BFE),
               ], widget.onPlayAgain),
@@ -237,7 +237,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
 
               // Home button
               _buildButton(
-                GameStrings.home,
+                AppLocalizations.of(context)!.home,
                 [
                   Colors.white.withValues(alpha: 0.1),
                   Colors.white.withValues(alpha: 0.05),
@@ -297,7 +297,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
   Widget _buildPvpResult() {
     final isWin = widget.score > widget.rivalScore;
     final isDraw = widget.score == widget.rivalScore;
-    final resultText = isDraw ? 'DRAW' : (isWin ? 'YOU WIN!' : 'YOU LOSE');
+    final resultText = isDraw ? 'HÒA' : (isWin ? 'BẠN THẮNG!' : 'BẠN THUA');
     final resultColor = isDraw
         ? Colors.amber
         : (isWin ? const Color(0xFF00B894) : const Color(0xFFFF6B6B));
@@ -330,7 +330,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildScoreColumn('YOU', widget.score, isWin || isDraw),
+              _buildScoreColumn('BẠN', widget.score, isWin || isDraw),
               Text(
                 'VS',
                 style: TextStyle(
@@ -340,7 +340,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                 ),
               ),
               _buildScoreColumn(
-                widget.rivalName ?? 'RIVAL',
+                widget.rivalName ?? 'ĐỐI THỦ',
                 widget.rivalScore,
                 !isWin || isDraw,
               ),

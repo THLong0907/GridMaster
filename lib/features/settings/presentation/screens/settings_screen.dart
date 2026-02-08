@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:grid_master/shared/services/audio_service.dart';
+import 'package:grid_master/shared/services/locale_provider.dart';
 import 'package:grid_master/shared/widgets/animated_block_background.dart';
+import 'package:grid_master/l10n/generated/app_localizations.dart';
 
 /// Settings screen for sound, vibration, and preferences
 class SettingsScreen extends StatefulWidget {
@@ -16,6 +18,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
+  bool _tetEffectsEnabled = true;
 
   @override
   void initState() {
@@ -28,6 +31,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _soundEnabled = prefs.getBool('sound_enabled') ?? true;
       _vibrationEnabled = prefs.getBool('vibration_enabled') ?? true;
+      _tetEffectsEnabled = prefs.getBool('tet_effects_enabled') ?? true;
     });
   }
 
@@ -42,6 +46,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setBool('vibration_enabled', value);
   }
 
+  Future<void> _setTetEffectsEnabled(bool value) async {
+    setState(() => _tetEffectsEnabled = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('tet_effects_enabled', value);
+  }
+
   Future<void> _resetTutorial() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('tutorial_shown', false);
@@ -49,7 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Tutorial sẽ hiện lại lần chơi tiếp theo',
+            'Tutorial sẽ hiện lại lần chơi tiếp theo', // Keep this or add key? "Tutorial reset"
             style: GoogleFonts.fredoka(),
           ),
           backgroundColor: const Color(0xFF6C5CE7),
@@ -69,11 +79,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: const Color(0xFF1A1A2E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Xóa Điểm Cao?',
+          AppLocalizations.of(ctx)!.resetConfirmTitle,
           style: GoogleFonts.fredoka(color: Colors.white),
         ),
         content: Text(
-          'Tất cả điểm cao sẽ bị xóa. Không thể hoàn tác.',
+          AppLocalizations.of(ctx)!.resetConfirmContent,
           style: GoogleFonts.fredoka(
             color: Colors.white.withValues(alpha: 0.7),
           ),
@@ -81,7 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Hủy', style: GoogleFonts.fredoka()),
+            child: Text(AppLocalizations.of(ctx)!.cancel, style: GoogleFonts.fredoka()),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -89,7 +99,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
             ),
-            child: Text('Xóa', style: GoogleFonts.fredoka()),
+            child: Text(AppLocalizations.of(ctx)!.delete, style: GoogleFonts.fredoka()),
           ),
         ],
       ),
@@ -144,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildBackButton(),
                       const SizedBox(width: 12),
                       Text(
-                        'Cài Đặt',
+                        AppLocalizations.of(context)!.settings,
                         style: GoogleFonts.fredoka(
                           color: Colors.white,
                           fontSize: 24,
@@ -160,11 +170,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      _buildSection('Âm thanh & Rung'),
+                      _buildSection('Âm thanh & Rung'), // TODO: Add key for section headers if needed, or mapping
                       const SizedBox(height: 8),
                       _buildToggle(
                         icon: Icons.volume_up_rounded,
-                        title: 'Âm thanh',
+                        title: AppLocalizations.of(context)!.sound,
                         subtitle: 'Hiệu ứng âm thanh trong game',
                         value: _soundEnabled,
                         color: const Color(0xFF6C5CE7),
@@ -173,7 +183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _buildToggle(
                         icon: Icons.vibration_rounded,
-                        title: 'Rung',
+                        title: AppLocalizations.of(context)!.haptics,
                         subtitle: 'Phản hồi rung khi đặt khối',
                         value: _vibrationEnabled,
                         color: const Color(0xFF00B894),
@@ -185,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _buildActionButton(
                         icon: Icons.school_rounded,
-                        title: 'Xem lại Tutorial',
+                        title: 'Xem lại Tutorial', // Add key?
                         subtitle: 'Hiện hướng dẫn chơi lần sau',
                         color: const Color(0xFF0984E3),
                         onTap: _resetTutorial,
@@ -193,11 +203,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _buildActionButton(
                         icon: Icons.delete_forever_rounded,
-                        title: 'Xóa Điểm Cao',
+                        title: AppLocalizations.of(context)!.resetProgress,
                         subtitle: 'Reset tất cả high scores',
                         color: const Color(0xFFE17055),
                         onTap: _clearHighScores,
                       ),
+
+                      const SizedBox(height: 24),
+                      _buildSection('🎆 Hiệu ứng Tết'),
+                      const SizedBox(height: 8),
+                      _buildToggle(
+                        icon: Icons.celebration_rounded,
+                        title: 'Hiệu ứng Tết',
+                        subtitle: 'Pháo hoa, lì xì, đèn lồng khi chơi',
+                        value: _tetEffectsEnabled,
+                        color: const Color(0xFFFF0000),
+                        onChanged: _setTetEffectsEnabled,
+                      ),
+
+                      const SizedBox(height: 24),
+                      _buildSection('🌍 LANGUAGE'),
+                      const SizedBox(height: 8),
+                      _buildLanguageTile(),
 
                       const SizedBox(height: 24),
                       _buildSection('Thông tin'),
@@ -424,6 +451,195 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageTile() {
+    final provider = LocaleProvider.instance;
+    final currentCode = provider.locale?.languageCode;
+    final displayName = currentCode != null
+        ? '${LocaleProvider.languageFlags[currentCode] ?? ''} ${LocaleProvider.supportedLanguages[currentCode] ?? 'Auto'}'
+        : '🌐 Auto (Device)';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _showLanguagePicker,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6C5CE7).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.language_rounded,
+                    color: Color(0xFF6C5CE7), size: 20),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Language',
+                      style: GoogleFonts.fredoka(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      displayName,
+                      style: GoogleFonts.fredoka(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.white.withValues(alpha: 0.3),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLanguagePicker() {
+    final provider = LocaleProvider.instance;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A2E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      isScrollControlled: true,
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          maxChildSize: 0.9,
+          minChildSize: 0.4,
+          expand: false,
+          builder: (ctx, scrollController) {
+            return Column(
+              children: [
+                // Handle
+                Container(
+                  margin: const EdgeInsets.only(top: 12, bottom: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: Text(
+                    '🌍 Choose Language',
+                    style: GoogleFonts.fredoka(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const Divider(color: Colors.white12),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    children: [
+                      // Auto option
+                      _languageOption(
+                        ctx: ctx,
+                        flag: '🌐',
+                        name: 'Auto (Device)',
+                        isSelected: provider.locale == null,
+                        onTap: () {
+                          provider.setLocale(null);
+                          Navigator.pop(ctx);
+                          setState(() {});
+                        },
+                      ),
+                      const Divider(color: Colors.white12, height: 1),
+                      // All languages
+                      ...LocaleProvider.supportedLanguages.entries.map((e) {
+                        final flag = LocaleProvider.languageFlags[e.key] ?? '';
+                        return _languageOption(
+                          ctx: ctx,
+                          flag: flag,
+                          name: e.value,
+                          isSelected: provider.locale?.languageCode == e.key,
+                          onTap: () {
+                            provider.setLocale(Locale(e.key));
+                            Navigator.pop(ctx);
+                            setState(() {});
+                          },
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _languageOption({
+    required BuildContext ctx,
+    required String flag,
+    required String name,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF6C5CE7).withValues(alpha: 0.15) : null,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              Text(flag, style: const TextStyle(fontSize: 24)),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  name,
+                  style: GoogleFonts.fredoka(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (isSelected)
+                const Icon(Icons.check_circle_rounded,
+                    color: Color(0xFF6C5CE7), size: 22),
+            ],
+          ),
+        ),
       ),
     );
   }

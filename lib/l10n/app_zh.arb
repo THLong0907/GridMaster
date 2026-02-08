@@ -1,0 +1,74 @@
+{
+  "@@locale": "zh",
+  "appTitle": "方块大师",
+  "score": "分数",
+  "highScore": "最高分",
+  "gameOver": "游戏结束",
+  "newHighScore": "新纪录！",
+  "playAgain": "再玩一次",
+  "home": "主页",
+  "share": "分享",
+  "settings": "设置",
+  "sound": "声音",
+  "haptics": "振动",
+  "resetProgress": "重置进度",
+  "resetConfirmTitle": "重置进度？",
+  "resetConfirmContent": "这将删除你的最高分和已解锁的主题。此操作无法撤消。",
+  "cancel": "取消",
+  "delete": "删除",
+  "save": "保存",
+  "changeName": "更改显示名称",
+  "enterName": "输入你的名字",
+  "leaderboard": "排行榜",
+  "loading": "加载中...",
+  "error": "错误",
+  "emptyLeaderboard": "暂无成绩！",
+  "tutorialTitle": "游戏规则",
+  "tutorialStep1": "将方块拖到网格中",
+  "tutorialStep2": "填满行或列即可消除",
+  "tutorialStep3": "使用锤子破坏方块",
+  "tutorialStep4": "别让空间用完！",
+  "clear": "消除！",
+  "doubleClear": "双重消除！",
+  "tripleClear": "三重消除！",
+  "megaClear": "超级消除！x{count}",
+  "@megaClear": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "memoryReveal": "👁️ 记忆揭示！",
+  "zenClear": "🧘 禅意消除！",
+  "autoHammer": "🔨 自动锤子！({count}格)",
+  "@autoHammer": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "risingRow": "⬆️ 上升行！",
+  "autoDrop": "⏰ 自动下落！",
+  "endSession": "结束",
+  "findingRival": "寻找对手...",
+  "matchmakingError": "匹配错误：{error}",
+  "@matchmakingError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "zenSummaryTitle": "禅意模式",
+  "totalLines": "消除行数",
+  "maxCombo": "最高连击",
+  "blocksPlaced": "放置方块",
+  "playTime": "游戏时间",
+  "easyMode": "简单",
+  "memoryMode": "记忆",
+  "classicMode": "经典",
+  "masterMode": "大师",
+  "zenMode": "禅意",
+  "survivalMode": "生存",
+  "pvpMode": "对战",
+  "practiceMode": "练习",
+  "skip": "跳过",
+  "next": "下一步",
+  "start": "开始！"
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:grid_master/l10n/generated/app_localizations.dart';
 
 /// Tutorial overlay shown on first game launch
 class TutorialOverlay extends StatefulWidget {
@@ -30,32 +31,35 @@ class _TutorialOverlayState extends State<TutorialOverlay>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnim;
 
-  static const _steps = [
-    _TutorialStep(
-      icon: Icons.touch_app_rounded,
-      title: 'Kéo & Thả',
-      description: 'Kéo khối từ bên dưới\nvà thả lên lưới',
-      color: Color(0xFF6C5CE7),
-    ),
-    _TutorialStep(
-      icon: Icons.auto_awesome,
-      title: 'Xóa Hàng & Cột',
-      description: 'Lấp đầy 1 hàng hoặc 1 cột\nđể xóa và ghi điểm',
-      color: Color(0xFF00B894),
-    ),
-    _TutorialStep(
-      icon: Icons.bolt_rounded,
-      title: 'Combo',
-      description: 'Xóa liên tiếp nhiều lần\nđể nhận combo x2, x3!',
-      color: Color(0xFFFDCB6E),
-    ),
-    _TutorialStep(
-      icon: Icons.construction_rounded,
-      title: 'Búa Phá Khối',
-      description: 'Dùng búa để phá 1 ô\nkhi bị kẹt không đặt được',
-      color: Color(0xFFE17055),
-    ),
-  ];
+  List<_TutorialStep> _getSteps(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      _TutorialStep(
+        icon: Icons.touch_app_rounded,
+        title: l10n.tutorialTitle,
+        description: l10n.tutorialStep1,
+        color: const Color(0xFF6C5CE7),
+      ),
+      _TutorialStep(
+        icon: Icons.auto_awesome,
+        title: l10n.tutorialTitle, // Reusing title or should have specific step titles? Using generic for now or mapping specific keys if available
+        description: l10n.tutorialStep2,
+        color: const Color(0xFF00B894),
+      ),
+      _TutorialStep(
+        icon: Icons.bolt_rounded,
+        title: l10n.tutorialTitle,
+        description: l10n.tutorialStep3,
+        color: const Color(0xFFFDCB6E),
+      ),
+      _TutorialStep(
+        icon: Icons.construction_rounded,
+        title: l10n.tutorialTitle,
+        description: l10n.tutorialStep4,
+        color: const Color(0xFFE17055),
+      ),
+    ];
+  }
 
   @override
   void initState() {
@@ -75,7 +79,8 @@ class _TutorialOverlayState extends State<TutorialOverlay>
   }
 
   void _nextStep() {
-    if (_currentStep < _steps.length - 1) {
+    final steps = _getSteps(context);
+    if (_currentStep < steps.length - 1) {
       _fadeController.reverse().then((_) {
         setState(() => _currentStep++);
         _fadeController.forward();
@@ -93,9 +98,10 @@ class _TutorialOverlayState extends State<TutorialOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final step = _steps[_currentStep];
-    final isLast = _currentStep == _steps.length - 1;
-
+    final steps = _getSteps(context);
+    final step = steps[_currentStep];
+    final isLast = _currentStep == steps.length - 1;
+    final l10n = AppLocalizations.of(context)!;
     return Material(
       color: Colors.black.withValues(alpha: 0.85),
       child: SafeArea(
@@ -108,7 +114,7 @@ class _TutorialOverlayState extends State<TutorialOverlay>
                 // Step indicator
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(_steps.length, (i) {
+                  children: List.generate(steps.length, (i) {
                     return Container(
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       width: i == _currentStep ? 24 : 8,
@@ -170,7 +176,7 @@ class _TutorialOverlayState extends State<TutorialOverlay>
                       TextButton(
                         onPressed: _skip,
                         child: Text(
-                          'Bỏ qua',
+                          l10n.skip, 
                           style: GoogleFonts.fredoka(
                             color: Colors.white.withValues(alpha: 0.4),
                             fontSize: 14,
@@ -192,7 +198,7 @@ class _TutorialOverlayState extends State<TutorialOverlay>
                         ),
                       ),
                       child: Text(
-                        isLast ? 'Bắt đầu chơi!' : 'Tiếp theo',
+                        isLast ? l10n.start : l10n.next,
                         style: GoogleFonts.fredoka(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

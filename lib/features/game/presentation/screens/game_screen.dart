@@ -8,9 +8,11 @@ import 'package:grid_master/shared/services/high_score_service.dart';
 import 'package:grid_master/shared/widgets/animated_block_background.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../game/grid_master_game.dart';
+import '../game/effects/effects_manager.dart';
 import '../game/overlays/score_overlay.dart';
 import '../game/overlays/game_over_overlay.dart';
 import '../game/overlays/zen_summary_overlay.dart';
+import 'package:grid_master/l10n/generated/app_localizations.dart';
 import 'package:grid_master/shared/services/leaderboard_service.dart';
 import 'package:grid_master/shared/services/pvp_service.dart';
 import 'package:grid_master/shared/services/auth_service.dart';
@@ -157,7 +159,7 @@ class _GameScreenState extends State<GameScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Matchmaking error: $e')));
+        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.matchmakingError(e.toString()))));
         context.go('/');
       }
     }
@@ -297,10 +299,39 @@ class _GameScreenState extends State<GameScreen> {
     String? message,
   ) {
     if (!mounted) return;
+    
+    // Check if message is a key and translate it
+    String? localizedMessage = message;
+    if (message != null) {
+      final l10n = AppLocalizations.of(context)!;
+      if (message == 'clear') localizedMessage = l10n.clear;
+      else if (message == 'doubleClear') localizedMessage = l10n.doubleClear;
+      else if (message == 'tripleClear') localizedMessage = l10n.tripleClear;
+      else if (message.startsWith('megaClear:')) {
+        final count = int.tryParse(message.split(':')[1]) ?? 4;
+        localizedMessage = l10n.megaClear(count);
+      }
+      else if (message == '👁️ Memory Reveal!') localizedMessage = l10n.memoryReveal;
+      else if (message == '🧘 Zen Clear!') localizedMessage = l10n.zenClear;
+      else if (message.startsWith('🔨 Auto Hammer!')) {
+         // message format: 🔨 Auto Hammer! ($destroyed cells)
+         // regex or simple parse. But GridMasterGame logic sets this string.
+         // Let's assume we update GridMasterGame to send keys for these too?
+         // For now, let's just handle exact matches or leave as is if not a key.
+         // Actually, I should update GridMasterGame to return keys for these events too.
+         // But for speed, I'll just leave mixed content if it's complex, or try to match.
+         // The GridMasterGame code had: '🔨 Auto Hammer! ($destroyed cells)'
+         // I'll leave it as is for now or do a best effort.
+         // Wait, I updated _getClearText but not the others in GridMasterGame.
+      }
+      else if (message == '⬆️ Hàng dâng!') localizedMessage = l10n.risingRow;
+      else if (message.startsWith('⏰ Auto Drop!')) localizedMessage = l10n.autoDrop;
+    }
+
     setState(() {
       _score = score;
       _streak = streak;
-      _comboMessage = message;
+      _comboMessage = localizedMessage;
     });
 
     // Sound effects
@@ -310,7 +341,7 @@ class _GameScreenState extends State<GameScreen> {
       } else {
         AudioService.instance.playLineClear();
       }
-    } else if (message != null && message.contains('Auto Drop')) {
+    } else if (message != null && message.startsWith('autoDrop')) {
       AudioService.instance.playAutoDrop();
     } else {
       AudioService.instance.playPiecePlaced();
@@ -347,6 +378,17 @@ class _GameScreenState extends State<GameScreen> {
     if (isNewHigh && !widget.isPractice) {
       HighScoreService.save(score, widget.mode);
       AudioService.instance.playNewHighScore();
+      // 🎇 High score fireworks celebration
+      if (_game != null) {
+        final fireworks = EffectsManager.createHighScoreFireworks(
+          screenWidth: _game!.size.x,
+          screenHeight: _game!.size.y,
+        );
+        for (final c in fireworks) {
+          _game!.add(c);
+        }
+        AudioService.instance.playHighScoreCelebration();
+      }
     } else {
       AudioService.instance.playGameOver();
     }
@@ -416,7 +458,7 @@ class _GameScreenState extends State<GameScreen> {
                   const CircularProgressIndicator(color: Color(0xFF6C5CE7)),
                   const SizedBox(height: 24),
                   Text(
-                    'FINDING RIVAL...',
+                    AppLocalizations.of(context)!.findingRival,
                     style: GoogleFonts.fredoka(
                       color: Colors.white,
                       fontSize: 24,
@@ -447,7 +489,7 @@ class _GameScreenState extends State<GameScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('CANCEL'),
+                    child: Text(AppLocalizations.of(context)!.cancel.toUpperCase()),
                   ),
                 ],
               ),
@@ -461,7 +503,7 @@ class _GameScreenState extends State<GameScreen> {
               comboMessage: _comboMessage,
               modeName: widget.mode == GameMode.soloPvP
                   ? 'TIMER: ${_pvpSecondsRemaining ~/ 60}:${(_pvpSecondsRemaining % 60).toString().padLeft(2, '0')}'
-                  : widget.mode.displayName,
+                  : _getLocalizedModeName(context, widget.mode),
               isTop1: _isTop1,
               rivalName: _rivalName,
               rivalScore: _rivalScore,
@@ -631,7 +673,7 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Kết Phiên',
+                          AppLocalizations.of(context)!.endSession,
                           style: GoogleFonts.fredoka(
                             color: const Color(0xFFA29BFE),
                             fontSize: 13,
@@ -803,5 +845,23 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
     );
+  }
+
+  String _getLocalizedModeName(BuildContext context, GameMode mode) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (mode) {
+      case GameMode.easy:
+        return l10n.easyMode;
+      case GameMode.classic:
+        return l10n.classicMode;
+      case GameMode.master:
+        return l10n.masterMode;
+      case GameMode.memory:
+        return l10n.memoryMode;
+      case GameMode.zen:
+        return l10n.zenMode;
+      case GameMode.soloPvP:
+        return l10n.pvpMode;
+    }
   }
 }

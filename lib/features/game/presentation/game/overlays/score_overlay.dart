@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:grid_master/core/constants/strings.dart';
+import 'package:grid_master/l10n/generated/app_localizations.dart';
 import 'package:grid_master/shared/widgets/crown_widget.dart';
 
 /// Score and streak overlay displayed on top of the Flame game
@@ -60,7 +60,7 @@ class ScoreOverlay extends StatelessWidget {
                     ),
                   ),
                 Text(
-                  GameStrings.score,
+                  AppLocalizations.of(context)!.score,
                   style: GoogleFonts.fredoka(
                     color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 11,

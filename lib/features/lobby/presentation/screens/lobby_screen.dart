@@ -8,6 +8,7 @@ import 'package:grid_master/shared/services/high_score_service.dart';
 import 'package:grid_master/shared/services/leaderboard_service.dart';
 import 'package:grid_master/shared/widgets/animated_block_background.dart';
 import 'package:grid_master/shared/widgets/crown_widget.dart';
+import 'package:grid_master/l10n/generated/app_localizations.dart';
 
 /// Lobby screen with 5 game mode selection cards
 class LobbyScreen extends StatefulWidget {
@@ -59,20 +60,20 @@ class _LobbyScreenState extends State<LobbyScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A3E),
-        title: Text('Change Display Name', style: GoogleFonts.fredoka()),
+        title: Text(AppLocalizations.of(context)!.changeName, style: GoogleFonts.fredoka()),
         content: TextField(
           controller: controller,
           autofocus: true,
           style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
-            labelText: 'New Name',
-            labelStyle: TextStyle(color: Colors.white70),
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.enterName,
+            labelStyle: const TextStyle(color: Colors.white70),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -83,7 +84,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 if (context.mounted) Navigator.pop(context);
               }
             },
-            child: const Text('Save'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -235,7 +236,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
       onPressed: () => context.push('/leaderboard'),
       icon: const Icon(Icons.leaderboard),
       label: Text(
-        'GLOBAL LEADERBOARDS',
+        AppLocalizations.of(context)!.leaderboard.toUpperCase(),
         style: GoogleFonts.fredoka(
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -261,7 +262,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
       onPressed: () => context.push('/settings'),
       icon: const Icon(Icons.settings_rounded, size: 18),
       label: Text(
-        'CÀI ĐẶT',
+        AppLocalizations.of(context)!.settings.toUpperCase(),
         style: GoogleFonts.fredoka(
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -413,7 +414,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '${mode.displayName} ${mode.gridSize}×${mode.gridSize}',
+                    '${mode.displayName} ${mode.gridSize}×${mode.gridSize}', // Mode names need localization
                     style: GoogleFonts.fredoka(
                       color: color,
                       fontSize: 15,
@@ -470,9 +471,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Text(
-              'SOLO PVP',
-              style: GoogleFonts.fredoka(
+              Text(
+                'SOLO PVP', // Keep or localize?
+                style: GoogleFonts.fredoka(
                 color: const Color(0xFFFD79A8),
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -491,8 +492,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
             // Ranked Match button
             _buildPvpOption(
               icon: Icons.people,
-              title: 'Đấu Hạng',
-              subtitle: 'Ghép ngẫu nhiên với người chơi thật',
+              title: AppLocalizations.of(ctx)!.pvpMode, // Or specialized key
+              subtitle: 'Ghép ngẫu nhiên với người chơi thật', // Need to add to ARB or keep hardcoded? User said "chỉnh lại thành tiếng việt hết".
               color: const Color(0xFF6C5CE7),
               onTap: () {
                 Navigator.pop(ctx);
@@ -503,7 +504,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
             // Practice button
             _buildPvpOption(
               icon: Icons.sports_esports,
-              title: 'Luyện Tập',
+              title: AppLocalizations.of(ctx)!.practiceMode,
               subtitle: 'Chơi solo với BOT • Không tính xếp hạng',
               color: const Color(0xFF00B894),
               onTap: () {

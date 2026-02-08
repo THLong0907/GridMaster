@@ -1,0 +1,79 @@
+{
+  "appTitle": "Grid Master",
+  "score": "SCORE",
+  "highScore": "HIGH SCORE",
+  "gameOver": "GAME OVER",
+  "newHighScore": "NEW HIGH SCORE!",
+  "playAgain": "PLAY AGAIN",
+  "home": "HOME",
+  "share": "SHARE",
+  "settings": "Settings",
+  "sound": "Sound",
+  "haptics": "Haptics",
+  "resetProgress": "Reset Progress",
+  "resetConfirmTitle": "Reset Progress?",
+  "resetConfirmContent": "This will delete your high scores and unlocked themes. This cannot be undone.",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "save": "Save",
+  "changeName": "Change Display Name",
+  "enterName": "Enter your name",
+  "leaderboard": "Leaderboard",
+  "loading": "Loading...",
+  "error": "Error",
+  "emptyLeaderboard": "No scores yet!",
+  "tutorialTitle": "How to Play",
+  "tutorialStep1": "Drag blocks to the grid",
+  "tutorialStep2": "Fill rows or columns to clear",
+  "tutorialStep3": "Use hammers to break blocks",
+  "tutorialStep4": "Don't run out of space!",
+  "clear": "Clear!",
+  "doubleClear": "Double Clear!",
+  "tripleClear": "TRIPLE CLEAR!",
+  "megaClear": "MEGA CLEAR! x{count}",
+  "@megaClear": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "memoryReveal": "👁️ Memory Reveal!",
+  "zenClear": "🧘 Zen Clear!",
+  "autoHammer": "🔨 Auto Hammer! ({count} cells)",
+  "@autoHammer": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "risingRow": "⬆️ Rising Row!",
+  "autoDrop": "⏰ Auto Drop!",
+  "endSession": "End Session",
+  "findingRival": "FINDING RIVAL...",
+  "matchmakingError": "Matchmaking error: {error}",
+  "@matchmakingError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "zenSummaryTitle": "Zen Session",
+  "totalLines": "Lines Cleared",
+  "maxCombo": "Max Combo",
+  "blocksPlaced": "Blocks Placed",
+  "playTime": "Play Time",
+  "easyMode": "Easy",
+  "memoryMode": "Memory",
+  "classicMode": "Classic",
+  "masterMode": "Master",
+  "zenMode": "Zen",
+  "survivalMode": "Survival",
+  "pvpMode": "PvP Battle",
+  "practiceMode": "Do Practice",
+  "skip": "Skip",
+  "next": "Next",
+  "start": "START!"
+}
