@@ -57,6 +57,8 @@ class GameConstants {
   static const int hammerScoreCost = 100;
 
   // Memory mode
-  static const int memoryShowDurationMs = 2000; // 2 seconds normal
-  static const int memoryComboShowDurationMs = 5000; // 5 seconds on combo
+  static const int memoryShowDurationMs = 5000; // 5s after placing a block
+  static const int memoryComboShowDurationMs = 5000; // 5s on combo clear
+  static const int memoryPeriodicRevealMs = 30000; // every 30s auto-reveal
+  static const int memoryPeriodicShowMs = 5000; // auto-reveal lasts 5s
 }

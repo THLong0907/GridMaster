@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
+import 'firebase_options.dart';
+import 'shared/services/auth_service.dart';
+import 'shared/services/audio_service.dart';
 import 'routes/app_router.dart';
 import 'core/constants/strings.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // Sign in anonymously to identify the player
+    await AuthService.signInAnonymously();
+  } catch (e) {
+    print('Firebase initialization failed (check config): $e');
+  }
+
+  // Initialize Audio
+  await AudioService.instance.init();
 
   // Lock to portrait mode (game works best in portrait)
   SystemChrome.setPreferredOrientations([
@@ -41,6 +60,7 @@ class GridMasterApp extends StatelessWidget {
           seedColor: const Color(0xFF6C5CE7),
           brightness: Brightness.dark,
         ),
+        textTheme: GoogleFonts.fredokaTextTheme(ThemeData.dark().textTheme),
       ),
     );
   }

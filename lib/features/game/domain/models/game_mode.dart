@@ -4,7 +4,8 @@ enum GameMode {
   classic,
   master,
   memory,
-  zen;
+  zen,
+  soloPvP;
 
   /// Display name
   String get displayName {
@@ -19,6 +20,8 @@ enum GameMode {
         return 'Memory';
       case GameMode.zen:
         return 'Zen';
+      case GameMode.soloPvP:
+        return 'Solo PvP';
     }
   }
 
@@ -34,6 +37,8 @@ enum GameMode {
       case GameMode.memory:
         return 8;
       case GameMode.zen:
+        return 8;
+      case GameMode.soloPvP:
         return 8;
     }
   }
@@ -51,6 +56,8 @@ enum GameMode {
         return 3;
       case GameMode.zen:
         return 0; // No hammer in zen
+      case GameMode.soloPvP:
+        return 0; // No hammer in PvP
     }
   }
 
@@ -60,13 +67,15 @@ enum GameMode {
       case GameMode.easy:
         return 'Lưới nhỏ, khối nhỏ nhiều';
       case GameMode.classic:
-        return 'Gameplay cân bằng';
+        return 'Hàng dâng lên, phá nhanh!';
       case GameMode.master:
-        return 'Lưới lớn, thử thách';
+        return 'Khối tự đặt, tốc độ!';
       case GameMode.memory:
         return 'Khối biến mất, nhớ vị trí';
       case GameMode.zen:
         return 'Thư giãn, không thua';
+      case GameMode.soloPvP:
+        return 'Đấu 1v1 trong 2 phút';
     }
   }
 
@@ -83,8 +92,21 @@ enum GameMode {
         return '🧠';
       case GameMode.zen:
         return '🧘';
+      case GameMode.soloPvP:
+        return '👑';
     }
   }
+
+  /// Rising row interval (pieces placed before a row rises)
+  /// Only used for Classic mode
+  int get risingRowInterval => this == GameMode.classic ? 10 : 0;
+
+  /// Number of gaps in rising rows
+  int get risingRowGaps => this == GameMode.classic ? 3 : 0;
+
+  /// Timer drop seconds for each piece
+  /// Only used for Master mode
+  double get timerDropSeconds => this == GameMode.master ? 8.0 : 0;
 
   /// Parse from string
   static GameMode fromString(String s) {

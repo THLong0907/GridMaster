@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:grid_master/core/constants/strings.dart';
+import 'package:grid_master/shared/widgets/crown_widget.dart';
 
 /// Score and streak overlay displayed on top of the Flame game
 class ScoreOverlay extends StatelessWidget {
@@ -7,6 +9,9 @@ class ScoreOverlay extends StatelessWidget {
   final int streak;
   final String? comboMessage;
   final String? modeName;
+  final bool isTop1;
+  final String? rivalName;
+  final int? rivalScore;
   final VoidCallback onHomeTap;
 
   const ScoreOverlay({
@@ -15,6 +20,9 @@ class ScoreOverlay extends StatelessWidget {
     required this.streak,
     this.comboMessage,
     this.modeName,
+    this.isTop1 = false,
+    this.rivalName,
+    this.rivalScore,
     required this.onHomeTap,
   });
 
@@ -33,14 +41,19 @@ class ScoreOverlay extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (isTop1)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: CrownWidget(size: 32),
+                  ),
                 if (modeName != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 2),
                     child: Text(
                       modeName!,
-                      style: TextStyle(
+                      style: GoogleFonts.fredoka(
                         color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2,
                       ),
@@ -48,14 +61,14 @@ class ScoreOverlay extends StatelessWidget {
                   ),
                 Text(
                   GameStrings.score,
-                  style: TextStyle(
+                  style: GoogleFonts.fredoka(
                     color: Colors.white.withValues(alpha: 0.6),
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 2,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   transitionBuilder: (child, animation) =>
@@ -63,9 +76,9 @@ class ScoreOverlay extends StatelessWidget {
                   child: Text(
                     '$score',
                     key: ValueKey(score),
-                    style: const TextStyle(
+                    style: GoogleFonts.fredoka(
                       color: Colors.white,
-                      fontSize: 32,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -73,47 +86,74 @@ class ScoreOverlay extends StatelessWidget {
               ],
             ),
 
-            // Streak badge
-            streak > 1
-                ? Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+            // Streak or Rival
+            if (rivalName != null)
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    rivalName!.toUpperCase(),
+                    style: GoogleFonts.fredoka(
+                      color: Colors.redAccent.withValues(alpha: 0.6),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
                     ),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53)],
+                  ),
+                  Text(
+                    '${rivalScore ?? 0}',
+                    style: GoogleFonts.fredoka(
+                      color: Colors.redAccent,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              )
+            else
+              streak > 1
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFF6B6B).withValues(alpha: 0.4),
-                          blurRadius: 8,
-                          spreadRadius: 1,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53)],
                         ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.local_fire_department,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'x$streak',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFFFF6B6B,
+                            ).withValues(alpha: 0.4),
+                            blurRadius: 8,
+                            spreadRadius: 1,
                           ),
-                        ),
-                      ],
-                    ),
-                  )
-                : const SizedBox(width: 48),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.local_fire_department,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'x$streak',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(width: 48),
           ],
         ),
       ),
@@ -127,13 +167,13 @@ class ScoreOverlay extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
-          child: Icon(icon, color: Colors.white, size: 24),
+          child: Icon(icon, color: Colors.white, size: 20),
         ),
       ),
     );

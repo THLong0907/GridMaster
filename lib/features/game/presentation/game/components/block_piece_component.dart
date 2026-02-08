@@ -3,7 +3,7 @@ import 'package:flame/components.dart';
 import 'package:grid_master/features/game/domain/models/block_piece.dart';
 import 'block_cell.dart';
 
-/// A block piece in the pieces panel (no longer draggable by itself)
+/// A block piece in the pieces panel with smooth appearance
 class BlockPieceComponent extends PositionComponent {
   final BlockPiece piece;
   final int index; // 0, 1, or 2
@@ -12,6 +12,11 @@ class BlockPieceComponent extends PositionComponent {
   bool isDragging = false;
   Vector2 _originalPosition = Vector2.zero();
   bool _used = false;
+
+  // Smooth fade-in (no stagger delay to avoid flicker in Master mode)
+  double _opacity = 0.0;
+  static const _fadeInDuration = 0.2; // fast fade-in
+  double _fadeTime = 0.0;
 
   BlockPieceComponent({
     required this.piece,
@@ -34,9 +39,21 @@ class BlockPieceComponent extends PositionComponent {
   }
 
   @override
+  void update(double dt) {
+    super.update(dt);
+
+    // Simple fade in
+    if (_opacity < 1.0) {
+      _fadeTime += dt;
+      _opacity = (_fadeTime / _fadeInDuration).clamp(0.0, 1.0);
+    }
+  }
+
+  @override
   void render(Canvas canvas) {
     super.render(canvas);
     if (_used) return;
+    if (_opacity <= 0) return;
 
     final drawScale = isDragging ? 1.0 : 0.7;
     final drawCellSize = cellSize * drawScale;
@@ -54,7 +71,7 @@ class BlockPieceComponent extends PositionComponent {
             offsetY + r * drawCellSize,
             drawCellSize,
             piece.colorIndex,
-            opacity: isDragging ? 0.85 : 1.0,
+            opacity: (isDragging ? 0.85 : 1.0) * _opacity,
           );
         }
       }

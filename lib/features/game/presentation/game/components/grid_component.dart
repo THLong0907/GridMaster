@@ -67,25 +67,25 @@ class GridComponent extends PositionComponent {
       ..strokeWidth = 2;
     canvas.drawRRect(bgRRect, borderPaint);
 
-    // Draw grid lines
+    // Draw grid lines (thicker for visibility)
     final linePaint = Paint()
       ..color = _theme.gridLineColor
-      ..strokeWidth = 0.5;
+      ..strokeWidth = 1.5;
     for (int i = 1; i < gridSize; i++) {
       final pos = i * cellSize;
       canvas.drawLine(Offset(pos, 0), Offset(pos, gridPixelSize), linePaint);
       canvas.drawLine(Offset(0, pos), Offset(gridPixelSize, pos), linePaint);
     }
 
-    // Draw subtle cell dot pattern for empty cells
+    // Draw cell dot pattern for empty cells
     final dotPaint = Paint()
-      ..color = _theme.gridLineColor.withValues(alpha: 0.3);
+      ..color = _theme.gridLineColor.withValues(alpha: 0.5);
     for (int r = 0; r < gridSize; r++) {
       for (int c = 0; c < gridSize; c++) {
         if (_grid.isEmpty(r, c)) {
           canvas.drawCircle(
             Offset(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2),
-            1.5,
+            2.0,
             dotPaint,
           );
         }

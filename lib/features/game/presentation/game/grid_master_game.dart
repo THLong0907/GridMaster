@@ -29,6 +29,16 @@ class GridMasterGame extends FlameGame with PanDetector {
   int _streak = 0;
   late int _hammerCharges;
 
+  // Classic Rising Rows
+  int _totalPiecesPlaced = 0;
+  int _piecesUntilRise = 10;
+  bool _isRising = false;
+
+  // Master Timer Drop
+  List<double> _pieceTimers = [];
+  double _currentTimerMax = 8.0;
+  int _timerPiecesPlaced = 0;
+
   // Components
   late GridComponent _gridComponent;
   final List<BlockPieceComponent> _pieceComponents = [];
@@ -40,12 +50,14 @@ class GridMasterGame extends FlameGame with PanDetector {
   late double _cellSize;
   late double _gridOriginX;
   late double _gridOriginY;
+  Vector2? _lastLayoutSize;
 
   // Random
-  final _rng = Random();
+  late final Random _rng;
 
-  // Memory mode timers
-  int? _memoryRevealEndMs;
+  // Memory mode: per-cell expiration timestamps
+  Map<(int, int), int> _memoryCellExpiry = {};
+  int? _nextPeriodicRevealMs;
 
   // Callbacks to Flutter overlay
   Function(int score, int streak, int linesCleared, String? message)?
@@ -55,12 +67,20 @@ class GridMasterGame extends FlameGame with PanDetector {
   Function(int hammerCharges)? onHammerChanged;
   Function(GridTheme theme)? onThemeChanged;
 
-  GridMasterGame({this.mode = GameMode.easy});
+  GridMasterGame({this.mode = GameMode.easy, int? seed}) {
+    _rng = Random(seed);
+  }
 
   int get score => _score;
   int get highScore => _highScore;
   int get streak => _streak;
   int get hammerCharges => _hammerCharges;
+
+  // Public getters for polling (Master Timer Drop & Classic Rising Rows)
+  List<double> get pieceTimers => _pieceTimers;
+  double get timerMax => _currentTimerMax;
+  double get risingFillPercent =>
+      _grid.filledCount / (mode.gridSize * mode.gridSize);
 
   void setHighScore(int value) => _highScore = value;
 
@@ -77,12 +97,53 @@ class GridMasterGame extends FlameGame with PanDetector {
   void update(double dt) {
     super.update(dt);
 
-    // Memory mode: auto-hide cells after timeout
-    if (mode == GameMode.memory && _memoryRevealEndMs != null) {
+    // Memory mode logic
+    if (mode == GameMode.memory) {
       final now = DateTime.now().millisecondsSinceEpoch;
-      if (now >= _memoryRevealEndMs!) {
-        _memoryRevealEndMs = null;
-        _gridComponent.hideAll();
+
+      // Remove expired cells individually
+      if (_memoryCellExpiry.isNotEmpty) {
+        final expired = <(int, int)>[];
+        for (final entry in _memoryCellExpiry.entries) {
+          if (now >= entry.value) {
+            expired.add(entry.key);
+          }
+        }
+        if (expired.isNotEmpty) {
+          for (final cell in expired) {
+            _memoryCellExpiry.remove(cell);
+            _gridComponent.visibleCells.remove(cell);
+          }
+        }
+      }
+
+      // Periodic 30s auto-reveal
+      if (_nextPeriodicRevealMs != null && now >= _nextPeriodicRevealMs!) {
+        final revealExpiry = now + GameConstants.memoryPeriodicShowMs;
+        for (int r = 0; r < mode.gridSize; r++) {
+          for (int c = 0; c < mode.gridSize; c++) {
+            if (!_grid.isEmpty(r, c)) {
+              _memoryCellExpiry[(r, c)] = revealExpiry;
+              _gridComponent.visibleCells.add((r, c));
+            }
+          }
+        }
+        _nextPeriodicRevealMs = now + GameConstants.memoryPeriodicRevealMs;
+        onScoreChanged?.call(_score, _streak, 0, '👁️ Memory Reveal!');
+      }
+    }
+
+    // Master Timer Drop logic
+    if (mode == GameMode.master && _pieceTimers.isNotEmpty && !_isRising) {
+      for (int i = 0; i < _pieceTimers.length; i++) {
+        if (!_usedPieces[i] && _pieceTimers[i] > 0) {
+          _pieceTimers[i] -= dt;
+          if (_pieceTimers[i] <= 0) {
+            _pieceTimers[i] = 0;
+            _autoPlacePiece(i);
+            break; // handle one at a time
+          }
+        }
       }
     }
   }
@@ -159,18 +220,20 @@ class GridMasterGame extends FlameGame with PanDetector {
       comp.used = true;
       HapticService.piecePlaced();
 
-      // Memory mode: show placed cells briefly
+      // Memory mode: show placed cells with individual 5s timers
       if (mode == GameMode.memory) {
+        final expiry =
+            DateTime.now().millisecondsSinceEpoch +
+            GameConstants.memoryShowDurationMs;
         for (int r = 0; r < piece.rows; r++) {
           for (int c = 0; c < piece.cols; c++) {
             if (piece.shape[r][c]) {
-              _gridComponent.visibleCells.add((startRow + r, startCol + c));
+              final cell = (startRow + r, startCol + c);
+              _memoryCellExpiry[cell] = expiry;
+              _gridComponent.visibleCells.add(cell);
             }
           }
         }
-        _memoryRevealEndMs =
-            DateTime.now().millisecondsSinceEpoch +
-            GameConstants.memoryShowDurationMs;
       }
 
       // Check & clear lines
@@ -209,10 +272,17 @@ class GridMasterGame extends FlameGame with PanDetector {
 
         // Memory mode: reveal ALL cells for 5s on combo
         if (mode == GameMode.memory) {
-          _gridComponent.revealAll();
-          _memoryRevealEndMs =
+          final comboExpiry =
               DateTime.now().millisecondsSinceEpoch +
               GameConstants.memoryComboShowDurationMs;
+          for (int r = 0; r < mode.gridSize; r++) {
+            for (int c = 0; c < mode.gridSize; c++) {
+              if (!_grid.isEmpty(r, c)) {
+                _memoryCellExpiry[(r, c)] = comboExpiry;
+                _gridComponent.visibleCells.add((r, c));
+              }
+            }
+          }
         }
       } else {
         _streak = 0;
@@ -222,6 +292,33 @@ class GridMasterGame extends FlameGame with PanDetector {
       onScoreChanged?.call(_score, _streak, result.linesCleared, message);
       onPiecePlaced?.call();
 
+      // Classic Rising Rows: track pieces & trigger rise
+      if (mode == GameMode.classic) {
+        _totalPiecesPlaced++;
+        _piecesUntilRise--;
+        if (_piecesUntilRise <= 0) {
+          _pushGridUp();
+          // Escalation: after 50 pieces → every 8, after 100 → every 6
+          if (_totalPiecesPlaced >= 100) {
+            _piecesUntilRise = 6;
+          } else if (_totalPiecesPlaced >= 50) {
+            _piecesUntilRise = 8;
+          } else {
+            _piecesUntilRise = 10;
+          }
+        }
+      }
+
+      // Master Timer Drop: track pieces for speed escalation
+      if (mode == GameMode.master) {
+        _timerPiecesPlaced++;
+        if (_timerPiecesPlaced >= 60) {
+          _currentTimerMax = 5.0;
+        } else if (_timerPiecesPlaced >= 30) {
+          _currentTimerMax = 6.0;
+        }
+      }
+
       // Check if all pieces used → new round
       if (_usedPieces.every((u) => u)) {
         _currentPieces = BlockPiece.generateForMode(
@@ -229,6 +326,12 @@ class GridMasterGame extends FlameGame with PanDetector {
           mode,
         );
         _usedPieces = List.filled(GameConstants.piecesPerRound, false);
+        if (mode == GameMode.master) {
+          _pieceTimers = List.filled(
+            GameConstants.piecesPerRound,
+            _currentTimerMax,
+          );
+        }
         _layoutComponents();
       } else {
         _pieceComponents.remove(comp);
@@ -377,6 +480,189 @@ class GridMasterGame extends FlameGame with PanDetector {
     });
   }
 
+  // =================== CLASSIC RISING ROWS ===================
+
+  /// Push entire grid up 1 row, add a new random row at bottom with gaps
+  void _pushGridUp() {
+    _isRising = true;
+    final gridSize = mode.gridSize;
+    final newGrid = _grid.copy();
+
+    // Check if top row has any filled cells → game over
+    for (int c = 0; c < gridSize; c++) {
+      if (!_grid.isEmpty(0, c)) {
+        // Cell would be pushed off the top → game over
+        _isRising = false;
+        final isNewHigh = _score > _highScore;
+        if (isNewHigh) _highScore = _score;
+        onGameOver?.call(_score, _highScore, isNewHigh);
+        return;
+      }
+    }
+
+    // Shift all rows up by 1
+    for (int r = 0; r < gridSize - 1; r++) {
+      for (int c = 0; c < gridSize; c++) {
+        newGrid.cells[r][c] = _grid.cells[r + 1][c];
+      }
+    }
+
+    // Generate new bottom row with random colors and gaps
+    final gapCount = mode.risingRowGaps > 0 ? mode.risingRowGaps : 3;
+    final gapPositions = <int>{};
+    while (gapPositions.length < gapCount) {
+      gapPositions.add(_rng.nextInt(gridSize));
+    }
+
+    for (int c = 0; c < gridSize; c++) {
+      if (gapPositions.contains(c)) {
+        newGrid.cells[gridSize - 1][c] = 0; // gap
+      } else {
+        newGrid.cells[gridSize - 1][c] = 1 + _rng.nextInt(8); // random color
+      }
+    }
+
+    _grid = newGrid;
+    _gridComponent.grid = _grid;
+
+    HapticService.lineClear();
+    onScoreChanged?.call(_score, _streak, 0, '⬆️ Hàng dâng!');
+
+    _isRising = false;
+
+    // Check lines after rise (bottom row might complete)
+    final result = GridLogic.checkAndClearLines(_grid, 0, _streak);
+    if (result.linesCleared > 0) {
+      _grid = result.grid;
+      _score += result.pointsEarned;
+      _streak++;
+      _gridComponent.grid = _grid;
+      _spawnClearParticles(result.clearedRows, result.clearedCols);
+      onScoreChanged?.call(
+        _score,
+        _streak,
+        result.linesCleared,
+        _getClearText(result.linesCleared),
+      );
+    }
+  }
+
+  // =================== MASTER TIMER DROP ===================
+
+  /// Auto-place a piece at a random valid position when timer expires
+  void _autoPlacePiece(int pieceIndex) {
+    if (pieceIndex >= _currentPieces.length || _usedPieces[pieceIndex]) return;
+
+    final piece = _currentPieces[pieceIndex];
+    final gridSize = mode.gridSize;
+
+    // Find all valid positions
+    final validPositions = <(int, int)>[];
+    for (int r = 0; r <= gridSize - piece.rows; r++) {
+      for (int c = 0; c <= gridSize - piece.cols; c++) {
+        if (GridLogic.canPlace(_grid, piece, r, c)) {
+          validPositions.add((r, c));
+        }
+      }
+    }
+
+    if (validPositions.isEmpty) {
+      // No valid position → game over (deferred to avoid setState during build)
+      final isNewHigh = _score > _highScore;
+      if (isNewHigh) _highScore = _score;
+      Future.delayed(Duration.zero, () {
+        onGameOver?.call(_score, _highScore, isNewHigh);
+      });
+      return;
+    }
+
+    // Pick random position
+    final pos = validPositions[_rng.nextInt(validPositions.length)];
+    _grid = GridLogic.placePiece(_grid, piece, pos.$1, pos.$2);
+    _usedPieces[pieceIndex] = true;
+
+    // Remove the piece component from UI
+    final comp = _pieceComponents
+        .where((c) => c.index == pieceIndex)
+        .firstOrNull;
+    if (comp != null) {
+      comp.used = true;
+      _pieceComponents.remove(comp);
+      comp.removeFromParent();
+    }
+
+    HapticService.piecePlaced();
+
+    // Check & clear lines
+    final result = GridLogic.checkAndClearLines(
+      _grid,
+      piece.cellCount,
+      _streak,
+    );
+    _grid = result.grid;
+    _score += result.pointsEarned;
+
+    String? message;
+    if (result.linesCleared > 0) {
+      _streak++;
+      message = _getClearText(result.linesCleared);
+      _spawnClearParticles(
+        result.clearedRows,
+        result.clearedCols,
+        isTriple: result.linesCleared >= 3,
+      );
+      final newTheme = GridTheme.themes[_rng.nextInt(GridTheme.themes.length)];
+      _gridComponent.setTheme(newTheme);
+      // Defer theme callback
+      Future.delayed(Duration.zero, () {
+        onThemeChanged?.call(newTheme);
+      });
+    } else {
+      _streak = 0;
+    }
+
+    _gridComponent.grid = _grid;
+
+    // Defer ALL UI callbacks to avoid setState during Flame's build phase
+    final scoreSnapshot = _score;
+    final streakSnapshot = _streak;
+    final linesCleared = result.linesCleared;
+    final autoMsg = '⏰ Auto Drop!${message != null ? ' $message' : ''}';
+    Future.delayed(Duration.zero, () {
+      onScoreChanged?.call(
+        scoreSnapshot,
+        streakSnapshot,
+        linesCleared,
+        autoMsg,
+      );
+      onPiecePlaced?.call();
+    });
+
+    // Master Timer Drop: track pieces for speed escalation
+    _timerPiecesPlaced++;
+    if (_timerPiecesPlaced >= 60) {
+      _currentTimerMax = 5.0;
+    } else if (_timerPiecesPlaced >= 30) {
+      _currentTimerMax = 6.0;
+    }
+
+    // Check if all pieces used → new round
+    if (_usedPieces.every((u) => u)) {
+      _currentPieces = BlockPiece.generateForMode(
+        GameConstants.piecesPerRound,
+        mode,
+      );
+      _usedPieces = List.filled(GameConstants.piecesPerRound, false);
+      _pieceTimers = List.filled(
+        GameConstants.piecesPerRound,
+        _currentTimerMax,
+      );
+      _layoutComponents();
+    }
+
+    _checkGameOver();
+  }
+
   // =================== GAME LIFECYCLE ===================
 
   void _startNewGame() {
@@ -386,11 +672,38 @@ class GridMasterGame extends FlameGame with PanDetector {
     _streak = 0;
     _hammerCharges = mode.hammerCharges;
     _draggedPiece = null;
+    _memoryCellExpiry.clear();
     _currentPieces = BlockPiece.generateForMode(
       GameConstants.piecesPerRound,
       mode,
     );
     _usedPieces = List.filled(GameConstants.piecesPerRound, false);
+
+    // Classic Rising Rows: reset counters
+    _totalPiecesPlaced = 0;
+    _piecesUntilRise = mode.risingRowInterval > 0 ? mode.risingRowInterval : 10;
+    _isRising = false;
+
+    // Master Timer Drop: init timers
+    _timerPiecesPlaced = 0;
+    _currentTimerMax = mode.timerDropSeconds > 0 ? mode.timerDropSeconds : 8.0;
+    if (mode == GameMode.master) {
+      _pieceTimers = List.filled(
+        GameConstants.piecesPerRound,
+        _currentTimerMax,
+      );
+    } else {
+      _pieceTimers = [];
+    }
+
+    // Memory mode: start periodic reveal timer
+    if (mode == GameMode.memory) {
+      _nextPeriodicRevealMs =
+          DateTime.now().millisecondsSinceEpoch +
+          GameConstants.memoryPeriodicRevealMs;
+    } else {
+      _nextPeriodicRevealMs = null;
+    }
 
     _layoutComponents();
     onHammerChanged?.call(_hammerCharges);
@@ -407,11 +720,20 @@ class GridMasterGame extends FlameGame with PanDetector {
     final screenW = size.x;
     final screenH = size.y;
     final gridSize = mode.gridSize;
+    final aspectRatio = screenH / screenW;
 
-    final topMargin = screenH * 0.10;
-    final bottomReserve = screenH * 0.30;
+    // Responsive margins — tall screens need much more top space for score overlay
+    final bool isTallScreen = aspectRatio > 1.4;
+    // Top: must clear score overlay (mode name + "SCORE" + score number + home btn)
+    final topMargin = isTallScreen
+        ? (screenH * 0.18).clamp(120.0, 200.0)
+        : (screenH * 0.14).clamp(100.0, 160.0);
+    // Bottom: space for 3 pieces
+    final bottomReserve = isTallScreen
+        ? (screenH * 0.22).clamp(100.0, 250.0)
+        : (screenH * 0.20).clamp(80.0, 200.0);
     final availableHeight = screenH - topMargin - bottomReserve;
-    final availableWidth = screenW * 0.9;
+    final availableWidth = screenW * 0.85;
 
     final gridMaxSize = availableHeight < availableWidth
         ? availableHeight
@@ -422,7 +744,7 @@ class GridMasterGame extends FlameGame with PanDetector {
     _gridOriginX = (screenW - gridPixelSize) / 2;
     _gridOriginY = topMargin;
 
-    // Create grid component
+    // Create grid component (preserve memory visibility state)
     _gridComponent = GridComponent(
       grid: _grid,
       cellSize: _cellSize,
@@ -430,6 +752,10 @@ class GridMasterGame extends FlameGame with PanDetector {
       position: Vector2(_gridOriginX, _gridOriginY),
     );
     _gridComponent.memoryMode = (mode == GameMode.memory);
+    if (mode == GameMode.memory) {
+      // Restore visible cells from per-cell expiry map
+      _gridComponent.visibleCells = _memoryCellExpiry.keys.toSet();
+    }
     add(_gridComponent);
 
     // Re-add particle effects
@@ -438,7 +764,12 @@ class GridMasterGame extends FlameGame with PanDetector {
     }
 
     // Create piece components below grid
-    final panelY = _gridOriginY + gridPixelSize + screenH * 0.03;
+    final gridBottom = _gridOriginY + gridPixelSize;
+    final spaceBelow = screenH - gridBottom;
+    // Piece cells use full cellSize (render method applies 0.7x scale for non-drag)
+    final pieceCellSize = _cellSize;
+    // Center pieces vertically in the bottom area
+    final panelCenterY = gridBottom + spaceBelow * 0.4;
     final panelWidth = screenW * 0.85;
     final pieceSlotWidth = panelWidth / GameConstants.piecesPerRound;
 
@@ -448,10 +779,10 @@ class GridMasterGame extends FlameGame with PanDetector {
       final pieceComp = BlockPieceComponent(
         piece: piece,
         index: i,
-        cellSize: _cellSize,
+        cellSize: pieceCellSize,
         position: Vector2(
           (screenW - panelWidth) / 2 + pieceSlotWidth * i + pieceSlotWidth / 2,
-          panelY + _cellSize * 2,
+          panelCenterY,
         ),
       );
       _pieceComponents.add(pieceComp);
@@ -533,7 +864,11 @@ class GridMasterGame extends FlameGame with PanDetector {
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
     if (isLoaded) {
-      _layoutComponents();
+      // Only rebuild if size changed meaningfully (>1px)
+      if (_lastLayoutSize == null || (size - _lastLayoutSize!).length > 1.0) {
+        _lastLayoutSize = size.clone();
+        _layoutComponents();
+      }
     }
   }
 }

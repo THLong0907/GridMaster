@@ -274,6 +274,7 @@ class BlockPiece {
       case GameMode.easy:
       case GameMode.memory:
       case GameMode.zen:
+      case GameMode.soloPvP:
         return _easyPool;
       case GameMode.classic:
         return _classicPool;

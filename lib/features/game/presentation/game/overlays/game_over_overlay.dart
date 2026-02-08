@@ -1,22 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:grid_master/core/constants/strings.dart';
+import 'package:grid_master/features/game/domain/models/game_mode.dart';
+import 'package:grid_master/shared/services/leaderboard_service.dart';
 
 /// Game Over overlay shown when no more moves are available
-class GameOverOverlay extends StatelessWidget {
+class GameOverOverlay extends StatefulWidget {
   final int score;
   final int highScore;
   final bool isNewHighScore;
+  final GameMode mode;
   final VoidCallback onPlayAgain;
   final VoidCallback onGoHome;
+  final String? rivalName;
+  final int rivalScore;
+  final bool isPractice;
 
   const GameOverOverlay({
     super.key,
     required this.score,
     required this.highScore,
     required this.isNewHighScore,
+    required this.mode,
     required this.onPlayAgain,
     required this.onGoHome,
+    this.rivalName,
+    this.rivalScore = 0,
+    this.isPractice = false,
   });
+
+  @override
+  State<GameOverOverlay> createState() => _GameOverOverlayState();
+}
+
+class _GameOverOverlayState extends State<GameOverOverlay> {
+  bool _isUploading = false;
+  bool _uploadSuccess = false;
+
+  Future<void> _submitScore() async {
+    setState(() => _isUploading = true);
+    try {
+      await LeaderboardService.uploadScore(widget.score, widget.mode);
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+          _uploadSuccess = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isUploading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to upload score. Check connection.'),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +98,23 @@ class GameOverOverlay extends StatelessWidget {
                   letterSpacing: 2,
                 ),
               ),
+              const SizedBox(height: 12),
+              Text(
+                widget.mode.displayName.toUpperCase(),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.4),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 4,
+                ),
+              ),
               const SizedBox(height: 24),
 
+              // PvP Result Banner
+              if (widget.rivalName != null) _buildPvpResult(),
+
               // New high score badge
-              if (isNewHighScore)
+              if (widget.isNewHighScore)
                 Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.symmetric(
@@ -106,7 +159,7 @@ class GameOverOverlay extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '$score',
+                '${widget.score}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 48,
@@ -117,19 +170,69 @@ class GameOverOverlay extends StatelessWidget {
 
               // High score
               Text(
-                '${GameStrings.highScore}: $highScore',
+                '${GameStrings.highScore}: ${widget.highScore}',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 14,
                 ),
               ),
+              const SizedBox(height: 24),
+
+              // Leaderboard upload (hide for practice)
+              if (!widget.isPractice && widget.rivalName == null)
+                if (!_uploadSuccess)
+                  _buildButton(
+                    _isUploading ? 'Uploading...' : 'Submit to Leaderboard',
+                    [
+                      const Color(0xFFFFD700).withValues(alpha: 0.2),
+                      const Color(0xFFFFA500).withValues(alpha: 0.1),
+                    ],
+                    _isUploading ? () {} : _submitScore,
+                    textColor: Colors.orangeAccent,
+                    icon: _isUploading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation(
+                                Colors.orangeAccent,
+                              ),
+                            ),
+                          )
+                        : const Icon(
+                            Icons.cloud_upload,
+                            size: 18,
+                            color: Colors.orangeAccent,
+                          ),
+                  )
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Score Submitted!',
+                        style: TextStyle(
+                          color: Colors.green.shade300,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+
               const SizedBox(height: 32),
 
               // Play Again button
               _buildButton(GameStrings.playAgain, const [
                 Color(0xFF6C5CE7),
                 Color(0xFFA29BFE),
-              ], onPlayAgain),
+              ], widget.onPlayAgain),
               const SizedBox(height: 12),
 
               // Home button
@@ -139,7 +242,7 @@ class GameOverOverlay extends StatelessWidget {
                   Colors.white.withValues(alpha: 0.1),
                   Colors.white.withValues(alpha: 0.05),
                 ],
-                onGoHome,
+                widget.onGoHome,
                 textColor: Colors.white70,
               ),
             ],
@@ -154,6 +257,7 @@ class GameOverOverlay extends StatelessWidget {
     List<Color> gradientColors,
     VoidCallback onTap, {
     Color textColor = Colors.white,
+    Widget? icon,
   }) {
     return SizedBox(
       width: double.infinity,
@@ -168,19 +272,108 @@ class GameOverOverlay extends StatelessWidget {
               gradient: LinearGradient(colors: gradientColors),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(
-              text,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[icon, const SizedBox(width: 8)],
+                Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPvpResult() {
+    final isWin = widget.score > widget.rivalScore;
+    final isDraw = widget.score == widget.rivalScore;
+    final resultText = isDraw ? 'DRAW' : (isWin ? 'YOU WIN!' : 'YOU LOSE');
+    final resultColor = isDraw
+        ? Colors.amber
+        : (isWin ? const Color(0xFF00B894) : const Color(0xFFFF6B6B));
+    final resultIcon = isDraw
+        ? Icons.handshake
+        : (isWin ? Icons.emoji_events : Icons.sentiment_dissatisfied);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: resultColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: resultColor.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          Icon(resultIcon, color: resultColor, size: 40),
+          const SizedBox(height: 8),
+          Text(
+            resultText,
+            style: TextStyle(
+              color: resultColor,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 3,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildScoreColumn('YOU', widget.score, isWin || isDraw),
+              Text(
+                'VS',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              _buildScoreColumn(
+                widget.rivalName ?? 'RIVAL',
+                widget.rivalScore,
+                !isWin || isDraw,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScoreColumn(String name, int score, bool isHigher) {
+    return Column(
+      children: [
+        Text(
+          name,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.6),
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '$score',
+          style: TextStyle(
+            color: isHigher
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.5),
+            fontSize: isHigher ? 28 : 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }
