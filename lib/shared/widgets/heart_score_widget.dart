@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 
-/// A smooth pink heart widget that displays the current score with a heartbeat animation
-class HeartScoreWidget extends StatefulWidget {
+/// Custom decoder for .lottie (dotLottie) archive files
+Future<LottieComposition?> _dotLottieDecoder(List<int> bytes) {
+  return LottieComposition.decodeZip(
+    bytes,
+    filePicker: (files) {
+      return files.firstWhere(
+        (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
+        orElse: () => files.first,
+      );
+    },
+  );
+}
+
+/// A fire Lottie animation widget that displays the current score
+class HeartScoreWidget extends StatelessWidget {
   final int score;
   final double size;
   final bool isNewRecord;
@@ -15,80 +29,47 @@ class HeartScoreWidget extends StatefulWidget {
   });
 
   @override
-  State<HeartScoreWidget> createState() => _HeartScoreWidgetState();
-}
-
-class _HeartScoreWidgetState extends State<HeartScoreWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _beatAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-
-    _beatAnimation = Tween<double>(begin: 1.0, end: 1.06).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isRecord = widget.isNewRecord;
-    final heartColor = isRecord ? const Color(0xFFFFD700) : const Color(0xFFFF69B4);
-
-    return AnimatedBuilder(
-      animation: _beatAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _beatAnimation.value,
-          child: child,
-        );
-      },
+    return SizedBox(
+      width: size,
+      height: size,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Heart icon (Material's favorite icon is a clean heart)
-          Icon(
-            Icons.favorite,
-            color: heartColor,
-            size: widget.size,
-            shadows: [
-              Shadow(
-                color: heartColor.withValues(alpha: 0.6),
-                blurRadius: 16,
-              ),
-            ],
+          // Fire Lottie animation
+          Lottie.asset(
+            'assets/animation/Fire.lottie',
+            decoder: _dotLottieDecoder,
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+            repeat: true,
           ),
-          // Score number inside
+          // Score number overlay
           Padding(
-            padding: EdgeInsets.only(top: widget.size * 0.04),
+            padding: EdgeInsets.only(top: size * 0.05),
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (child, animation) =>
                   ScaleTransition(scale: animation, child: child),
               child: Text(
-                '${widget.score}',
-                key: ValueKey(widget.score),
+                '$score',
+                key: ValueKey(score),
                 style: GoogleFonts.fredoka(
                   color: Colors.white,
-                  fontSize: widget.size * 0.3,
+                  fontSize: size * 0.28,
                   fontWeight: FontWeight.bold,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      blurRadius: 3,
+                      color: Colors.black.withValues(alpha: 0.5),
+                      blurRadius: 4,
                       offset: const Offset(0, 1),
+                    ),
+                    Shadow(
+                      color: isNewRecord
+                          ? const Color(0xFFFFD700).withValues(alpha: 0.8)
+                          : const Color(0xFFFF6B00).withValues(alpha: 0.6),
+                      blurRadius: 8,
                     ),
                   ],
                 ),

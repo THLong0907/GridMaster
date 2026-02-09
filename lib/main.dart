@@ -8,27 +8,14 @@ import 'firebase_options.dart';
 import 'shared/services/auth_service.dart';
 import 'shared/services/audio_service.dart';
 import 'shared/services/locale_provider.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'routes/app_router.dart';
 import 'core/constants/strings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    // Sign in anonymously to identify the player
-    await AuthService.signInAnonymously();
-  } catch (e) {
-    print('Firebase initialization failed (check config): $e');
-  }
-
-  // Initialize Audio
-  await AudioService.instance.init();
-
-  // Initialize Locale
+  // Only await locale (fast, needed for first frame)
   await LocaleProvider.instance.init();
 
   // Lock to portrait mode (game works best in portrait)
@@ -47,7 +34,26 @@ void main() async {
     ),
   );
 
+  // Launch app immediately — Firebase and audio init in background
   runApp(const GridMasterApp());
+
+  // Defer heavy initialization to after first frame
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    // Initialize Firebase (heavy, network-bound)
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      // Enable analytics
+      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+      await AuthService.signInAnonymously();
+    } catch (e) {
+      debugPrint('Firebase init failed: $e');
+    }
+
+    // Initialize Audio (lightweight, just reads a pref)
+    await AudioService.instance.init();
+  });
 }
 
 class GridMasterApp extends StatefulWidget {

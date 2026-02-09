@@ -11,6 +11,7 @@ import '../game/grid_master_game.dart';
 import '../game/effects/effects_manager.dart';
 import '../game/overlays/score_overlay.dart';
 import '../game/overlays/game_over_overlay.dart';
+import 'package:grid_master/shared/services/rate_app_service.dart';
 import '../game/overlays/zen_summary_overlay.dart';
 import '../game/overlays/pause_overlay.dart';
 import 'package:grid_master/l10n/generated/app_localizations.dart';
@@ -163,9 +164,13 @@ class _GameScreenState extends State<GameScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.matchmakingError(e.toString()))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.matchmakingError(e.toString()),
+            ),
+          ),
+        );
         context.go('/');
       }
     }
@@ -305,33 +310,38 @@ class _GameScreenState extends State<GameScreen> {
     String? message,
   ) {
     if (!mounted) return;
-    
+
     // Check if message is a key and translate it
     String? localizedMessage = message;
     if (message != null) {
       final l10n = AppLocalizations.of(context)!;
-      if (message == 'clear') localizedMessage = l10n.clear;
-      else if (message == 'doubleClear') localizedMessage = l10n.doubleClear;
-      else if (message == 'tripleClear') localizedMessage = l10n.tripleClear;
+      if (message == 'clear')
+        localizedMessage = l10n.clear;
+      else if (message == 'doubleClear')
+        localizedMessage = l10n.doubleClear;
+      else if (message == 'tripleClear')
+        localizedMessage = l10n.tripleClear;
       else if (message.startsWith('megaClear:')) {
         final count = int.tryParse(message.split(':')[1]) ?? 4;
         localizedMessage = l10n.megaClear(count);
-      }
-      else if (message == '👁️ Memory Reveal!') localizedMessage = l10n.memoryReveal;
-      else if (message == '🧘 Zen Clear!') localizedMessage = l10n.zenClear;
+      } else if (message == '👁️ Memory Reveal!')
+        localizedMessage = l10n.memoryReveal;
+      else if (message == '🧘 Zen Clear!')
+        localizedMessage = l10n.zenClear;
       else if (message.startsWith('🔨 Auto Hammer!')) {
-         // message format: 🔨 Auto Hammer! ($destroyed cells)
-         // regex or simple parse. But GridMasterGame logic sets this string.
-         // Let's assume we update GridMasterGame to send keys for these too?
-         // For now, let's just handle exact matches or leave as is if not a key.
-         // Actually, I should update GridMasterGame to return keys for these events too.
-         // But for speed, I'll just leave mixed content if it's complex, or try to match.
-         // The GridMasterGame code had: '🔨 Auto Hammer! ($destroyed cells)'
-         // I'll leave it as is for now or do a best effort.
-         // Wait, I updated _getClearText but not the others in GridMasterGame.
-      }
-      else if (message == '⬆️ Hàng dâng!') localizedMessage = l10n.risingRow;
-      else if (message.startsWith('⏰ Auto Drop!')) localizedMessage = l10n.autoDrop;
+        // message format: 🔨 Auto Hammer! ($destroyed cells)
+        // regex or simple parse. But GridMasterGame logic sets this string.
+        // Let's assume we update GridMasterGame to send keys for these too?
+        // For now, let's just handle exact matches or leave as is if not a key.
+        // Actually, I should update GridMasterGame to return keys for these events too.
+        // But for speed, I'll just leave mixed content if it's complex, or try to match.
+        // The GridMasterGame code had: '🔨 Auto Hammer! ($destroyed cells)'
+        // I'll leave it as is for now or do a best effort.
+        // Wait, I updated _getClearText but not the others in GridMasterGame.
+      } else if (message == '⬆️ Hàng dâng!')
+        localizedMessage = l10n.risingRow;
+      else if (message.startsWith('⏰ Auto Drop!'))
+        localizedMessage = l10n.autoDrop;
     }
 
     setState(() {
@@ -425,6 +435,8 @@ class _GameScreenState extends State<GameScreen> {
     ).then((_) async {
       final stats = await StatsService.getStats();
       await AchievementService.checkAndUnlock(stats);
+      // Prompt for app review after enough games
+      await RateAppService.checkAndPrompt();
     });
   }
 
@@ -509,7 +521,9 @@ class _GameScreenState extends State<GameScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(AppLocalizations.of(context)!.cancel.toUpperCase()),
+                    child: Text(
+                      AppLocalizations.of(context)!.cancel.toUpperCase(),
+                    ),
                   ),
                 ],
               ),
@@ -528,15 +542,14 @@ class _GameScreenState extends State<GameScreen> {
               isTop1: _isTop1,
               rivalName: _rivalName,
               rivalScore: _rivalScore,
+              hammerCharges: _hammerCharges,
+              accentColor: _accentColor,
+              showHammer: widget.mode != GameMode.zen,
               onPauseTap: () {
                 setState(() => _isPaused = true);
                 _game.paused = true;
               },
             ),
-
-          // Hammer indicator (hide for zen)
-          if (widget.mode != GameMode.zen)
-            Positioned(bottom: 32, right: 24, child: _buildHammerIndicator()),
 
           // Memory mode indicator
           if (widget.mode == GameMode.memory)
@@ -851,47 +864,6 @@ class _GameScreenState extends State<GameScreen> {
               },
               onGoHome: () => context.go('/'),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHammerIndicator() {
-    final hasCharges = _hammerCharges > 0;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: hasCharges
-            ? _accentColor.withValues(alpha: 0.15)
-            : const Color(0xFF1A1A2E).withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: hasCharges
-              ? _accentColor.withValues(alpha: 0.4)
-              : Colors.white.withValues(alpha: 0.1),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.hardware,
-            color: hasCharges
-                ? _accentColor
-                : Colors.white.withValues(alpha: 0.3),
-            size: 18,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            'x$_hammerCharges',
-            style: TextStyle(
-              color: hasCharges
-                  ? Colors.white.withValues(alpha: 0.9)
-                  : Colors.white.withValues(alpha: 0.3),
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
         ],
       ),
     );

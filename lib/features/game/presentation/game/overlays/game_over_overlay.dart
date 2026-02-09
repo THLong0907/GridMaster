@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:grid_master/l10n/generated/app_localizations.dart';
 import 'package:grid_master/features/game/domain/models/game_mode.dart';
 import 'package:grid_master/shared/services/leaderboard_service.dart';
@@ -250,13 +251,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                       '🏆 Best: ${widget.highScore}\n'
                       '${widget.isNewHighScore ? '🎉 NEW HIGH SCORE!\n' : ''}'
                       'Can you beat me? 💪';
-                  Clipboard.setData(ClipboardData(text: text));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Score copied to clipboard! 📋'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
+                  SharePlus.instance.share(ShareParams(text: text));
                 },
                 textColor: const Color(0xFF00B894),
               ),

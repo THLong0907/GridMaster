@@ -183,6 +183,8 @@ class GridMasterGame extends FlameGame with PanDetector {
       if (comp.containsWorldPoint(pos)) {
         _draggedPiece = comp;
         comp.isDragging = true;
+        // Lift block above finger so it's visible while dragging
+        comp.position.y -= GameConstants.dragLiftOffset;
         HapticService.lightTap();
         return;
       }
@@ -499,12 +501,7 @@ class GridMasterGame extends FlameGame with PanDetector {
     _gridComponent.grid = _grid;
 
     HapticService.lineClear();
-    onScoreChanged?.call(
-      _score,
-      _streak,
-      0,
-      'autoHammer:$destroyed',
-    );
+    onScoreChanged?.call(_score, _streak, 0, 'autoHammer:$destroyed');
     onHammerChanged?.call(_hammerCharges);
 
     Future.delayed(const Duration(milliseconds: 500), () {
@@ -647,7 +644,8 @@ class GridMasterGame extends FlameGame with PanDetector {
       _clearCountSinceThemeChange += result.linesCleared;
       if (_clearCountSinceThemeChange >= 10) {
         _clearCountSinceThemeChange = 0;
-        final newTheme = GridTheme.themes[_rng.nextInt(GridTheme.themes.length)];
+        final newTheme =
+            GridTheme.themes[_rng.nextInt(GridTheme.themes.length)];
         _gridComponent.setTheme(newTheme);
         Future.delayed(Duration.zero, () {
           onThemeChanged?.call(newTheme);
@@ -760,10 +758,10 @@ class GridMasterGame extends FlameGame with PanDetector {
 
     // Responsive margins — tall screens need much more top space for score overlay
     final bool isTallScreen = aspectRatio > 1.4;
-    // Top: must clear score overlay (mode name + "SCORE" + score number + home btn)
+    // Top: must clear score overlay (mode name + fire score + home btn)
     final topMargin = isTallScreen
-        ? (screenH * 0.18).clamp(120.0, 200.0)
-        : (screenH * 0.14).clamp(100.0, 160.0);
+        ? (screenH * 0.24).clamp(150.0, 240.0)
+        : (screenH * 0.18).clamp(120.0, 180.0);
     // Bottom: space for 3 pieces
     final bottomReserve = isTallScreen
         ? (screenH * 0.22).clamp(100.0, 250.0)
@@ -805,7 +803,7 @@ class GridMasterGame extends FlameGame with PanDetector {
     // Piece cells use full cellSize (render method applies 0.7x scale for non-drag)
     final pieceCellSize = _cellSize;
     // Center pieces vertically in the bottom area
-    final panelCenterY = gridBottom + spaceBelow * 0.4;
+    final panelCenterY = gridBottom + spaceBelow * 0.7;
     final panelWidth = screenW * 0.85;
     final pieceSlotWidth = panelWidth / GameConstants.piecesPerRound;
 
@@ -893,21 +891,25 @@ class GridMasterGame extends FlameGame with PanDetector {
         _ => 3.0,
       };
       _shakeManager.shake(intensity: shakeIntensity, duration: 0.3);
-      AudioService.instance.playShakeRumble(EffectsManager.getPitchMultiplier(_streak));
+      AudioService.instance.playShakeRumble(
+        EffectsManager.getPitchMultiplier(_streak),
+      );
     }
 
     // ═══ Combo text animation ═══
     if (_streak >= 2) {
-      add(ComboTextComponent(
-        text: 'x${_streak} COMBO!',
-        x: centerX,
-        y: centerY - 60,
-        color: _streak >= 8
-            ? const Color(0xFFFF0000)
-            : _streak >= 5
-                ? const Color(0xFF00BFFF)
-                : const Color(0xFFFFD700),
-      ));
+      add(
+        ComboTextComponent(
+          text: 'x${_streak} COMBO!',
+          x: centerX,
+          y: centerY - 60,
+          color: _streak >= 8
+              ? const Color(0xFFFF0000)
+              : _streak >= 5
+              ? const Color(0xFF00BFFF)
+              : const Color(0xFFFFD700),
+        ),
+      );
     }
 
     // ═══ Star burst on score milestones ═══
@@ -915,11 +917,7 @@ class GridMasterGame extends FlameGame with PanDetector {
       final milestone = (_score ~/ 500) * 500;
       if (milestone > _lastMilestone && milestone > 0) {
         _lastMilestone = milestone;
-        add(StarBurstComponent(
-          centerX: size.x * 0.5,
-          centerY: 50,
-          count: 20,
-        ));
+        add(StarBurstComponent(centerX: size.x * 0.5, centerY: 50, count: 20));
         AudioService.instance.playLiXiSound();
       }
     }

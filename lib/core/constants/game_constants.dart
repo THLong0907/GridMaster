@@ -49,7 +49,9 @@ class GameConstants {
   // Rendering
   static const double cellBorderRadius = 4.0;
   static const double gridPadding = 8.0;
-  static const double fingerOffset = 40.0;
+  static const double fingerOffset = 0.0;
+  static const double dragLiftOffset =
+      100.0; // lift block above finger when dragging
   static const double ghostOpacity = 0.3;
 
   // Hammer
