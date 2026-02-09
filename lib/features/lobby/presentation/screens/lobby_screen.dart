@@ -127,6 +127,26 @@ class _LobbyScreenState extends State<LobbyScreen> {
                           const SizedBox(height: 24),
                           _buildLeaderboardButton(),
                           const SizedBox(height: 12),
+                          // Stats & Achievements row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildSmallButton(
+                                icon: Icons.bar_chart_rounded,
+                                label: 'STATS',
+                                color: const Color(0xFF00B894),
+                                onTap: () => context.push('/stats'),
+                              ),
+                              const SizedBox(width: 12),
+                              _buildSmallButton(
+                                icon: Icons.emoji_events_rounded,
+                                label: 'ACHIEVEMENTS',
+                                color: const Color(0xFFFFD700),
+                                onTap: () => context.push('/achievements'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
                           _buildSettingsButton(),
                           const SizedBox(height: 32),
                           _buildModeGrid(context),
@@ -267,6 +287,35 @@ class _LobbyScreenState extends State<LobbyScreen> {
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
           fontSize: 13,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSmallButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color.withValues(alpha: 0.1),
+        foregroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: color.withValues(alpha: 0.3), width: 1),
+        ),
+      ),
+      onPressed: onTap,
+      icon: Icon(icon, size: 16),
+      label: Text(
+        label,
+        style: GoogleFonts.fredoka(
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1,
+          fontSize: 11,
         ),
       ),
     );

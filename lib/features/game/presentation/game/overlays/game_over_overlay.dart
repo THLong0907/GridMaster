@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:grid_master/l10n/generated/app_localizations.dart';
 import 'package:grid_master/features/game/domain/models/game_mode.dart';
 import 'package:grid_master/shared/services/leaderboard_service.dart';
@@ -233,6 +234,32 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                 Color(0xFF6C5CE7),
                 Color(0xFFA29BFE),
               ], widget.onPlayAgain),
+              const SizedBox(height: 12),
+
+              // Share button
+              _buildButton(
+                '📤 SHARE SCORE',
+                [
+                  const Color(0xFF00B894).withValues(alpha: 0.2),
+                  const Color(0xFF00CC76).withValues(alpha: 0.1),
+                ],
+                () {
+                  final text =
+                      '🎮 Grid Master - ${widget.mode.displayName}\n'
+                      '⭐ Score: ${widget.score}\n'
+                      '🏆 Best: ${widget.highScore}\n'
+                      '${widget.isNewHighScore ? '🎉 NEW HIGH SCORE!\n' : ''}'
+                      'Can you beat me? 💪';
+                  Clipboard.setData(ClipboardData(text: text));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Score copied to clipboard! 📋'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+                textColor: const Color(0xFF00B894),
+              ),
               const SizedBox(height: 12),
 
               // Home button

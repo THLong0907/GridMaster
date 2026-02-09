@@ -4,6 +4,10 @@ import '../features/lobby/presentation/screens/lobby_screen.dart';
 import '../features/game/presentation/screens/game_screen.dart';
 import '../features/lobby/presentation/screens/leaderboard_screen.dart';
 import '../features/settings/presentation/screens/settings_screen.dart';
+import '../features/settings/presentation/screens/stats_screen.dart';
+import '../features/settings/presentation/screens/achievements_screen.dart';
+import '../features/settings/presentation/screens/privacy_policy_screen.dart';
+import '../features/settings/presentation/screens/features_guide_screen.dart';
 
 /// App-wide routing configuration
 final appRouter = GoRouter(
@@ -17,6 +21,22 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/stats',
+      builder: (context, state) => const StatsScreen(),
+    ),
+    GoRoute(
+      path: '/achievements',
+      builder: (context, state) => const AchievementsScreen(),
+    ),
+    GoRoute(
+      path: '/privacy',
+      builder: (context, state) => const PrivacyPolicyScreen(),
+    ),
+    GoRoute(
+      path: '/features',
+      builder: (context, state) => const FeaturesGuideScreen(),
     ),
     GoRoute(
       path: '/game/:mode',

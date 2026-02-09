@@ -12,11 +12,14 @@ import '../game/effects/effects_manager.dart';
 import '../game/overlays/score_overlay.dart';
 import '../game/overlays/game_over_overlay.dart';
 import '../game/overlays/zen_summary_overlay.dart';
+import '../game/overlays/pause_overlay.dart';
 import 'package:grid_master/l10n/generated/app_localizations.dart';
 import 'package:grid_master/shared/services/leaderboard_service.dart';
 import 'package:grid_master/shared/services/pvp_service.dart';
 import 'package:grid_master/shared/services/auth_service.dart';
 import 'package:grid_master/shared/services/audio_service.dart';
+import 'package:grid_master/shared/services/stats_service.dart';
+import 'package:grid_master/shared/services/achievement_service.dart';
 import 'package:grid_master/shared/widgets/tutorial_overlay.dart';
 import 'dart:async';
 import 'dart:math';
@@ -44,6 +47,8 @@ class _GameScreenState extends State<GameScreen> {
   bool _isNewHigh = false;
   bool _isTop1 = false;
   int _hammerCharges = 0;
+  bool _isPaused = false;
+  DateTime? _gameStartTime;
 
   // PvP related
   PvpMatch? _match;
@@ -109,6 +114,7 @@ class _GameScreenState extends State<GameScreen> {
   void _initStandardGame({int? seed}) {
     _game = GridMasterGame(mode: widget.mode, seed: seed);
     _gameInitialized = true;
+    _gameStartTime = DateTime.now();
     _game.onScoreChanged = _onScoreChanged;
     _game.onGameOver = _onGameOver;
     _game.onHammerChanged = _onHammerChanged;
@@ -406,6 +412,20 @@ class _GameScreenState extends State<GameScreen> {
       _highScore = highScore;
       _isNewHigh = isNewHigh;
     });
+
+    // Record stats & check achievements
+    final secondsPlayed = _gameStartTime != null
+        ? DateTime.now().difference(_gameStartTime!).inSeconds
+        : 0;
+    StatsService.recordGame(
+      mode: widget.mode,
+      score: score,
+      linesCleared: _streak,
+      secondsPlayed: secondsPlayed,
+    ).then((_) async {
+      final stats = await StatsService.getStats();
+      await AchievementService.checkAndUnlock(stats);
+    });
   }
 
   void _onHammerChanged(int charges) {
@@ -499,6 +519,7 @@ class _GameScreenState extends State<GameScreen> {
           if (!_isPvpSearching)
             ScoreOverlay(
               score: _score,
+              highScore: _highScore,
               streak: _streak,
               comboMessage: _comboMessage,
               modeName: widget.mode == GameMode.soloPvP
@@ -507,7 +528,10 @@ class _GameScreenState extends State<GameScreen> {
               isTop1: _isTop1,
               rivalName: _rivalName,
               rivalScore: _rivalScore,
-              onHomeTap: () => context.go('/'),
+              onPauseTap: () {
+                setState(() => _isPaused = true);
+                _game.paused = true;
+              },
             ),
 
           // Hammer indicator (hide for zen)
@@ -800,6 +824,32 @@ class _GameScreenState extends State<GameScreen> {
           if (_showTutorial)
             TutorialOverlay(
               onDismiss: () => setState(() => _showTutorial = false),
+            ),
+
+          // Pause overlay
+          if (_isPaused && !_isGameOver)
+            PauseOverlay(
+              score: _score,
+              modeName: _getLocalizedModeName(context, widget.mode),
+              onResume: () {
+                setState(() => _isPaused = false);
+                _game.paused = false;
+              },
+              onRestart: () {
+                setState(() {
+                  _isPaused = false;
+                  _score = 0;
+                  _streak = 0;
+                  _hammerCharges = widget.mode.hammerCharges;
+                  _accentColor = const Color(0xFF6C5CE7);
+                  _bgColor1 = const Color(0xFF0D0D1A);
+                  _bgColor2 = const Color(0xFF1A1A3E);
+                  _bgKey = UniqueKey();
+                });
+                _game.paused = false;
+                _game.restartGame();
+              },
+              onGoHome: () => context.go('/'),
             ),
         ],
       ),
