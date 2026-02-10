@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grid_master/features/game/domain/models/game_mode.dart';
+import '../features/splash/presentation/screens/splash_screen.dart';
 import '../features/lobby/presentation/screens/lobby_screen.dart';
 import '../features/game/presentation/screens/game_screen.dart';
 import '../features/lobby/presentation/screens/leaderboard_screen.dart';
@@ -66,8 +67,9 @@ CustomTransitionPage<void> _scaleUpPage(Widget child, GoRouterState state) {
 
 /// App-wide routing configuration
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/splash',
   routes: [
+    GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
     GoRoute(
       path: '/',
       pageBuilder: (context, state) => _slideUpPage(const LobbyScreen(), state),
