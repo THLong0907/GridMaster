@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// Game mode definitions for Grid Master
 enum GameMode {
   easy,
@@ -61,39 +63,21 @@ enum GameMode {
     }
   }
 
-  /// Short description
-  String get description {
+  /// Material icon for this mode
+  IconData get iconData {
     switch (this) {
       case GameMode.easy:
-        return 'Lưới nhỏ, khối nhỏ nhiều';
+        return Icons.grid_on_rounded;
       case GameMode.classic:
-        return 'Hàng dâng lên, phá nhanh!';
+        return Icons.trending_up_rounded;
       case GameMode.master:
-        return 'Khối tự đặt, tốc độ!';
+        return Icons.speed_rounded;
       case GameMode.memory:
-        return 'Khối biến mất, nhớ vị trí';
+        return Icons.psychology_rounded;
       case GameMode.zen:
-        return 'Thư giãn, không thua';
+        return Icons.self_improvement_rounded;
       case GameMode.soloPvP:
-        return 'Đấu 1v1 trong 2 phút';
-    }
-  }
-
-  /// Emoji icon
-  String get icon {
-    switch (this) {
-      case GameMode.easy:
-        return '🟢';
-      case GameMode.classic:
-        return '🟡';
-      case GameMode.master:
-        return '🔴';
-      case GameMode.memory:
-        return '🧠';
-      case GameMode.zen:
-        return '🧘';
-      case GameMode.soloPvP:
-        return '👑';
+        return Icons.sports_esports_rounded;
     }
   }
 
@@ -116,3 +100,4 @@ enum GameMode {
     );
   }
 }
+

@@ -60,7 +60,7 @@ class _StatsScreenState extends State<StatsScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                '📊 STATISTICS',
+                                'STATISTICS',
                                 style: GoogleFonts.fredoka(
                                   color: Colors.white,
                                   fontSize: 24,
@@ -92,14 +92,14 @@ class _StatsScreenState extends State<StatsScreen> {
                               Row(
                                 children: [
                                   _statCard(
-                                    '🎮',
+                                    Icons.sports_esports_rounded,
                                     '${_stats['totalGames'] ?? 0}',
                                     'Games',
                                     const Color(0xFF6C5CE7),
                                   ),
                                   const SizedBox(width: 12),
                                   _statCard(
-                                    '⭐',
+                                    Icons.star_rounded,
                                     '${_stats['totalScore'] ?? 0}',
                                     'Total Score',
                                     const Color(0xFFFFD700),
@@ -110,14 +110,14 @@ class _StatsScreenState extends State<StatsScreen> {
                               Row(
                                 children: [
                                   _statCard(
-                                    '📏',
+                                    Icons.straighten_rounded,
                                     '${_stats['totalLines'] ?? 0}',
                                     'Lines',
                                     const Color(0xFF00B894),
                                   ),
                                   const SizedBox(width: 12),
                                   _statCard(
-                                    '⏰',
+                                    Icons.timer_rounded,
                                     _formatTime(_stats['totalTime'] ?? 0),
                                     'Play Time',
                                     const Color(0xFFFF6B6B),
@@ -162,7 +162,7 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  Widget _statCard(String emoji, String value, String label, Color color) {
+  Widget _statCard(IconData iconData, String value, String label, Color color) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -174,7 +174,7 @@ class _StatsScreenState extends State<StatsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 24)),
+            Icon(iconData, size: 24, color: color),
             const SizedBox(height: 8),
             Text(
               value,
@@ -207,7 +207,7 @@ class _StatsScreenState extends State<StatsScreen> {
       ),
       child: Row(
         children: [
-          Text(mode.icon, style: const TextStyle(fontSize: 24)),
+          Icon(mode.iconData, size: 24, color: const Color(0xFF6C5CE7)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

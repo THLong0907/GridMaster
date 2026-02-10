@@ -28,7 +28,7 @@ class FeaturesGuideScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '📖 HƯỚNG DẪN',
+                        'FEATURES GUIDE',
                         style: GoogleFonts.fredoka(
                           color: Colors.white,
                           fontSize: 24,
@@ -47,7 +47,7 @@ class FeaturesGuideScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         _featureCard(
-                          emoji: '⏸️',
+                          iconData: Icons.pause_circle_rounded,
                           title: 'Tạm Dừng (Pause)',
                           color: const Color(0xFF6C5CE7),
                           items: [
@@ -57,37 +57,38 @@ class FeaturesGuideScreen extends StatelessWidget {
                           ],
                         ),
                         _featureCard(
-                          emoji: '📊',
+                          iconData: Icons.bar_chart_rounded,
                           title: 'Thống Kê (Statistics)',
                           color: const Color(0xFF00B894),
                           items: [
                             'Bấm nút STATS ở lobby để xem',
-                            '🎮 Tổng số ván đã chơi',
-                            '⭐ Tổng điểm tích lũy từ mọi ván',
-                            '📏 Tổng số hàng đã xoá',
-                            '⏰ Tổng thời gian chơi',
+                            'Total games played',
+                            'Total accumulated score',
+                            'Total lines cleared',
+                            'Total play time',
+                            'Stats per game mode',
                             'Có thống kê riêng cho từng chế độ chơi',
                           ],
                         ),
                         _featureCard(
-                          emoji: '🏆',
-                          title: 'Thành Tựu (Achievements)',
+                          iconData: Icons.emoji_events_rounded,
+                          title: 'Achievements',
                           color: const Color(0xFFFFD700),
                           items: [
-                            'Bấm nút ACHIEVEMENTS ở lobby để xem',
-                            '12 thành tựu để mở khoá',
-                            '🎮 Chơi ván đầu tiên → "First Steps"',
-                            '💯 Chơi 100 ván → "Block Master"',
-                            '⭐ Đạt 100/500/1000 điểm trong 1 ván',
-                            '🌈 Chơi thử hết tất cả chế độ → "Explorer"',
-                            '📏 Xoá 100/500 hàng tổng cộng',
-                            '⏰ Chơi tổng 30 phút / 2 giờ',
+                            '12 achievements to unlock',
+                            'Play your first game → "First Steps"',
+                            'Play 100 games → "Block Master"',
+                            'Score 100/500/1000 in one game',
+                            'Try all modes → "Explorer"',
+                            'Clear 100/500 lines total',
+                            'Play 30 min / 2 hours total',
+                            'Unlocked automatically at game end!',
                             'Tự động mở khoá khi kết thúc mỗi ván!',
                           ],
                         ),
                         _featureCard(
-                          emoji: '📤',
-                          title: 'Chia Sẻ Điểm (Share Score)',
+                          iconData: Icons.share_rounded,
+                          title: 'Share Score',
                           color: const Color(0xFF00CC76),
                           items: [
                             'Khi Game Over, bấm nút SHARE SCORE',
@@ -97,8 +98,8 @@ class FeaturesGuideScreen extends StatelessWidget {
                           ],
                         ),
                         _featureCard(
-                          emoji: '📋',
-                          title: 'Chính Sách Bảo Mật',
+                          iconData: Icons.policy_rounded,
+                          title: 'Privacy Policy',
                           color: const Color(0xFF636E72),
                           items: [
                             'Vào Settings → cuộn xuống → Privacy Policy',
@@ -125,7 +126,7 @@ class FeaturesGuideScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              const Text('💡', style: TextStyle(fontSize: 28)),
+                              const Icon(Icons.lightbulb_rounded, size: 28, color: Color(0xFFFDCB6E)),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
@@ -154,7 +155,7 @@ class FeaturesGuideScreen extends StatelessWidget {
   }
 
   Widget _featureCard({
-    required String emoji,
+    required IconData iconData,
     required String title,
     required Color color,
     required List<String> items,
@@ -173,7 +174,7 @@ class FeaturesGuideScreen extends StatelessWidget {
           // Title row
           Row(
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 28)),
+              Icon(iconData, size: 28, color: color),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(

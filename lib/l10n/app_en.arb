@@ -7,6 +7,7 @@
   "playAgain": "PLAY AGAIN",
   "home": "HOME",
   "share": "SHARE",
+  "restart": "RESTART",
   "settings": "Settings",
   "sound": "Sound",
   "haptics": "Haptics",
@@ -38,9 +39,9 @@
       }
     }
   },
-  "memoryReveal": "👁️ Memory Reveal!",
-  "zenClear": "🧘 Zen Clear!",
-  "autoHammer": "🔨 Auto Hammer! ({count} cells)",
+  "memoryReveal": "Memory Reveal!",
+  "zenClear": "Zen Clear!",
+  "autoHammer": "Auto Hammer! ({count} cells)",
   "@autoHammer": {
     "placeholders": {
       "count": {
@@ -48,8 +49,8 @@
       }
     }
   },
-  "risingRow": "⬆️ Rising Row!",
-  "autoDrop": "⏰ Auto Drop!",
+  "risingRow": "Rising Row!",
+  "autoDrop": "Auto Drop!",
   "endSession": "End Session",
   "findingRival": "FINDING RIVAL...",
   "matchmakingError": "Matchmaking error: {error}",
@@ -60,11 +61,13 @@
       }
     }
   },
-  "zenSummaryTitle": "Zen Session",
+  "zenSummaryTitle": "ZEN SESSION ENDED",
   "totalLines": "Lines Cleared",
   "maxCombo": "Max Combo",
   "blocksPlaced": "Blocks Placed",
   "playTime": "Play Time",
+  "continueBtn": "Continue",
+  "backToLobby": "Back to Lobby",
   "easyMode": "Easy",
   "memoryMode": "Memory",
   "classicMode": "Classic",
@@ -75,5 +78,77 @@
   "practiceMode": "Do Practice",
   "skip": "Skip",
   "next": "Next",
-  "start": "START!"
+  "start": "START!",
+  "stats": "Stats",
+  "achievements": "Achievements",
+  "music": "Music",
+  "themes": "Themes",
+  "language": "Language",
+  "chooseLanguage": "Choose Language",
+  "autoDevice": "Auto (Device)",
+  "data": "Data",
+  "best": "Best: {score}",
+  "@best": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "easyDesc": "Small grid, many small blocks",
+  "classicDesc": "Rising rows, clear fast!",
+  "masterDesc": "Auto-drop blocks, speed!",
+  "memoryDesc": "Blocks vanish, remember positions",
+  "zenDesc": "Relax, no lose",
+  "pvpDesc": "1v1 battle in 2 minutes",
+  "pvpRankedSubtitle": "Random match with real players",
+  "pvpPracticeSubtitle": "Play solo with BOT • Unranked",
+  "soloPvp": "Solo PvP",
+  "gridInfo": "{size}×{size} Grid • 2 Minutes",
+  "@gridInfo": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyChallenge": "Daily Challenge",
+  "dailyChallengeSubtitle": "New challenge every day!",
+  "streak": "Streak",
+  "completed": "Completed",
+  "play": "PLAY",
+  "noConnection": "No connection",
+  "tetEffects": "Tết Effects",
+  "pause": "Pause",
+  "resume": "RESUME",
+  "quit": "QUIT",
+  "paused": "PAUSED",
+  "newFeatures": "New Features",
+  "privacyPolicy": "Privacy Policy",
+  "pvpWin": "YOU WIN!",
+  "pvpLose": "YOU LOSE",
+  "pvpDraw": "DRAW",
+  "uploading": "Uploading...",
+  "uploadToLeaderboard": "Upload to Leaderboard",
+  "scoreUploaded": "Score uploaded!",
+  "uploadFailed": "Upload failed. Check connection.",
+  "tutorialReset": "Tutorial will show on next game",
+  "highScoresCleared": "All high scores cleared",
+  "botBeginner": "Beginner",
+  "botPro": "Professional",
+  "botDestroyer": "Destroyer",
+  "botGodlike": "Godlike",
+  "version": "Version",
+  "engine": "Engine",
+  "timer": "TIMER",
+  "soundSubtitle": "Game sound effects",
+  "hapticsSubtitle": "Vibration feedback",
+  "musicSubtitle": "Background music",
+  "tetSubtitle": "Tết visual effects",
+  "tutorialSubtitle": "Show tutorial again",
+  "resetSubtitle": "Clear all high scores",
+  "shareScore": "SHARE SCORE",
+  "you": "YOU",
+  "rival": "RIVAL"
 }
+

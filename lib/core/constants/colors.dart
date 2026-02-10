@@ -1,4 +1,5 @@
-import 'dart:ui';
+import 'package:flutter/painting.dart';
+import 'package:grid_master/shared/services/theme_service.dart';
 
 /// 8 block colors with glossy palette (main, light, dark, glow)
 class BlockColors {
@@ -67,10 +68,43 @@ class BlockColors {
     ),
   ];
 
+  // Active palette (may be overridden by ThemeService)
+  static List<BlockColorSet>? _activeColors;
+
   /// Get color set by index (1-based)
   static BlockColorSet getColor(int colorIndex) {
     assert(colorIndex >= 1 && colorIndex <= colorCount);
-    return all[colorIndex - 1];
+    final palette = _activeColors ?? all;
+    return palette[(colorIndex - 1) % palette.length];
+  }
+
+  /// Apply a BlockTheme from ThemeService — generates BlockColorSets from the theme's flat colors
+  static void applyTheme(BlockTheme theme) {
+    _activeColors = theme.blockColors.map((c) {
+      // Auto-generate light/dark/glow variants from the main color
+      final hsl = HSLColor.fromColor(c);
+      final light = hsl.withLightness((hsl.lightness + 0.15).clamp(0.0, 1.0)).toColor();
+      final dark = hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
+      final glow = c.withValues(alpha: 0.4);
+      return BlockColorSet(main: c, light: light, dark: dark, glow: glow);
+    }).toList();
+  }
+
+  /// Reset to default palette
+  static void resetToDefault() {
+    _activeColors = null;
+  }
+
+  /// Build a GridTheme from a BlockTheme
+  static GridTheme gridThemeFromBlockTheme(BlockTheme theme) {
+    final bgHsl = HSLColor.fromColor(theme.gridBg);
+    return GridTheme(
+      name: theme.name,
+      bgColor: theme.gridBg,
+      gridLineColor: bgHsl.withLightness((bgHsl.lightness + 0.12).clamp(0.0, 1.0)).toColor(),
+      borderColor: bgHsl.withLightness((bgHsl.lightness + 0.15).clamp(0.0, 1.0)).toColor(),
+      accentGlow: theme.accentColor,
+    );
   }
 }
 

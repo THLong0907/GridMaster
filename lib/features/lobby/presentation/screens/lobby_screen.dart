@@ -8,6 +8,8 @@ import 'package:grid_master/shared/services/high_score_service.dart';
 import 'package:grid_master/shared/services/leaderboard_service.dart';
 import 'package:grid_master/shared/widgets/animated_block_background.dart';
 import 'package:grid_master/shared/widgets/crown_widget.dart';
+import 'package:grid_master/shared/widgets/connectivity_widget.dart';
+import 'package:grid_master/features/lobby/presentation/widgets/daily_challenge_card.dart';
 import 'package:grid_master/l10n/generated/app_localizations.dart';
 
 /// Lobby screen with 5 game mode selection cards
@@ -20,7 +22,7 @@ class LobbyScreen extends StatefulWidget {
 
 class _LobbyScreenState extends State<LobbyScreen> {
   Map<GameMode, int> _highScores = {};
-  Map<GameMode, bool> _top1Status = {};
+  final Map<GameMode, bool> _top1Status = {};
   bool _isAnyTop1 = false;
   String _displayName = 'Player';
 
@@ -93,7 +95,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ConnectivityBanner(
+      child: Scaffold(
       body: Stack(
         children: [
           // Animated block background
@@ -124,7 +127,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
                           _buildTitle(),
                           const SizedBox(height: 16),
                           _buildProfileBar(),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
+                          const DailyChallengeCard(),
+                          const SizedBox(height: 16),
                           _buildLeaderboardButton(),
                           const SizedBox(height: 12),
                           // Stats & Achievements row
@@ -133,14 +138,14 @@ class _LobbyScreenState extends State<LobbyScreen> {
                             children: [
                               _buildSmallButton(
                                 icon: Icons.bar_chart_rounded,
-                                label: 'STATS',
+                                label: AppLocalizations.of(context)!.stats.toUpperCase(),
                                 color: const Color(0xFF00B894),
                                 onTap: () => context.push('/stats'),
                               ),
                               const SizedBox(width: 12),
                               _buildSmallButton(
                                 icon: Icons.emoji_events_rounded,
-                                label: 'ACHIEVEMENTS',
+                                label: AppLocalizations.of(context)!.achievements.toUpperCase(),
                                 color: const Color(0xFFFFD700),
                                 onTap: () => context.push('/achievements'),
                               ),
@@ -161,6 +166,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -463,7 +469,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '${mode.displayName} ${mode.gridSize}×${mode.gridSize}', // Mode names need localization
+                    '${_getModeName(context, mode)} ${mode.gridSize}×${mode.gridSize}',
                     style: GoogleFonts.fredoka(
                       color: color,
                       fontSize: 15,
@@ -473,7 +479,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    mode.description,
+                    _getModeDesc(context, mode),
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.5),
                       fontSize: 11,
@@ -482,7 +488,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    highScore > 0 ? 'Best: $highScore' : ' ',
+                    highScore > 0 ? AppLocalizations.of(context)!.best(highScore) : ' ',
                     style: TextStyle(
                       color: color.withValues(alpha: 0.6),
                       fontSize: 10,
@@ -531,7 +537,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              '8×8 Grid • 2 Minutes',
+              '8×8 Grid • 2 min',
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.5),
                 fontSize: 13,
@@ -542,7 +548,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
             _buildPvpOption(
               icon: Icons.people,
               title: AppLocalizations.of(ctx)!.pvpMode, // Or specialized key
-              subtitle: 'Ghép ngẫu nhiên với người chơi thật', // Need to add to ARB or keep hardcoded? User said "chỉnh lại thành tiếng việt hết".
+              subtitle: AppLocalizations.of(ctx)!.pvpRankedSubtitle,
               color: const Color(0xFF6C5CE7),
               onTap: () {
                 Navigator.pop(ctx);
@@ -554,7 +560,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
             _buildPvpOption(
               icon: Icons.sports_esports,
               title: AppLocalizations.of(ctx)!.practiceMode,
-              subtitle: 'Chơi solo với BOT • Không tính xếp hạng',
+              subtitle: AppLocalizations.of(ctx)!.pvpPracticeSubtitle,
               color: const Color(0xFF00B894),
               onTap: () {
                 Navigator.pop(ctx);
@@ -624,5 +630,41 @@ class _LobbyScreenState extends State<LobbyScreen> {
         ),
       ),
     );
+  }
+
+  String _getModeName(BuildContext context, GameMode mode) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (mode) {
+      case GameMode.easy:
+        return l10n.easyMode;
+      case GameMode.classic:
+        return l10n.classicMode;
+      case GameMode.master:
+        return l10n.masterMode;
+      case GameMode.memory:
+        return l10n.memoryMode;
+      case GameMode.zen:
+        return l10n.zenMode;
+      case GameMode.soloPvP:
+        return l10n.soloPvp;
+    }
+  }
+
+  String _getModeDesc(BuildContext context, GameMode mode) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (mode) {
+      case GameMode.easy:
+        return l10n.easyDesc;
+      case GameMode.classic:
+        return l10n.classicDesc;
+      case GameMode.master:
+        return l10n.masterDesc;
+      case GameMode.memory:
+        return l10n.memoryDesc;
+      case GameMode.zen:
+        return l10n.zenDesc;
+      case GameMode.soloPvP:
+        return l10n.pvpDesc;
+    }
   }
 }

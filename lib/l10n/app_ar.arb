@@ -1,62 +1,118 @@
 {
-  "@@locale": "ar",
-  "appTitle": "ماستر الشبكة",
+  "appTitle": "غريد ماستر",
   "score": "النقاط",
   "highScore": "أعلى نتيجة",
   "gameOver": "انتهت اللعبة",
   "newHighScore": "رقم قياسي جديد!",
-  "playAgain": "العب مجدداً",
+  "playAgain": "العب مرة أخرى",
   "home": "الرئيسية",
   "share": "مشاركة",
   "settings": "الإعدادات",
   "sound": "الصوت",
   "haptics": "الاهتزاز",
-  "resetProgress": "إعادة تعيين التقدم",
-  "resetConfirmTitle": "إعادة تعيين؟",
-  "resetConfirmContent": "سيتم حذف أعلى النتائج والسمات المفتوحة. لا يمكن التراجع عن هذا.",
+  "resetProgress": "إعادة التعيين",
+  "resetConfirmTitle": "إعادة التعيين؟",
+  "resetConfirmContent": "سيتم حذف جميع النتائج والسمات. لا يمكن التراجع.",
   "cancel": "إلغاء",
   "delete": "حذف",
   "save": "حفظ",
   "changeName": "تغيير الاسم",
   "enterName": "أدخل اسمك",
   "leaderboard": "لوحة المتصدرين",
-  "loading": "جارٍ التحميل...",
+  "loading": "جاري التحميل...",
   "error": "خطأ",
   "emptyLeaderboard": "لا توجد نتائج بعد!",
-  "tutorialTitle": "كيف تلعب",
+  "tutorialTitle": "طريقة اللعب",
   "tutorialStep1": "اسحب الكتل إلى الشبكة",
   "tutorialStep2": "املأ الصفوف أو الأعمدة لمسحها",
   "tutorialStep3": "استخدم المطرقة لتحطيم الكتل",
   "tutorialStep4": "لا تنفد المساحة!",
-  "clear": "مسح!",
-  "doubleClear": "مسح مزدوج!",
-  "tripleClear": "مسح ثلاثي!",
-  "megaClear": "مسح ضخم! x{count}",
-  "@megaClear": { "placeholders": { "count": { "type": "int" } } },
-  "memoryReveal": "👁️ كشف الذاكرة!",
-  "zenClear": "🧘 مسح زن!",
-  "autoHammer": "🔨 مطرقة تلقائية! ({count} خلية)",
-  "@autoHammer": { "placeholders": { "count": { "type": "int" } } },
-  "risingRow": "⬆️ صف صاعد!",
-  "autoDrop": "⏰ سقوط تلقائي!",
-  "endSession": "إنهاء الجلسة",
+  "clear": "رائع!",
+  "doubleClear": "مزدوج!",
+  "tripleClear": "ثلاثي!",
+  "megaClear": "ميغا! x{count}",
+  "memoryReveal": "Memory Reveal!",
+  "zenClear": "Zen Clear!",
+  "autoHammer": "Auto Hammer! ({count} cells)",
+  "risingRow": "Rising Row!",
+  "autoDrop": "Auto Drop!",
+  "endSession": "إنهاء",
   "findingRival": "البحث عن منافس...",
-  "matchmakingError": "خطأ في البحث: {error}",
-  "@matchmakingError": { "placeholders": { "error": { "type": "String" } } },
-  "zenSummaryTitle": "جلسة زن",
-  "totalLines": "الصفوف الممسوحة",
+  "matchmakingError": "خطأ في المطابقة: {error}",
+  "zenSummaryTitle": "ZEN SESSION ENDED",
+  "totalLines": "خطوط ممسوحة",
   "maxCombo": "أقصى كومبو",
-  "blocksPlaced": "الكتل الموضوعة",
+  "blocksPlaced": "كتل موضوعة",
   "playTime": "وقت اللعب",
   "easyMode": "سهل",
   "memoryMode": "ذاكرة",
   "classicMode": "كلاسيكي",
-  "masterMode": "ماستر",
-  "zenMode": "زن",
-  "survivalMode": "البقاء",
-  "pvpMode": "مواجهة",
+  "masterMode": "خبير",
+  "zenMode": "زِن",
+  "survivalMode": "بقاء",
+  "pvpMode": "معركة PvP",
   "practiceMode": "تدريب",
   "skip": "تخطي",
   "next": "التالي",
-  "start": "ابدأ!"
+  "start": "ابدأ!",
+  "stats": "الإحصائيات",
+  "achievements": "الإنجازات",
+  "music": "الموسيقى",
+  "themes": "السمات",
+  "language": "اللغة",
+  "chooseLanguage": "اختر اللغة",
+  "autoDevice": "تلقائي (الجهاز)",
+  "data": "البيانات",
+  "best": "الأفضل: {score}",
+  "easyDesc": "شبكة صغيرة، كتل صغيرة",
+  "classicDesc": "صفوف صاعدة، امسح بسرعة!",
+  "masterDesc": "سقوط تلقائي، سرعة!",
+  "memoryDesc": "الكتل تختفي، تذكر المواقع",
+  "zenDesc": "استرخِ، بدون خسارة",
+  "pvpDesc": "مبارزة 1v1 في دقيقتين",
+  "pvpRankedSubtitle": "مباراة عشوائية مع لاعبين حقيقيين",
+  "pvpPracticeSubtitle": "العب ضد بوت • بدون تصنيف",
+  "soloPvp": "PvP فردي",
+  "gridInfo": "شبكة {size}×{size} • دقيقتان",
+  "dailyChallenge": "تحدي يومي",
+  "dailyChallengeSubtitle": "تحدٍ جديد كل يوم!",
+  "streak": "سلسلة",
+  "completed": "مكتمل",
+  "play": "العب",
+  "noConnection": "لا يوجد اتصال",
+  "tetEffects": "تأثيرات رأس السنة",
+  "pause": "إيقاف مؤقت",
+  "resume": "استئناف",
+  "quit": "خروج",
+  "paused": "متوقف",
+  "newFeatures": "ميزات جديدة",
+  "privacyPolicy": "سياسة الخصوصية",
+  "restart": "RESTART",
+  "continueBtn": "Continue",
+  "backToLobby": "Back to Lobby",
+  "pvpWin": "YOU WIN!",
+  "pvpLose": "YOU LOSE",
+  "pvpDraw": "DRAW",
+  "uploading": "Uploading...",
+  "uploadToLeaderboard": "Upload to Leaderboard",
+  "scoreUploaded": "Score uploaded!",
+  "uploadFailed": "Upload failed. Check connection.",
+  "tutorialReset": "Tutorial will show on next game",
+  "highScoresCleared": "All high scores cleared",
+  "botBeginner": "Beginner",
+  "botPro": "Professional",
+  "botDestroyer": "Destroyer",
+  "botGodlike": "Godlike",
+  "version": "Version",
+  "engine": "Engine",
+  "timer": "TIMER",
+  "soundSubtitle": "Game sound effects",
+  "hapticsSubtitle": "Vibration feedback",
+  "musicSubtitle": "Background music",
+  "tetSubtitle": "Tet visual effects",
+  "tutorialSubtitle": "Show tutorial again",
+  "resetSubtitle": "Clear all high scores",
+  "shareScore": "SHARE SCORE",
+  "you": "YOU",
+  "rival": "RIVAL"
 }

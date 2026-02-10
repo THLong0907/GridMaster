@@ -51,7 +51,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '🏆 ACHIEVEMENTS',
+                        'ACHIEVEMENTS',
                         style: GoogleFonts.fredoka(
                           color: Colors.white,
                           fontSize: 24,
@@ -159,12 +159,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
-              child: Text(
-                isUnlocked ? a.icon : '🔒',
-                style: TextStyle(
-                  fontSize: 24,
-                  color: isUnlocked ? null : Colors.white24,
-                ),
+              child: Icon(
+                isUnlocked ? a.icon : Icons.lock_rounded,
+                size: 24,
+                color: isUnlocked ? const Color(0xFFFFD700) : Colors.white24,
               ),
             ),
           ),

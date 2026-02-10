@@ -109,8 +109,11 @@ final appRouter = GoRouter(
         final modeName = state.pathParameters['mode'] ?? 'easy';
         final mode = GameMode.fromString(modeName);
         final isPractice = state.uri.queryParameters['practice'] == 'true';
+        final seedStr = state.uri.queryParameters['seed'];
+        final seed = seedStr != null ? int.tryParse(seedStr) : null;
+        final isDaily = state.uri.queryParameters['daily'] == 'true';
         return _scaleUpPage(
-          GameScreen(mode: mode, isPractice: isPractice),
+          GameScreen(mode: mode, isPractice: isPractice, seed: seed, isDaily: isDaily),
           state,
         );
       },

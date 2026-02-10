@@ -33,6 +33,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get share => 'שתף';
 
   @override
+  String get restart => 'RESTART';
+
+  @override
   String get settings => 'הגדרות';
 
   @override
@@ -42,14 +45,14 @@ class AppLocalizationsHe extends AppLocalizations {
   String get haptics => 'רטט';
 
   @override
-  String get resetProgress => 'אפס התקדמות';
+  String get resetProgress => 'איפוס התקדמות';
 
   @override
   String get resetConfirmTitle => 'לאפס?';
 
   @override
   String get resetConfirmContent =>
-      'פעולה זו תמחק את השיאים שלך ואת הערכות הנושא שנפתחו. לא ניתן לבטל.';
+      'כל הניקודים והעיצובים יימחקו. לא ניתן לבטל.';
 
   @override
   String get cancel => 'ביטול';
@@ -64,7 +67,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get changeName => 'שנה שם';
 
   @override
-  String get enterName => 'הכנס את שמך';
+  String get enterName => 'הזן את שמך';
 
   @override
   String get leaderboard => 'טבלת מובילים';
@@ -76,7 +79,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get error => 'שגיאה';
 
   @override
-  String get emptyLeaderboard => 'אין ניקוד עדיין!';
+  String get emptyLeaderboard => 'אין ניקודים עדיין!';
 
   @override
   String get tutorialTitle => 'איך לשחק';
@@ -85,44 +88,44 @@ class AppLocalizationsHe extends AppLocalizations {
   String get tutorialStep1 => 'גרור בלוקים לרשת';
 
   @override
-  String get tutorialStep2 => 'מלא שורות או עמודות כדי לנקות';
+  String get tutorialStep2 => 'מלא שורות או עמודות';
 
   @override
-  String get tutorialStep3 => 'השתמש בפטיש כדי לשבור בלוקים';
+  String get tutorialStep3 => 'השתמש בפטיש לשבירה';
 
   @override
   String get tutorialStep4 => 'אל תיגמר לך מקום!';
 
   @override
-  String get clear => 'נוקה!';
+  String get clear => 'מעולה!';
 
   @override
-  String get doubleClear => 'ניקוי כפול!';
+  String get doubleClear => 'כפול!';
 
   @override
-  String get tripleClear => 'ניקוי משולש!';
+  String get tripleClear => 'משולש!';
 
   @override
   String megaClear(int count) {
-    return 'מגה ניקוי! x$count';
+    return 'מגה! x$count';
   }
 
   @override
-  String get memoryReveal => '👁️ חשיפת זיכרון!';
+  String get memoryReveal => 'Memory Reveal!';
 
   @override
-  String get zenClear => '🧘 ניקוי זן!';
+  String get zenClear => 'Zen Clear!';
 
   @override
   String autoHammer(int count) {
-    return '🔨 פטיש אוטומטי! ($count תאים)';
+    return 'Auto Hammer! ($count cells)';
   }
 
   @override
-  String get risingRow => '⬆️ שורה עולה!';
+  String get risingRow => 'Rising Row!';
 
   @override
-  String get autoDrop => '⏰ נפילה אוטומטית!';
+  String get autoDrop => 'Auto Drop!';
 
   @override
   String get endSession => 'סיום';
@@ -132,14 +135,14 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String matchmakingError(String error) {
-    return 'שגיאת חיפוש: $error';
+    return 'שגיאת התאמה: $error';
   }
 
   @override
-  String get zenSummaryTitle => 'מפגש זן';
+  String get zenSummaryTitle => 'ZEN SESSION ENDED';
 
   @override
-  String get totalLines => 'שורות שנוקו';
+  String get totalLines => 'שורות שנמחקו';
 
   @override
   String get maxCombo => 'קומבו מקסימלי';
@@ -149,6 +152,12 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get playTime => 'זמן משחק';
+
+  @override
+  String get continueBtn => 'Continue';
+
+  @override
+  String get backToLobby => 'Back to Lobby';
 
   @override
   String get easyMode => 'קל';
@@ -172,7 +181,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get pvpMode => 'קרב PvP';
 
   @override
-  String get practiceMode => 'תרגול';
+  String get practiceMode => 'אימון';
 
   @override
   String get skip => 'דלג';
@@ -182,4 +191,179 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get start => 'התחל!';
+
+  @override
+  String get stats => 'סטטיסטיקות';
+
+  @override
+  String get achievements => 'הישגים';
+
+  @override
+  String get music => 'מוזיקה';
+
+  @override
+  String get themes => 'עיצובים';
+
+  @override
+  String get language => 'שפה';
+
+  @override
+  String get chooseLanguage => 'בחר שפה';
+
+  @override
+  String get autoDevice => 'אוטומטי (מכשיר)';
+
+  @override
+  String get data => 'נתונים';
+
+  @override
+  String best(int score) {
+    return 'שיא: $score';
+  }
+
+  @override
+  String get easyDesc => 'רשת קטנה, בלוקים קטנים';
+
+  @override
+  String get classicDesc => 'שורות עולות, מחק מהר!';
+
+  @override
+  String get masterDesc => 'נפילה אוטומטית, מהירות!';
+
+  @override
+  String get memoryDesc => 'בלוקים נעלמים, זכור מיקומים';
+
+  @override
+  String get zenDesc => 'הרגע, בלי להפסיד';
+
+  @override
+  String get pvpDesc => 'דו-קרב 1v1 ב-2 דקות';
+
+  @override
+  String get pvpRankedSubtitle => 'משחק אקראי עם שחקנים אמיתיים';
+
+  @override
+  String get pvpPracticeSubtitle => 'משחק יחיד נגד בוט • ללא דירוג';
+
+  @override
+  String get soloPvp => 'PvP יחיד';
+
+  @override
+  String gridInfo(int size) {
+    return 'רשת $size×$size • 2 דקות';
+  }
+
+  @override
+  String get dailyChallenge => 'אתגר יומי';
+
+  @override
+  String get dailyChallengeSubtitle => 'אתגר חדש כל יום!';
+
+  @override
+  String get streak => 'רצף';
+
+  @override
+  String get completed => 'הושלם';
+
+  @override
+  String get play => 'שחק';
+
+  @override
+  String get noConnection => 'אין חיבור';
+
+  @override
+  String get tetEffects => 'אפקטי שנה חדשה';
+
+  @override
+  String get pause => 'השהה';
+
+  @override
+  String get resume => 'המשך';
+
+  @override
+  String get quit => 'צא';
+
+  @override
+  String get paused => 'מושהה';
+
+  @override
+  String get newFeatures => 'תכונות חדשות';
+
+  @override
+  String get privacyPolicy => 'מדיניות פרטיות';
+
+  @override
+  String get pvpWin => 'YOU WIN!';
+
+  @override
+  String get pvpLose => 'YOU LOSE';
+
+  @override
+  String get pvpDraw => 'DRAW';
+
+  @override
+  String get uploading => 'Uploading...';
+
+  @override
+  String get uploadToLeaderboard => 'Upload to Leaderboard';
+
+  @override
+  String get scoreUploaded => 'Score uploaded!';
+
+  @override
+  String get uploadFailed => 'Upload failed. Check connection.';
+
+  @override
+  String get tutorialReset => 'Tutorial will show on next game';
+
+  @override
+  String get highScoresCleared => 'All high scores cleared';
+
+  @override
+  String get botBeginner => 'Beginner';
+
+  @override
+  String get botPro => 'Professional';
+
+  @override
+  String get botDestroyer => 'Destroyer';
+
+  @override
+  String get botGodlike => 'Godlike';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get engine => 'Engine';
+
+  @override
+  String get timer => 'TIMER';
+
+  @override
+  String get soundSubtitle => 'Game sound effects';
+
+  @override
+  String get hapticsSubtitle => 'Vibration feedback';
+
+  @override
+  String get musicSubtitle => 'Background music';
+
+  @override
+  String get tetSubtitle => 'Tet visual effects';
+
+  @override
+  String get tutorialSubtitle => 'Show tutorial again';
+
+  @override
+  String get resetSubtitle => 'Clear all high scores';
+
+  @override
+  String get shareScore => 'SHARE SCORE';
+
+  @override
+  String get you => 'YOU';
+
+  @override
+  String get rival => 'RIVAL';
 }

@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:grid_master/features/game/domain/models/game_mode.dart';
 
 /// Achievement definition
 class Achievement {
   final String id;
-  final String icon;
+  final IconData icon;
   final String title;
   final String description;
   final bool Function(Map<String, dynamic> stats) checkUnlock;
@@ -26,35 +27,35 @@ class AchievementService {
   static final List<Achievement> achievements = [
     Achievement(
       id: 'first_game',
-      icon: '🎮',
+      icon: Icons.sports_esports_rounded,
       title: 'First Steps',
       description: 'Play your first game',
       checkUnlock: (s) => (s['totalGames'] ?? 0) >= 1,
     ),
     Achievement(
       id: 'ten_games',
-      icon: '🔟',
+      icon: Icons.looks_one_rounded,
       title: 'Getting Started',
       description: 'Play 10 games',
       checkUnlock: (s) => (s['totalGames'] ?? 0) >= 10,
     ),
     Achievement(
       id: 'fifty_games',
-      icon: '🏅',
+      icon: Icons.military_tech_rounded,
       title: 'Dedicated Player',
       description: 'Play 50 games',
       checkUnlock: (s) => (s['totalGames'] ?? 0) >= 50,
     ),
     Achievement(
       id: 'hundred_games',
-      icon: '💯',
+      icon: Icons.emoji_events_rounded,
       title: 'Block Master',
       description: 'Play 100 games',
       checkUnlock: (s) => (s['totalGames'] ?? 0) >= 100,
     ),
     Achievement(
       id: 'score_100',
-      icon: '⭐',
+      icon: Icons.star_rounded,
       title: 'Rising Star',
       description: 'Score 100 points in a single game',
       checkUnlock: (s) {
@@ -66,7 +67,7 @@ class AchievementService {
     ),
     Achievement(
       id: 'score_500',
-      icon: '🌟',
+      icon: Icons.auto_awesome_rounded,
       title: 'Score Hunter',
       description: 'Score 500 points in a single game',
       checkUnlock: (s) {
@@ -78,7 +79,7 @@ class AchievementService {
     ),
     Achievement(
       id: 'score_1000',
-      icon: '💫',
+      icon: Icons.workspace_premium_rounded,
       title: 'Legendary Score',
       description: 'Score 1000 points in a single game',
       checkUnlock: (s) {
@@ -90,7 +91,7 @@ class AchievementService {
     ),
     Achievement(
       id: 'all_modes',
-      icon: '🌈',
+      icon: Icons.explore_rounded,
       title: 'Explorer',
       description: 'Play every game mode at least once',
       checkUnlock: (s) {
@@ -102,33 +103,34 @@ class AchievementService {
     ),
     Achievement(
       id: 'lines_100',
-      icon: '📏',
+      icon: Icons.straighten_rounded,
       title: 'Line Destroyer',
       description: 'Clear 100 lines total',
       checkUnlock: (s) => (s['totalLines'] ?? 0) >= 100,
     ),
     Achievement(
       id: 'lines_500',
-      icon: '🔥',
+      icon: Icons.local_fire_department_rounded,
       title: 'Line Inferno',
       description: 'Clear 500 lines total',
       checkUnlock: (s) => (s['totalLines'] ?? 0) >= 500,
     ),
     Achievement(
       id: 'time_30min',
-      icon: '⏰',
+      icon: Icons.timer_rounded,
       title: 'Time Invested',
       description: 'Play for 30 minutes total',
       checkUnlock: (s) => (s['totalTime'] ?? 0) >= 1800,
     ),
     Achievement(
       id: 'time_2hr',
-      icon: '⌛',
+      icon: Icons.hourglass_bottom_rounded,
       title: 'Marathon Gamer',
       description: 'Play for 2 hours total',
       checkUnlock: (s) => (s['totalTime'] ?? 0) >= 7200,
     ),
   ];
+
 
   /// Check and unlock achievements based on current stats
   static Future<List<String>> checkAndUnlock(

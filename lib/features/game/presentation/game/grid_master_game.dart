@@ -18,6 +18,7 @@ import 'effects/clear_effect.dart';
 import 'effects/effects_manager.dart';
 import 'effects/screen_effects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:grid_master/shared/services/theme_service.dart';
 
 /// Main Grid Master game powered by Flame Engine
 /// Supports 5 game modes with different grid sizes and mechanics
@@ -60,8 +61,11 @@ class GridMasterGame extends FlameGame with PanDetector {
   late final Random _rng;
 
   // Memory mode: per-cell expiration timestamps
-  Map<(int, int), int> _memoryCellExpiry = {};
+  final Map<(int, int), int> _memoryCellExpiry = {};
   int? _nextPeriodicRevealMs;
+
+  // User-selected grid theme from ThemeService
+  GridTheme? _userGridTheme;
 
   // Effects system
   bool _tetEffectsEnabled = true;
@@ -70,6 +74,13 @@ class GridMasterGame extends FlameGame with PanDetector {
   GlowTrailComponent? _glowTrail;
   HoaDaoComponent? _hoaDaoComponent;
   int _clearCountSinceThemeChange = 0;
+
+  // Undo snapshot
+  GridModel? _undoGrid;
+  int _undoScore = 0;
+  int _undoStreak = 0;
+  List<BlockPiece>? _undoPieces;
+  List<bool>? _undoUsedPieces;
 
   // Callbacks to Flutter overlay
   Function(int score, int streak, int linesCleared, String? message)?
@@ -96,6 +107,24 @@ class GridMasterGame extends FlameGame with PanDetector {
 
   void setHighScore(int value) => _highScore = value;
 
+  /// Undo last move — restores grid, score, streak
+  bool undo() {
+    if (_undoGrid == null) return false;
+    _grid = _undoGrid!;
+    _score = _undoScore;
+    _streak = _undoStreak;
+    _gridComponent.grid = _grid;
+    // Restore pieces
+    if (_undoPieces != null && _undoUsedPieces != null) {
+      _currentPieces = _undoPieces!;
+      _usedPieces = List.from(_undoUsedPieces!);
+      _layoutComponents();
+    }
+    _undoGrid = null; // Can only undo once
+    onScoreChanged?.call(_score, _streak, 0, null);
+    return true;
+  }
+
   @override
   Color backgroundColor() => const Color(0x00000000);
 
@@ -105,6 +134,12 @@ class GridMasterGame extends FlameGame with PanDetector {
     // Load Tết effects preference
     final prefs = await SharedPreferences.getInstance();
     _tetEffectsEnabled = prefs.getBool('tet_effects_enabled') ?? true;
+
+    // Apply selected theme from ThemeService
+    final blockTheme = ThemeService.instance.currentTheme;
+    BlockColors.applyTheme(blockTheme);
+    _userGridTheme = BlockColors.gridThemeFromBlockTheme(blockTheme);
+
     _startNewGame();
 
     // Add glow trail (persistent component)
@@ -246,6 +281,13 @@ class GridMasterGame extends FlameGame with PanDetector {
     final startRow = (gridLocalY / _cellSize).round();
 
     if (GridLogic.canPlace(_grid, piece, startRow, startCol)) {
+      // Save undo snapshot before placing
+      _undoGrid = _grid.copy();
+      _undoScore = _score;
+      _undoStreak = _streak;
+      _undoPieces = List.from(_currentPieces);
+      _undoUsedPieces = List.from(_usedPieces);
+
       _grid = GridLogic.placePiece(_grid, piece, startRow, startCol);
       _usedPieces[comp.index] = true;
       comp.used = true;
@@ -790,6 +832,10 @@ class GridMasterGame extends FlameGame with PanDetector {
       // Restore visible cells from per-cell expiry map
       _gridComponent.visibleCells = _memoryCellExpiry.keys.toSet();
     }
+    // Apply user-selected grid theme
+    if (_userGridTheme != null) {
+      _gridComponent.setTheme(_userGridTheme!);
+    }
     add(_gridComponent);
 
     // Re-add particle effects
@@ -900,7 +946,7 @@ class GridMasterGame extends FlameGame with PanDetector {
     if (_streak >= 2) {
       add(
         ComboTextComponent(
-          text: 'x${_streak} COMBO!',
+          text: 'x$_streak COMBO!',
           x: centerX,
           y: centerY - 60,
           color: _streak >= 8

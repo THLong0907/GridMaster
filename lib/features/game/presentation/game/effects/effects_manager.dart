@@ -526,7 +526,6 @@ class EffectsManager {
     final components = <Component>[];
     for (int i = 0; i < 10; i++) {
       final sx = _rng.nextDouble() * screenWidth;
-      final delay = _rng.nextDouble() * 0.5;
 
       components.add(
         ParticleSystemComponent(

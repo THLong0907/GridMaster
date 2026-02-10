@@ -19,6 +19,7 @@ import 'package:grid_master/shared/services/leaderboard_service.dart';
 import 'package:grid_master/shared/services/pvp_service.dart';
 import 'package:grid_master/shared/services/auth_service.dart';
 import 'package:grid_master/shared/services/audio_service.dart';
+import 'package:grid_master/shared/services/music_service.dart';
 import 'package:grid_master/shared/services/stats_service.dart';
 import 'package:grid_master/shared/services/achievement_service.dart';
 import 'package:grid_master/shared/widgets/tutorial_overlay.dart';
@@ -29,8 +30,10 @@ import 'dart:math';
 class GameScreen extends StatefulWidget {
   final GameMode mode;
   final bool isPractice;
+  final int? seed;
+  final bool isDaily;
 
-  const GameScreen({super.key, required this.mode, this.isPractice = false});
+  const GameScreen({super.key, required this.mode, this.isPractice = false, this.seed, this.isDaily = false});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -75,6 +78,9 @@ class _GameScreenState extends State<GameScreen> {
   int _zenBlocksPlaced = 0;
   bool _showZenSummary = false;
 
+  // Undo system
+  int _undoCount = 1; // 1 free undo per game
+
   // Master Timer Drop UI
   List<double> _pieceTimers = [];
   double _timerMax = 8.0;
@@ -100,7 +106,7 @@ class _GameScreenState extends State<GameScreen> {
         // _loadHighScore is called inside _startPvpGame after _game is ready
       }
     } else {
-      _initStandardGame();
+      _initStandardGame(seed: widget.seed);
       _loadHighScore();
     }
 
@@ -109,6 +115,11 @@ class _GameScreenState extends State<GameScreen> {
     // Check if tutorial should be shown
     TutorialOverlay.shouldShow().then((show) {
       if (show && mounted) setState(() => _showTutorial = true);
+    });
+
+    // Start background music
+    MusicService.instance.init().then((_) {
+      MusicService.instance.play();
     });
   }
 
@@ -219,25 +230,24 @@ class _GameScreenState extends State<GameScreen> {
   void _startPracticeGame() {
     // Randomly pick a BOT difficulty
     final difficulties = [
-      // [name, emoji, scoreChance (out of 10), minPts, maxPts, comboChance (out of 100), comboMin, comboMax]
-      ['Tập Sự', '🍼', 2, 15, 60, 3, 100, 200],
-      ['Chuyên Nghiệp', '🚀', 3, 40, 120, 8, 200, 500],
-      ['Hủy Diệt', '😈', 4, 80, 200, 15, 400, 800],
-      ['Siêu Thần', '👹', 5, 120, 300, 25, 600, 1500],
+      // [name, scoreChance (out of 10), minPts, maxPts, comboChance (out of 100), comboMin, comboMax]
+      ['Rookie Bot', 2, 15, 60, 3, 100, 200],
+      ['Pro Bot', 3, 40, 120, 8, 200, 500],
+      ['Elite Bot', 4, 80, 200, 15, 400, 800],
+      ['Legend Bot', 5, 120, 300, 25, 600, 1500],
     ];
     final diff = difficulties[Random().nextInt(difficulties.length)];
     final botName = diff[0] as String;
-    final botEmoji = diff[1] as String;
-    final scoreChance = diff[2] as int; // out of 10, checked each second
-    final minPts = diff[3] as int;
-    final maxPts = diff[4] as int;
-    final comboChance = diff[5] as int; // out of 100
-    final comboMin = diff[6] as int;
-    final comboMax = diff[7] as int;
+    final scoreChance = diff[1] as int; // out of 10, checked each second
+    final minPts = diff[2] as int;
+    final maxPts = diff[3] as int;
+    final comboChance = diff[4] as int; // out of 100
+    final comboMin = diff[5] as int;
+    final comboMax = diff[6] as int;
 
     setState(() {
       _isPvpSearching = false;
-      _rivalName = '$botEmoji $botName';
+      _rivalName = botName;
       _rivalScore = 0;
     });
 
@@ -286,6 +296,7 @@ class _GameScreenState extends State<GameScreen> {
     _pvpTimer?.cancel();
     _botTimer?.cancel();
     _timerPollTimer?.cancel();
+    MusicService.instance.stop();
     super.dispose();
   }
 
@@ -315,20 +326,20 @@ class _GameScreenState extends State<GameScreen> {
     String? localizedMessage = message;
     if (message != null) {
       final l10n = AppLocalizations.of(context)!;
-      if (message == 'clear')
+      if (message == 'clear') {
         localizedMessage = l10n.clear;
-      else if (message == 'doubleClear')
+      } else if (message == 'doubleClear') {
         localizedMessage = l10n.doubleClear;
-      else if (message == 'tripleClear')
+      } else if (message == 'tripleClear') {
         localizedMessage = l10n.tripleClear;
-      else if (message.startsWith('megaClear:')) {
+      } else if (message.startsWith('megaClear:')) {
         final count = int.tryParse(message.split(':')[1]) ?? 4;
         localizedMessage = l10n.megaClear(count);
-      } else if (message == '👁️ Memory Reveal!')
+      } else if (message == '👁️ Memory Reveal!') {
         localizedMessage = l10n.memoryReveal;
-      else if (message == '🧘 Zen Clear!')
+      } else if (message == '🧘 Zen Clear!') {
         localizedMessage = l10n.zenClear;
-      else if (message.startsWith('🔨 Auto Hammer!')) {
+      } else if (message.startsWith('🔨 Auto Hammer!')) {
         // message format: 🔨 Auto Hammer! ($destroyed cells)
         // regex or simple parse. But GridMasterGame logic sets this string.
         // Let's assume we update GridMasterGame to send keys for these too?
@@ -338,10 +349,11 @@ class _GameScreenState extends State<GameScreen> {
         // The GridMasterGame code had: '🔨 Auto Hammer! ($destroyed cells)'
         // I'll leave it as is for now or do a best effort.
         // Wait, I updated _getClearText but not the others in GridMasterGame.
-      } else if (message == '⬆️ Hàng dâng!')
+      } else if (message == '⬆️ Hàng dâng!') {
         localizedMessage = l10n.risingRow;
-      else if (message.startsWith('⏰ Auto Drop!'))
+      } else if (message.startsWith('⏰ Auto Drop!')) {
         localizedMessage = l10n.autoDrop;
+      }
     }
 
     setState(() {
@@ -395,19 +407,20 @@ class _GameScreenState extends State<GameScreen> {
       HighScoreService.save(score, widget.mode);
       AudioService.instance.playNewHighScore();
       // 🎇 High score fireworks celebration
-      if (_game != null) {
-        final fireworks = EffectsManager.createHighScoreFireworks(
-          screenWidth: _game!.size.x,
-          screenHeight: _game!.size.y,
-        );
-        for (final c in fireworks) {
-          _game!.add(c);
-        }
-        AudioService.instance.playHighScoreCelebration();
+      final fireworks = EffectsManager.createHighScoreFireworks(
+        screenWidth: _game.size.x,
+        screenHeight: _game.size.y,
+      );
+      for (final c in fireworks) {
+        _game.add(c);
       }
+      AudioService.instance.playHighScoreCelebration();
     } else {
       AudioService.instance.playGameOver();
     }
+
+    // Stop music on game over
+    MusicService.instance.stop();
 
     // In PvP (non-practice), notify service
     if (widget.mode == GameMode.soloPvP &&
@@ -545,6 +558,12 @@ class _GameScreenState extends State<GameScreen> {
               hammerCharges: _hammerCharges,
               accentColor: _accentColor,
               showHammer: widget.mode != GameMode.zen,
+              undoCount: _undoCount,
+              onUndoTap: () {
+                if (_undoCount > 0 && _gameInitialized && _game.undo()) {
+                  setState(() => _undoCount--);
+                }
+              },
               onPauseTap: () {
                 setState(() => _isPaused = true);
                 _game.paused = true;

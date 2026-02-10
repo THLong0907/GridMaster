@@ -1,11 +1,10 @@
 {
-  "@@locale": "fa",
-  "appTitle": "استاد شبکه",
+  "appTitle": "گرید مستر",
   "score": "امتیاز",
   "highScore": "بالاترین امتیاز",
-  "gameOver": "بازی تمام شد",
+  "gameOver": "پایان بازی",
   "newHighScore": "رکورد جدید!",
-  "playAgain": "بازی مجدد",
+  "playAgain": "دوباره بازی",
   "home": "خانه",
   "share": "اشتراک",
   "settings": "تنظیمات",
@@ -13,40 +12,37 @@
   "haptics": "لرزش",
   "resetProgress": "بازنشانی پیشرفت",
   "resetConfirmTitle": "بازنشانی؟",
-  "resetConfirmContent": "رکوردها و تم‌های باز شده حذف خواهند شد. قابل بازگشت نیست.",
+  "resetConfirmContent": "تمام نتایج و تم‌ها حذف خواهند شد. قابل بازگشت نیست.",
   "cancel": "لغو",
   "delete": "حذف",
   "save": "ذخیره",
   "changeName": "تغییر نام",
   "enterName": "نام خود را وارد کنید",
-  "leaderboard": "جدول امتیازات",
+  "leaderboard": "جدول رتبه‌بندی",
   "loading": "در حال بارگذاری...",
   "error": "خطا",
   "emptyLeaderboard": "هنوز امتیازی نیست!",
   "tutorialTitle": "نحوه بازی",
   "tutorialStep1": "بلوک‌ها را به شبکه بکشید",
-  "tutorialStep2": "ردیف یا ستون را پر کنید تا پاک شود",
-  "tutorialStep3": "از چکش برای شکستن بلوک‌ها استفاده کنید",
-  "tutorialStep4": "فضا تمام نشود!",
-  "clear": "پاک شد!",
-  "doubleClear": "پاک دوتایی!",
-  "tripleClear": "پاک سه‌تایی!",
-  "megaClear": "پاک بزرگ! x{count}",
-  "@megaClear": { "placeholders": { "count": { "type": "int" } } },
-  "memoryReveal": "👁️ آشکار حافظه!",
-  "zenClear": "🧘 پاک ذن!",
-  "autoHammer": "🔨 چکش خودکار! ({count} خانه)",
-  "@autoHammer": { "placeholders": { "count": { "type": "int" } } },
-  "risingRow": "⬆️ ردیف بالارونده!",
-  "autoDrop": "⏰ سقوط خودکار!",
+  "tutorialStep2": "ردیف یا ستون را پر کنید",
+  "tutorialStep3": "از چکش برای شکستن استفاده کنید",
+  "tutorialStep4": "فضایتان تمام نشود!",
+  "clear": "عالی!",
+  "doubleClear": "دوتایی!",
+  "tripleClear": "سه‌تایی!",
+  "megaClear": "مگا! x{count}",
+  "memoryReveal": "Memory Reveal!",
+  "zenClear": "Zen Clear!",
+  "autoHammer": "Auto Hammer! ({count} cells)",
+  "risingRow": "Rising Row!",
+  "autoDrop": "Auto Drop!",
   "endSession": "پایان",
-  "findingRival": "جستجوی حریف...",
-  "matchmakingError": "خطای جستجو: {error}",
-  "@matchmakingError": { "placeholders": { "error": { "type": "String" } } },
-  "zenSummaryTitle": "جلسه ذن",
-  "totalLines": "ردیف‌های پاک شده",
-  "maxCombo": "بیشترین کمبو",
-  "blocksPlaced": "بلوک‌های قرار داده",
+  "findingRival": "در حال یافتن حریف...",
+  "matchmakingError": "خطای جورسازی: {error}",
+  "zenSummaryTitle": "ZEN SESSION ENDED",
+  "totalLines": "خطوط پاک‌شده",
+  "maxCombo": "حداکثر کمبو",
+  "blocksPlaced": "بلوک‌های قرارداده‌شده",
   "playTime": "زمان بازی",
   "easyMode": "آسان",
   "memoryMode": "حافظه",
@@ -54,9 +50,69 @@
   "masterMode": "استاد",
   "zenMode": "ذن",
   "survivalMode": "بقا",
-  "pvpMode": "مبارزه",
+  "pvpMode": "مبارزه PvP",
   "practiceMode": "تمرین",
   "skip": "رد شدن",
   "next": "بعدی",
-  "start": "شروع!"
+  "start": "شروع!",
+  "stats": "آمار",
+  "achievements": "دستاوردها",
+  "music": "موسیقی",
+  "themes": "تم‌ها",
+  "language": "زبان",
+  "chooseLanguage": "انتخاب زبان",
+  "autoDevice": "خودکار (دستگاه)",
+  "data": "داده‌ها",
+  "best": "بهترین: {score}",
+  "easyDesc": "شبکه کوچک، بلوک‌های کوچک",
+  "classicDesc": "ردیف‌ها بالا می‌آیند، سریع پاک کن!",
+  "masterDesc": "سقوط خودکار، سرعت!",
+  "memoryDesc": "بلوک‌ها ناپدید می‌شوند، موقعیت‌ها را به خاطر بسپار",
+  "zenDesc": "آرامش، بدون باخت",
+  "pvpDesc": "دوئل 1v1 در 2 دقیقه",
+  "pvpRankedSubtitle": "مسابقه تصادفی با بازیکنان واقعی",
+  "pvpPracticeSubtitle": "بازی تکی با ربات • بدون رتبه‌بندی",
+  "soloPvp": "PvP تکی",
+  "gridInfo": "شبکه {size}×{size} • 2 دقیقه",
+  "dailyChallenge": "چالش روزانه",
+  "dailyChallengeSubtitle": "هر روز یک چالش جدید!",
+  "streak": "دور",
+  "completed": "تکمیل‌شده",
+  "play": "بازی",
+  "noConnection": "بدون اتصال",
+  "tetEffects": "جلوه‌های سال نو",
+  "pause": "توقف",
+  "resume": "ادامه",
+  "quit": "خروج",
+  "paused": "متوقف",
+  "newFeatures": "ویژگی‌های جدید",
+  "privacyPolicy": "حریم خصوصی",
+  "restart": "RESTART",
+  "continueBtn": "Continue",
+  "backToLobby": "Back to Lobby",
+  "pvpWin": "YOU WIN!",
+  "pvpLose": "YOU LOSE",
+  "pvpDraw": "DRAW",
+  "uploading": "Uploading...",
+  "uploadToLeaderboard": "Upload to Leaderboard",
+  "scoreUploaded": "Score uploaded!",
+  "uploadFailed": "Upload failed. Check connection.",
+  "tutorialReset": "Tutorial will show on next game",
+  "highScoresCleared": "All high scores cleared",
+  "botBeginner": "Beginner",
+  "botPro": "Professional",
+  "botDestroyer": "Destroyer",
+  "botGodlike": "Godlike",
+  "version": "Version",
+  "engine": "Engine",
+  "timer": "TIMER",
+  "soundSubtitle": "Game sound effects",
+  "hapticsSubtitle": "Vibration feedback",
+  "musicSubtitle": "Background music",
+  "tetSubtitle": "Tet visual effects",
+  "tutorialSubtitle": "Show tutorial again",
+  "resetSubtitle": "Clear all high scores",
+  "shareScore": "SHARE SCORE",
+  "you": "YOU",
+  "rival": "RIVAL"
 }

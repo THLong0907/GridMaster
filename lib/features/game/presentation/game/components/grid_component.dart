@@ -7,7 +7,7 @@ import 'block_cell.dart';
 
 /// Renders the game grid with placed blocks and dynamic theme
 class GridComponent extends PositionComponent {
-  GridModel _grid;
+  GridModel grid;
   final double cellSize;
   final int gridSize;
 
@@ -24,15 +24,11 @@ class GridComponent extends PositionComponent {
   Set<(int, int)> visibleCells = {};
 
   GridComponent({
-    required GridModel grid,
+    required this.grid,
     required this.cellSize,
     required this.gridSize,
     required Vector2 position,
-  }) : _grid = grid,
-       super(position: position, size: Vector2.all(cellSize * gridSize));
-
-  set grid(GridModel value) => _grid = value;
-  GridModel get grid => _grid;
+  }) : super(position: position, size: Vector2.all(cellSize * gridSize));
 
   double get gridPixelSize => cellSize * gridSize;
 
@@ -82,7 +78,7 @@ class GridComponent extends PositionComponent {
       ..color = _theme.gridLineColor.withValues(alpha: 0.5);
     for (int r = 0; r < gridSize; r++) {
       for (int c = 0; c < gridSize; c++) {
-        if (_grid.isEmpty(r, c)) {
+        if (grid.isEmpty(r, c)) {
           canvas.drawCircle(
             Offset(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2),
             2.0,
@@ -95,7 +91,7 @@ class GridComponent extends PositionComponent {
     // Draw placed blocks
     for (int r = 0; r < gridSize; r++) {
       for (int c = 0; c < gridSize; c++) {
-        final value = _grid.getCell(r, c);
+        final value = grid.getCell(r, c);
         if (value != 0) {
           // Memory mode: only render visible cells
           if (memoryMode && !visibleCells.contains((r, c))) {
@@ -148,7 +144,7 @@ class GridComponent extends PositionComponent {
   void revealAll() {
     for (int r = 0; r < gridSize; r++) {
       for (int c = 0; c < gridSize; c++) {
-        if (!_grid.isEmpty(r, c)) {
+        if (!grid.isEmpty(r, c)) {
           visibleCells.add((r, c));
         }
       }

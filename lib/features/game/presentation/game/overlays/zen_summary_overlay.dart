@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grid_master/l10n/generated/app_localizations.dart';
 
 /// Beautiful overlay showing Zen session statistics
 class ZenSummaryOverlay extends StatefulWidget {
@@ -103,13 +104,13 @@ class _ZenSummaryOverlayState extends State<ZenSummaryOverlay>
                         ],
                       ),
                     ),
-                    child: const Text('🧘', style: TextStyle(fontSize: 40)),
+                    child: const Icon(Icons.self_improvement_rounded, size: 40, color: Color(0xFFA29BFE)),
                   ),
                   const SizedBox(height: 16),
 
                   // Title
                   Text(
-                    'PHIÊN THIỀN KẾT THÚC',
+                    AppLocalizations.of(context)!.zenSummaryTitle,
                     style: GoogleFonts.fredoka(
                       color: const Color(0xFFA29BFE),
                       fontSize: 18,
@@ -129,7 +130,7 @@ class _ZenSummaryOverlayState extends State<ZenSummaryOverlay>
                     ),
                   ),
                   Text(
-                    'Thời gian thiền',
+                    AppLocalizations.of(context)!.playTime,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.5),
                       fontSize: 13,
@@ -154,9 +155,9 @@ class _ZenSummaryOverlayState extends State<ZenSummaryOverlay>
                           children: [
                             Expanded(
                               child: _statItem(
-                                '🏆',
+                                Icons.emoji_events_rounded,
                                 '${widget.score}',
-                                'Điểm',
+                                AppLocalizations.of(context)!.score,
                                 const Color(0xFFFFD700),
                               ),
                             ),
@@ -167,9 +168,9 @@ class _ZenSummaryOverlayState extends State<ZenSummaryOverlay>
                             ),
                             Expanded(
                               child: _statItem(
-                                '📦',
+                                Icons.inventory_2_rounded,
                                 '${widget.blocksPlaced}',
-                                'Khối đặt',
+                                AppLocalizations.of(context)!.blocksPlaced,
                                 const Color(0xFF74B9FF),
                               ),
                             ),
@@ -185,9 +186,9 @@ class _ZenSummaryOverlayState extends State<ZenSummaryOverlay>
                           children: [
                             Expanded(
                               child: _statItem(
-                                '✨',
+                                Icons.auto_awesome_rounded,
                                 '${widget.totalLinesCleared}',
-                                'Hàng xóa',
+                                AppLocalizations.of(context)!.totalLines,
                                 const Color(0xFF55EFC4),
                               ),
                             ),
@@ -198,9 +199,9 @@ class _ZenSummaryOverlayState extends State<ZenSummaryOverlay>
                             ),
                             Expanded(
                               child: _statItem(
-                                '🔥',
+                                Icons.local_fire_department_rounded,
                                 'x${widget.maxCombo}',
-                                'Combo max',
+                                AppLocalizations.of(context)!.maxCombo,
                                 const Color(0xFFFF6B6B),
                               ),
                             ),
@@ -217,7 +218,7 @@ class _ZenSummaryOverlayState extends State<ZenSummaryOverlay>
                     children: [
                       Expanded(
                         child: _buildButton(
-                          'Tiếp tục',
+                          AppLocalizations.of(context)!.continueBtn,
                           const Color(0xFF6C5CE7),
                           Icons.self_improvement,
                           widget.onPlayAgain,
@@ -226,7 +227,7 @@ class _ZenSummaryOverlayState extends State<ZenSummaryOverlay>
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildButton(
-                          'Về Lobby',
+                          AppLocalizations.of(context)!.backToLobby,
                           const Color(0xFF2D3436),
                           Icons.home_rounded,
                           widget.onGoHome,
@@ -243,10 +244,10 @@ class _ZenSummaryOverlayState extends State<ZenSummaryOverlay>
     );
   }
 
-  Widget _statItem(String emoji, String value, String label, Color color) {
+  Widget _statItem(IconData iconData, String value, String label, Color color) {
     return Column(
       children: [
-        Text(emoji, style: const TextStyle(fontSize: 20)),
+        Icon(iconData, size: 20, color: color),
         const SizedBox(height: 4),
         Text(
           value,

@@ -33,6 +33,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get share => 'SHARE';
 
   @override
+  String get restart => 'RESTART';
+
+  @override
   String get settings => 'Settings';
 
   @override
@@ -108,21 +111,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get memoryReveal => '👁️ Memory Reveal!';
+  String get memoryReveal => 'Memory Reveal!';
 
   @override
-  String get zenClear => '🧘 Zen Clear!';
+  String get zenClear => 'Zen Clear!';
 
   @override
   String autoHammer(int count) {
-    return '🔨 Auto Hammer! ($count cells)';
+    return 'Auto Hammer! ($count cells)';
   }
 
   @override
-  String get risingRow => '⬆️ Rising Row!';
+  String get risingRow => 'Rising Row!';
 
   @override
-  String get autoDrop => '⏰ Auto Drop!';
+  String get autoDrop => 'Auto Drop!';
 
   @override
   String get endSession => 'End Session';
@@ -136,7 +139,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get zenSummaryTitle => 'Zen Session';
+  String get zenSummaryTitle => 'ZEN SESSION ENDED';
 
   @override
   String get totalLines => 'Lines Cleared';
@@ -149,6 +152,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playTime => 'Play Time';
+
+  @override
+  String get continueBtn => 'Continue';
+
+  @override
+  String get backToLobby => 'Back to Lobby';
 
   @override
   String get easyMode => 'Easy';
@@ -182,4 +191,179 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get start => 'START!';
+
+  @override
+  String get stats => 'Stats';
+
+  @override
+  String get achievements => 'Achievements';
+
+  @override
+  String get music => 'Music';
+
+  @override
+  String get themes => 'Themes';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get chooseLanguage => 'Choose Language';
+
+  @override
+  String get autoDevice => 'Auto (Device)';
+
+  @override
+  String get data => 'Data';
+
+  @override
+  String best(int score) {
+    return 'Best: $score';
+  }
+
+  @override
+  String get easyDesc => 'Small grid, many small blocks';
+
+  @override
+  String get classicDesc => 'Rising rows, clear fast!';
+
+  @override
+  String get masterDesc => 'Auto-drop blocks, speed!';
+
+  @override
+  String get memoryDesc => 'Blocks vanish, remember positions';
+
+  @override
+  String get zenDesc => 'Relax, no lose';
+
+  @override
+  String get pvpDesc => '1v1 battle in 2 minutes';
+
+  @override
+  String get pvpRankedSubtitle => 'Random match with real players';
+
+  @override
+  String get pvpPracticeSubtitle => 'Play solo with BOT • Unranked';
+
+  @override
+  String get soloPvp => 'Solo PvP';
+
+  @override
+  String gridInfo(int size) {
+    return '$size×$size Grid • 2 Minutes';
+  }
+
+  @override
+  String get dailyChallenge => 'Daily Challenge';
+
+  @override
+  String get dailyChallengeSubtitle => 'New challenge every day!';
+
+  @override
+  String get streak => 'Streak';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get play => 'PLAY';
+
+  @override
+  String get noConnection => 'No connection';
+
+  @override
+  String get tetEffects => 'Tết Effects';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get resume => 'RESUME';
+
+  @override
+  String get quit => 'QUIT';
+
+  @override
+  String get paused => 'PAUSED';
+
+  @override
+  String get newFeatures => 'New Features';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get pvpWin => 'YOU WIN!';
+
+  @override
+  String get pvpLose => 'YOU LOSE';
+
+  @override
+  String get pvpDraw => 'DRAW';
+
+  @override
+  String get uploading => 'Uploading...';
+
+  @override
+  String get uploadToLeaderboard => 'Upload to Leaderboard';
+
+  @override
+  String get scoreUploaded => 'Score uploaded!';
+
+  @override
+  String get uploadFailed => 'Upload failed. Check connection.';
+
+  @override
+  String get tutorialReset => 'Tutorial will show on next game';
+
+  @override
+  String get highScoresCleared => 'All high scores cleared';
+
+  @override
+  String get botBeginner => 'Beginner';
+
+  @override
+  String get botPro => 'Professional';
+
+  @override
+  String get botDestroyer => 'Destroyer';
+
+  @override
+  String get botGodlike => 'Godlike';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get engine => 'Engine';
+
+  @override
+  String get timer => 'TIMER';
+
+  @override
+  String get soundSubtitle => 'Game sound effects';
+
+  @override
+  String get hapticsSubtitle => 'Vibration feedback';
+
+  @override
+  String get musicSubtitle => 'Background music';
+
+  @override
+  String get tetSubtitle => 'Tết visual effects';
+
+  @override
+  String get tutorialSubtitle => 'Show tutorial again';
+
+  @override
+  String get resetSubtitle => 'Clear all high scores';
+
+  @override
+  String get shareScore => 'SHARE SCORE';
+
+  @override
+  String get you => 'YOU';
+
+  @override
+  String get rival => 'RIVAL';
 }

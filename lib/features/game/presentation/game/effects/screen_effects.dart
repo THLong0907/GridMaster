@@ -2,13 +2,11 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/painting.dart' show TextPainter, TextSpan, TextStyle, TextDirection;
 import 'package:flame/components.dart';
-import 'package:flame/particles.dart' as fp;
-import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
 
 /// ━━━━━━━━━━━ SCREEN FLASH ━━━━━━━━━━━
 /// Full-screen white/gold overlay that fades out
-class ScreenFlashComponent extends Component with HasGameRef<FlameGame> {
+class ScreenFlashComponent extends Component with HasGameReference<FlameGame> {
   final Color color;
   final double duration;
   double _elapsed = 0;
@@ -32,7 +30,7 @@ class ScreenFlashComponent extends Component with HasGameRef<FlameGame> {
     final progress = (_elapsed / duration).clamp(0.0, 1.0);
     final opacity = (1.0 - progress) * 0.8;
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, gameRef.size.x, gameRef.size.y),
+      Rect.fromLTWH(0, 0, game.size.x, game.size.y),
       Paint()..color = color.withValues(alpha: opacity),
     );
   }
@@ -72,7 +70,7 @@ class ScreenShakeManager {
 
 /// ━━━━━━━━━━━ HOA ĐÀO (Cherry Blossom) ━━━━━━━━━━━
 /// Persistent cherry blossom petals falling — Tết ambient effect
-class HoaDaoComponent extends Component with HasGameRef<FlameGame> {
+class HoaDaoComponent extends Component with HasGameReference<FlameGame> {
   final List<_Petal> _petals = [];
   final Random _rng = Random();
   final int petalCount;
@@ -94,8 +92,8 @@ class HoaDaoComponent extends Component with HasGameRef<FlameGame> {
     if (!_initialized) {
       for (int i = 0; i < petalCount; i++) {
         _petals.add(_Petal(
-          x: _rng.nextDouble() * gameRef.size.x,
-          y: _rng.nextDouble() * gameRef.size.y,
+          x: _rng.nextDouble() * game.size.x,
+          y: _rng.nextDouble() * game.size.y,
           size: _rng.nextDouble() * 8 + 4,
           speedY: _rng.nextDouble() * 30 + 15,
           speedX: _rng.nextDouble() * 20 - 10,
@@ -118,12 +116,12 @@ class HoaDaoComponent extends Component with HasGameRef<FlameGame> {
       p.phase += p.swayFreq * dt;
 
       // Wrap around
-      if (p.y > gameRef.size.y + 20) {
+      if (p.y > game.size.y + 20) {
         p.y = -20;
-        p.x = _rng.nextDouble() * gameRef.size.x;
+        p.x = _rng.nextDouble() * game.size.x;
       }
-      if (p.x < -20) p.x = gameRef.size.x + 20;
-      if (p.x > gameRef.size.x + 20) p.x = -20;
+      if (p.x < -20) p.x = game.size.x + 20;
+      if (p.x > game.size.x + 20) p.x = -20;
     }
   }
 
@@ -166,7 +164,7 @@ class _Petal {
 
 /// ━━━━━━━━━━━ GLOW TRAIL ━━━━━━━━━━━
 /// Particle trail following drag position
-class GlowTrailComponent extends Component with HasGameRef<FlameGame> {
+class GlowTrailComponent extends Component with HasGameReference<FlameGame> {
   final List<_TrailParticle> _particles = [];
   final Random _rng = Random();
   Vector2 _lastPos = Vector2.zero();
@@ -229,7 +227,7 @@ class _TrailParticle {
 
 /// ━━━━━━━━━━━ COMBO TEXT ━━━━━━━━━━━
 /// Animated combo text: scales up, glows, bounces, then fades
-class ComboTextComponent extends Component with HasGameRef<FlameGame> {
+class ComboTextComponent extends Component with HasGameReference<FlameGame> {
   final String text;
   final double x, y;
   final Color color;
@@ -315,7 +313,7 @@ class ComboTextComponent extends Component with HasGameRef<FlameGame> {
 
 /// ━━━━━━━━━━━ STAR BURST ━━━━━━━━━━━
 /// Stars emanating from score area on milestones
-class StarBurstComponent extends Component with HasGameRef<FlameGame> {
+class StarBurstComponent extends Component with HasGameReference<FlameGame> {
   final double centerX, centerY;
   final int count;
   final List<_Star> _stars = [];

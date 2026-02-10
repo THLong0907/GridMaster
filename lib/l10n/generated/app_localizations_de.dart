@@ -15,10 +15,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get score => 'PUNKTE';
 
   @override
-  String get highScore => 'HÖCHSTPUNKTZAHL';
+  String get highScore => 'HIGHSCORE';
 
   @override
-  String get gameOver => 'SPIEL VORBEI';
+  String get gameOver => 'SPIELENDE';
 
   @override
   String get newHighScore => 'NEUER REKORD!';
@@ -31,6 +31,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get share => 'TEILEN';
+
+  @override
+  String get restart => 'RESTART';
 
   @override
   String get settings => 'Einstellungen';
@@ -49,7 +52,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get resetConfirmContent =>
-      'Dies löscht Ihre Höchstpunktzahlen und freigeschalteten Designs. Dies kann nicht rückgängig gemacht werden.';
+      'Dies löscht alle Highscores und freigeschaltete Designs. Dies kann nicht rückgängig gemacht werden.';
 
   @override
   String get cancel => 'Abbrechen';
@@ -61,7 +64,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get save => 'Speichern';
 
   @override
-  String get changeName => 'Namen ändern';
+  String get changeName => 'Anzeigename ändern';
 
   @override
   String get enterName => 'Namen eingeben';
@@ -82,47 +85,47 @@ class AppLocalizationsDe extends AppLocalizations {
   String get tutorialTitle => 'Spielanleitung';
 
   @override
-  String get tutorialStep1 => 'Blöcke auf das Gitter ziehen';
+  String get tutorialStep1 => 'Blöcke ins Raster ziehen';
 
   @override
-  String get tutorialStep2 => 'Reihen oder Spalten füllen zum Löschen';
+  String get tutorialStep2 => 'Reihen oder Spalten füllen';
 
   @override
-  String get tutorialStep3 => 'Hammer zum Zerstören von Blöcken benutzen';
+  String get tutorialStep3 => 'Hammer zum Zerstören nutzen';
 
   @override
-  String get tutorialStep4 => 'Kein Platz mehr? Spielende!';
+  String get tutorialStep4 => 'Platz nicht ausgehen lassen!';
 
   @override
-  String get clear => 'Gelöscht!';
+  String get clear => 'Super!';
 
   @override
-  String get doubleClear => 'Doppelt Gelöscht!';
+  String get doubleClear => 'Doppelt!';
 
   @override
-  String get tripleClear => 'DREIFACH GELÖSCHT!';
+  String get tripleClear => 'DREIFACH!';
 
   @override
   String megaClear(int count) {
-    return 'MEGA GELÖSCHT! x$count';
+    return 'MEGA! x$count';
   }
 
   @override
-  String get memoryReveal => '👁️ Erinnerung!';
+  String get memoryReveal => 'Memory Reveal!';
 
   @override
-  String get zenClear => '🧘 Zen Gelöscht!';
+  String get zenClear => 'Zen Clear!';
 
   @override
   String autoHammer(int count) {
-    return '🔨 Auto-Hammer! ($count Zellen)';
+    return 'Auto Hammer! ($count cells)';
   }
 
   @override
-  String get risingRow => '⬆️ Steigende Reihe!';
+  String get risingRow => 'Rising Row!';
 
   @override
-  String get autoDrop => '⏰ Auto-Fall!';
+  String get autoDrop => 'Auto Drop!';
 
   @override
   String get endSession => 'Beenden';
@@ -132,17 +135,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String matchmakingError(String error) {
-    return 'Suchfehler: $error';
+    return 'Matchmaking-Fehler: $error';
   }
 
   @override
-  String get zenSummaryTitle => 'Zen-Sitzung';
+  String get zenSummaryTitle => 'ZEN SESSION ENDED';
 
   @override
   String get totalLines => 'Gelöschte Reihen';
 
   @override
-  String get maxCombo => 'Max Combo';
+  String get maxCombo => 'Max. Combo';
 
   @override
   String get blocksPlaced => 'Platzierte Blöcke';
@@ -151,10 +154,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get playTime => 'Spielzeit';
 
   @override
+  String get continueBtn => 'Continue';
+
+  @override
+  String get backToLobby => 'Back to Lobby';
+
+  @override
   String get easyMode => 'Leicht';
 
   @override
-  String get memoryMode => 'Speicher';
+  String get memoryMode => 'Gedächtnis';
 
   @override
   String get classicMode => 'Klassisch';
@@ -169,10 +178,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get survivalMode => 'Überleben';
 
   @override
-  String get pvpMode => 'PvP Kampf';
+  String get pvpMode => 'PvP-Kampf';
 
   @override
-  String get practiceMode => 'Übung';
+  String get practiceMode => 'Übungsmodus';
 
   @override
   String get skip => 'Überspringen';
@@ -181,5 +190,180 @@ class AppLocalizationsDe extends AppLocalizations {
   String get next => 'Weiter';
 
   @override
-  String get start => 'START!';
+  String get start => 'LOS!';
+
+  @override
+  String get stats => 'Statistiken';
+
+  @override
+  String get achievements => 'Erfolge';
+
+  @override
+  String get music => 'Musik';
+
+  @override
+  String get themes => 'Designs';
+
+  @override
+  String get language => 'Sprache';
+
+  @override
+  String get chooseLanguage => 'Sprache wählen';
+
+  @override
+  String get autoDevice => 'Auto (Gerät)';
+
+  @override
+  String get data => 'Daten';
+
+  @override
+  String best(int score) {
+    return 'Bester: $score';
+  }
+
+  @override
+  String get easyDesc => 'Kleines Raster, viele kleine Blöcke';
+
+  @override
+  String get classicDesc => 'Steigende Reihen, schnell löschen!';
+
+  @override
+  String get masterDesc => 'Auto-Drop, Geschwindigkeit!';
+
+  @override
+  String get memoryDesc => 'Blöcke verschwinden, Positionen merken';
+
+  @override
+  String get zenDesc => 'Entspannen, kein Verlieren';
+
+  @override
+  String get pvpDesc => '1v1 Duell in 2 Minuten';
+
+  @override
+  String get pvpRankedSubtitle => 'Zufälliges Match mit echten Spielern';
+
+  @override
+  String get pvpPracticeSubtitle => 'Allein gegen BOT spielen • Kein Ranking';
+
+  @override
+  String get soloPvp => 'Solo PvP';
+
+  @override
+  String gridInfo(int size) {
+    return '$size×$size Raster • 2 Min';
+  }
+
+  @override
+  String get dailyChallenge => 'Tägliche Herausforderung';
+
+  @override
+  String get dailyChallengeSubtitle => 'Jeden Tag eine neue Herausforderung!';
+
+  @override
+  String get streak => 'Serie';
+
+  @override
+  String get completed => 'Abgeschlossen';
+
+  @override
+  String get play => 'SPIELEN';
+
+  @override
+  String get noConnection => 'Keine Verbindung';
+
+  @override
+  String get tetEffects => 'Neujahrseffekte';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get resume => 'FORTSETZEN';
+
+  @override
+  String get quit => 'BEENDEN';
+
+  @override
+  String get paused => 'PAUSIERT';
+
+  @override
+  String get newFeatures => 'Neue Funktionen';
+
+  @override
+  String get privacyPolicy => 'Datenschutzrichtlinie';
+
+  @override
+  String get pvpWin => 'YOU WIN!';
+
+  @override
+  String get pvpLose => 'YOU LOSE';
+
+  @override
+  String get pvpDraw => 'DRAW';
+
+  @override
+  String get uploading => 'Uploading...';
+
+  @override
+  String get uploadToLeaderboard => 'Upload to Leaderboard';
+
+  @override
+  String get scoreUploaded => 'Score uploaded!';
+
+  @override
+  String get uploadFailed => 'Upload failed. Check connection.';
+
+  @override
+  String get tutorialReset => 'Tutorial will show on next game';
+
+  @override
+  String get highScoresCleared => 'All high scores cleared';
+
+  @override
+  String get botBeginner => 'Beginner';
+
+  @override
+  String get botPro => 'Professional';
+
+  @override
+  String get botDestroyer => 'Destroyer';
+
+  @override
+  String get botGodlike => 'Godlike';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get engine => 'Engine';
+
+  @override
+  String get timer => 'TIMER';
+
+  @override
+  String get soundSubtitle => 'Game sound effects';
+
+  @override
+  String get hapticsSubtitle => 'Vibration feedback';
+
+  @override
+  String get musicSubtitle => 'Background music';
+
+  @override
+  String get tetSubtitle => 'Tet visual effects';
+
+  @override
+  String get tutorialSubtitle => 'Show tutorial again';
+
+  @override
+  String get resetSubtitle => 'Clear all high scores';
+
+  @override
+  String get shareScore => 'SHARE SCORE';
+
+  @override
+  String get you => 'YOU';
+
+  @override
+  String get rival => 'RIVAL';
 }

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grid_master/l10n/generated/app_localizations.dart';
 
 /// Pause overlay with blur background and Resume/Restart/Home buttons
 class PauseOverlay extends StatelessWidget {
@@ -78,7 +79,7 @@ class PauseOverlay extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'PAUSED',
+                    AppLocalizations.of(context)!.paused,
                     style: GoogleFonts.fredoka(
                       color: Colors.white,
                       fontSize: 28,
@@ -97,7 +98,7 @@ class PauseOverlay extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Score: $score',
+                    '${AppLocalizations.of(context)!.score}: $score',
                     style: GoogleFonts.fredoka(
                       color: const Color(0xFFFFD700),
                       fontSize: 18,
@@ -108,7 +109,7 @@ class PauseOverlay extends StatelessWidget {
 
                   // Resume button
                   _buildButton(
-                    'RESUME',
+                    AppLocalizations.of(context)!.resume,
                     [const Color(0xFF00B894), const Color(0xFF00CC76)],
                     Icons.play_arrow_rounded,
                     onResume,
@@ -116,7 +117,7 @@ class PauseOverlay extends StatelessWidget {
                   const SizedBox(height: 12),
                   // Restart button
                   _buildButton(
-                    'RESTART',
+                    AppLocalizations.of(context)!.restart,
                     [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)],
                     Icons.refresh_rounded,
                     onRestart,
@@ -124,7 +125,7 @@ class PauseOverlay extends StatelessWidget {
                   const SizedBox(height: 12),
                   // Home button
                   _buildButton(
-                    'HOME',
+                    AppLocalizations.of(context)!.home,
                     [
                       Colors.white.withValues(alpha: 0.1),
                       Colors.white.withValues(alpha: 0.05),

@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:grid_master/shared/services/audio_service.dart';
+import 'package:grid_master/shared/services/music_service.dart';
+import 'package:grid_master/shared/services/theme_service.dart';
 import 'package:grid_master/shared/services/locale_provider.dart';
 import 'package:grid_master/shared/widgets/animated_block_background.dart';
 import 'package:grid_master/l10n/generated/app_localizations.dart';
@@ -19,6 +21,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
   bool _tetEffectsEnabled = true;
+  bool _musicEnabled = true;
+  int _selectedThemeIndex = 0;
 
   @override
   void initState() {
@@ -28,10 +32,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    await MusicService.instance.init();
+    await ThemeService.instance.init();
     setState(() {
       _soundEnabled = prefs.getBool('sound_enabled') ?? true;
       _vibrationEnabled = prefs.getBool('vibration_enabled') ?? true;
       _tetEffectsEnabled = prefs.getBool('tet_effects_enabled') ?? true;
+      _musicEnabled = MusicService.instance.isEnabled;
+      _selectedThemeIndex = ThemeService.instance.selectedIndex;
     });
   }
 
@@ -170,12 +178,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      _buildSection('Âm thanh & Rung'), // TODO: Add key for section headers if needed, or mapping
+                      _buildSection('${AppLocalizations.of(context)!.sound} & ${AppLocalizations.of(context)!.haptics}'),
                       const SizedBox(height: 8),
                       _buildToggle(
                         icon: Icons.volume_up_rounded,
                         title: AppLocalizations.of(context)!.sound,
-                        subtitle: 'Hiệu ứng âm thanh trong game',
+                        subtitle: AppLocalizations.of(context)!.sound,
                         value: _soundEnabled,
                         color: const Color(0xFF6C5CE7),
                         onChanged: _setSoundEnabled,
@@ -184,19 +192,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildToggle(
                         icon: Icons.vibration_rounded,
                         title: AppLocalizations.of(context)!.haptics,
-                        subtitle: 'Phản hồi rung khi đặt khối',
+                        subtitle: AppLocalizations.of(context)!.haptics,
                         value: _vibrationEnabled,
                         color: const Color(0xFF00B894),
                         onChanged: _setVibrationEnabled,
                       ),
+                      const SizedBox(height: 8),
+                      _buildToggle(
+                        icon: Icons.music_note_rounded,
+                        title: AppLocalizations.of(context)!.music,
+                        subtitle: AppLocalizations.of(context)!.music,
+                        value: _musicEnabled,
+                        color: const Color(0xFFE84393),
+                        onChanged: (v) async {
+                          setState(() => _musicEnabled = v);
+                          await MusicService.instance.setEnabled(v);
+                        },
+                      ),
 
                       const SizedBox(height: 24),
-                      _buildSection('Dữ liệu'),
+                      _buildSection(AppLocalizations.of(context)!.themes),
+                      const SizedBox(height: 8),
+                      _buildThemeSelector(),
+
+                      const SizedBox(height: 24),
+                      _buildSection(AppLocalizations.of(context)!.data),
                       const SizedBox(height: 8),
                       _buildActionButton(
                         icon: Icons.school_rounded,
-                        title: 'Xem lại Tutorial', // Add key?
-                        subtitle: 'Hiện hướng dẫn chơi lần sau',
+                        title: AppLocalizations.of(context)!.tutorialTitle,
+                        subtitle: AppLocalizations.of(context)!.tutorialTitle,
                         color: const Color(0xFF0984E3),
                         onTap: _resetTutorial,
                       ),
@@ -204,34 +229,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildActionButton(
                         icon: Icons.delete_forever_rounded,
                         title: AppLocalizations.of(context)!.resetProgress,
-                        subtitle: 'Reset tất cả high scores',
+                        subtitle: AppLocalizations.of(context)!.resetProgress,
                         color: const Color(0xFFE17055),
                         onTap: _clearHighScores,
                       ),
 
                       const SizedBox(height: 24),
-                      _buildSection('🎆 Hiệu ứng Tết'),
+                      _buildSection(AppLocalizations.of(context)!.tetEffects),
                       const SizedBox(height: 8),
                       _buildToggle(
                         icon: Icons.celebration_rounded,
-                        title: 'Hiệu ứng Tết',
-                        subtitle: 'Pháo hoa, lì xì, đèn lồng khi chơi',
+                        title: AppLocalizations.of(context)!.tetEffects,
+                        subtitle: AppLocalizations.of(context)!.tetEffects,
                         value: _tetEffectsEnabled,
                         color: const Color(0xFFFF0000),
                         onChanged: _setTetEffectsEnabled,
                       ),
 
                       const SizedBox(height: 24),
-                      _buildSection('🌍 LANGUAGE'),
+                      _buildSection(AppLocalizations.of(context)!.language),
                       const SizedBox(height: 8),
                       _buildLanguageTile(),
 
                       const SizedBox(height: 24),
-                      _buildSection('Thông tin'),
+                      _buildSection(AppLocalizations.of(context)!.settings),
                       const SizedBox(height: 8),
                       _buildInfoTile(
                         icon: Icons.info_outline_rounded,
-                        title: 'Phiên bản',
+                        title: 'Version',
                         value: '1.0.0',
                       ),
                       const SizedBox(height: 8),
@@ -243,19 +268,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _buildActionButton(
                         icon: Icons.auto_awesome_rounded,
-                        title: 'Chức năng mới',
-                        subtitle: 'Hướng dẫn các tính năng của game',
+                        title: AppLocalizations.of(context)!.newFeatures,
+                        subtitle: AppLocalizations.of(context)!.newFeatures,
                         color: const Color(0xFF6C5CE7),
                         onTap: () => context.push('/features'),
                       ),
                       const SizedBox(height: 8),
                       _buildActionButton(
                         icon: Icons.privacy_tip_rounded,
-                        title: 'Privacy Policy',
-                        subtitle: 'Chính sách quyền riêng tư',
+                        title: AppLocalizations.of(context)!.privacyPolicy,
+                        subtitle: AppLocalizations.of(context)!.privacyPolicy,
                         color: const Color(0xFF636E72),
                         onTap: () => context.push('/privacy'),
                       ),
+                      const SizedBox(height: 32),
                     ],
                   ),
                 ),
@@ -353,7 +379,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: color,
+            activeThumbColor: color,
             activeTrackColor: color.withValues(alpha: 0.3),
             inactiveThumbColor: Colors.grey,
             inactiveTrackColor: Colors.grey.withValues(alpha: 0.2),
@@ -476,7 +502,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final currentCode = provider.locale?.languageCode;
     final displayName = currentCode != null
         ? '${LocaleProvider.languageFlags[currentCode] ?? ''} ${LocaleProvider.supportedLanguages[currentCode] ?? 'Auto'}'
-        : '🌐 Auto (Device)';
+        : AppLocalizations.of(context)!.autoDevice;
 
     return Material(
       color: Colors.transparent,
@@ -507,7 +533,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Language',
+                      AppLocalizations.of(context)!.language,
                       style: GoogleFonts.fredoka(
                         color: Colors.white,
                         fontSize: 15,
@@ -566,7 +592,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Text(
-                    '🌍 Choose Language',
+                    AppLocalizations.of(context)!.chooseLanguage,
                     style: GoogleFonts.fredoka(
                       color: Colors.white,
                       fontSize: 20,
@@ -583,8 +609,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       // Auto option
                       _languageOption(
                         ctx: ctx,
-                        flag: '🌐',
-                        name: 'Auto (Device)',
+                        flag: '',
+                        name: AppLocalizations.of(context)!.autoDevice,
                         isSelected: provider.locale == null,
                         onTap: () {
                           provider.setLocale(null);
@@ -656,6 +682,88 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // =============== THEME SELECTOR ===============
+
+  Widget _buildThemeSelector() {
+    return SizedBox(
+      height: 90,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: ThemeService.themes.length,
+        itemBuilder: (context, index) {
+          final theme = ThemeService.themes[index];
+          final isSelected = index == _selectedThemeIndex;
+          return GestureDetector(
+            onTap: () async {
+              await ThemeService.instance.setTheme(index);
+              setState(() => _selectedThemeIndex = index);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 72,
+              margin: const EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(
+                color: theme.gridBg,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isSelected
+                      ? theme.accentColor
+                      : Colors.white.withValues(alpha: 0.1),
+                  width: isSelected ? 2.5 : 1,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: theme.accentColor.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                        ),
+                      ]
+                    : [],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(theme.icon, size: 20, color: theme.accentColor),
+                  const SizedBox(height: 4),
+                  // Color swatches
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: theme.blockColors
+                        .take(4)
+                        .map(
+                          (c) => Container(
+                            width: 10,
+                            height: 10,
+                            margin: const EdgeInsets.symmetric(horizontal: 1),
+                            decoration: BoxDecoration(
+                              color: c,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    theme.name,
+                    style: GoogleFonts.fredoka(
+                      color: isSelected
+                          ? Colors.white
+                          : Colors.white.withValues(alpha: 0.5),
+                      fontSize: 9,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

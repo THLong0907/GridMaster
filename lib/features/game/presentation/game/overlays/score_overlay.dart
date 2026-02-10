@@ -18,6 +18,8 @@ class ScoreOverlay extends StatelessWidget {
   final int hammerCharges;
   final Color accentColor;
   final bool showHammer;
+  final int undoCount;
+  final VoidCallback? onUndoTap;
 
   const ScoreOverlay({
     super.key,
@@ -33,6 +35,8 @@ class ScoreOverlay extends StatelessWidget {
     this.hammerCharges = 0,
     this.accentColor = const Color(0xFF6C5CE7),
     this.showHammer = true,
+    this.undoCount = 0,
+    this.onUndoTap,
   });
 
   @override
@@ -152,6 +156,11 @@ class ScoreOverlay extends StatelessWidget {
                   children: [
                     // Hammer indicator in header
                     if (showHammer) _buildHammerBadge(),
+                    // Undo button
+                    if (undoCount > 0) ...[
+                      const SizedBox(height: 4),
+                      _buildUndoBadge(),
+                    ],
 
                     // Rival info or streak
                     if (rivalName != null) ...[
@@ -282,6 +291,42 @@ class ScoreOverlay extends StatelessWidget {
             border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: Icon(icon, color: Colors.white, size: 20),
+        ),
+      ),
+    );
+  }
+
+  /// Undo badge
+  Widget _buildUndoBadge() {
+    return GestureDetector(
+      onTap: onUndoTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0984E3).withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: const Color(0xFF0984E3).withValues(alpha: 0.4),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.undo_rounded,
+              color: Color(0xFF0984E3),
+              size: 16,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'x$undoCount',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

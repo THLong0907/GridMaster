@@ -28,7 +28,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '📋 PRIVACY POLICY',
+                        'PRIVACY POLICY',
                         style: GoogleFonts.fredoka(
                           color: Colors.white,
                           fontSize: 22,

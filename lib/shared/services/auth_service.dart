@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service to handle player identity and authentication
@@ -14,7 +15,7 @@ class AuthService {
       final userCredential = await _auth.signInAnonymously();
       return userCredential.user;
     } catch (e) {
-      print('Firebase Auth Error: $e');
+      debugPrint('Firebase Auth Error: $e');
       return null;
     }
   }
@@ -45,7 +46,7 @@ class AuthService {
     try {
       await _auth.currentUser?.updateDisplayName(name);
     } catch (e) {
-      print('Failed to update display name in Firebase: $e');
+      debugPrint('Failed to update display name in Firebase: $e');
     }
   }
 }

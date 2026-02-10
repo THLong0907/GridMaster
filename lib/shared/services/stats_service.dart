@@ -30,12 +30,12 @@ class StatsService {
     // Per-mode stats
     final modeKey = mode.name;
     final modeGames =
-        (prefs.getInt('${_prefix}${modeKey}_games') ?? 0) + 1;
-    final modeBest = prefs.getInt('${_prefix}${modeKey}_best') ?? 0;
+        (prefs.getInt('$_prefix${modeKey}_games') ?? 0) + 1;
+    final modeBest = prefs.getInt('$_prefix${modeKey}_best') ?? 0;
 
-    await prefs.setInt('${_prefix}${modeKey}_games', modeGames);
+    await prefs.setInt('$_prefix${modeKey}_games', modeGames);
     if (score > modeBest) {
-      await prefs.setInt('${_prefix}${modeKey}_best', score);
+      await prefs.setInt('$_prefix${modeKey}_best', score);
     }
   }
 
@@ -53,9 +53,9 @@ class StatsService {
     for (final mode in GameMode.values) {
       final key = mode.name;
       stats['${key}_games'] =
-          prefs.getInt('${_prefix}${key}_games') ?? 0;
+          prefs.getInt('$_prefix${key}_games') ?? 0;
       stats['${key}_best'] =
-          prefs.getInt('${_prefix}${key}_best') ?? 0;
+          prefs.getInt('$_prefix${key}_best') ?? 0;
     }
 
     return stats;

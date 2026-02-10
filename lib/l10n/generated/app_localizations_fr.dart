@@ -18,7 +18,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get highScore => 'MEILLEUR SCORE';
 
   @override
-  String get gameOver => 'FIN DE PARTIE';
+  String get gameOver => 'PARTIE TERMINÉE';
 
   @override
   String get newHighScore => 'NOUVEAU RECORD !';
@@ -31,6 +31,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get share => 'PARTAGER';
+
+  @override
+  String get restart => 'RESTART';
 
   @override
   String get settings => 'Paramètres';
@@ -76,7 +79,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get error => 'Erreur';
 
   @override
-  String get emptyLeaderboard => 'Pas encore de scores !';
+  String get emptyLeaderboard => 'Aucun score !';
 
   @override
   String get tutorialTitle => 'Comment jouer';
@@ -85,45 +88,44 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tutorialStep1 => 'Glissez les blocs sur la grille';
 
   @override
-  String get tutorialStep2 =>
-      'Remplissez des lignes ou colonnes pour les effacer';
+  String get tutorialStep2 => 'Remplissez des lignes ou colonnes';
 
   @override
-  String get tutorialStep3 => 'Utilisez le marteau pour casser des blocs';
+  String get tutorialStep3 => 'Utilisez le marteau pour casser';
 
   @override
-  String get tutorialStep4 => 'Ne manquez pas d\'espace !';
+  String get tutorialStep4 => 'Ne manquez pas de place !';
 
   @override
-  String get clear => 'Effacé !';
+  String get clear => 'Bravo !';
 
   @override
-  String get doubleClear => 'Double Effacé !';
+  String get doubleClear => 'Double !';
 
   @override
-  String get tripleClear => 'TRIPLE EFFACÉ !';
+  String get tripleClear => 'TRIPLE !';
 
   @override
   String megaClear(int count) {
-    return 'MEGA EFFACÉ ! x$count';
+    return 'MÉGA ! x$count';
   }
 
   @override
-  String get memoryReveal => '👁️ Révélation !';
+  String get memoryReveal => 'Memory Reveal!';
 
   @override
-  String get zenClear => '🧘 Zen Effacé !';
+  String get zenClear => 'Zen Clear!';
 
   @override
   String autoHammer(int count) {
-    return '🔨 Marteau Auto ! ($count cases)';
+    return 'Auto Hammer! ($count cells)';
   }
 
   @override
-  String get risingRow => '⬆️ Ligne montante !';
+  String get risingRow => 'Rising Row!';
 
   @override
-  String get autoDrop => '⏰ Chute Auto !';
+  String get autoDrop => 'Auto Drop!';
 
   @override
   String get endSession => 'Terminer';
@@ -133,23 +135,29 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String matchmakingError(String error) {
-    return 'Erreur de recherche : $error';
+    return 'Erreur de matchmaking : $error';
   }
 
   @override
-  String get zenSummaryTitle => 'Session Zen';
+  String get zenSummaryTitle => 'ZEN SESSION ENDED';
 
   @override
   String get totalLines => 'Lignes effacées';
 
   @override
-  String get maxCombo => 'Combo Max';
+  String get maxCombo => 'Combo max';
 
   @override
   String get blocksPlaced => 'Blocs placés';
 
   @override
   String get playTime => 'Temps de jeu';
+
+  @override
+  String get continueBtn => 'Continue';
+
+  @override
+  String get backToLobby => 'Back to Lobby';
 
   @override
   String get easyMode => 'Facile';
@@ -170,7 +178,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get survivalMode => 'Survie';
 
   @override
-  String get pvpMode => 'PvP';
+  String get pvpMode => 'Combat PvP';
 
   @override
   String get practiceMode => 'Entraînement';
@@ -183,4 +191,179 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get start => 'JOUER !';
+
+  @override
+  String get stats => 'Statistiques';
+
+  @override
+  String get achievements => 'Succès';
+
+  @override
+  String get music => 'Musique';
+
+  @override
+  String get themes => 'Thèmes';
+
+  @override
+  String get language => 'Langue';
+
+  @override
+  String get chooseLanguage => 'Choisir la langue';
+
+  @override
+  String get autoDevice => 'Auto (Appareil)';
+
+  @override
+  String get data => 'Données';
+
+  @override
+  String best(int score) {
+    return 'Meilleur : $score';
+  }
+
+  @override
+  String get easyDesc => 'Petite grille, petits blocs';
+
+  @override
+  String get classicDesc => 'Lignes montantes, vite !';
+
+  @override
+  String get masterDesc => 'Chute auto, vitesse !';
+
+  @override
+  String get memoryDesc => 'Blocs invisibles, mémorisez !';
+
+  @override
+  String get zenDesc => 'Détente, pas de défaite';
+
+  @override
+  String get pvpDesc => 'Duel 1v1 en 2 minutes';
+
+  @override
+  String get pvpRankedSubtitle => 'Match aléatoire avec de vrais joueurs';
+
+  @override
+  String get pvpPracticeSubtitle => 'Jouer seul contre un BOT • Non classé';
+
+  @override
+  String get soloPvp => 'Solo PvP';
+
+  @override
+  String gridInfo(int size) {
+    return 'Grille $size×$size • 2 min';
+  }
+
+  @override
+  String get dailyChallenge => 'Défi quotidien';
+
+  @override
+  String get dailyChallengeSubtitle => 'Nouveau défi chaque jour !';
+
+  @override
+  String get streak => 'Série';
+
+  @override
+  String get completed => 'Terminé';
+
+  @override
+  String get play => 'JOUER';
+
+  @override
+  String get noConnection => 'Pas de connexion';
+
+  @override
+  String get tetEffects => 'Effets du Nouvel An';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get resume => 'REPRENDRE';
+
+  @override
+  String get quit => 'QUITTER';
+
+  @override
+  String get paused => 'EN PAUSE';
+
+  @override
+  String get newFeatures => 'Nouveautés';
+
+  @override
+  String get privacyPolicy => 'Politique de confidentialité';
+
+  @override
+  String get pvpWin => 'YOU WIN!';
+
+  @override
+  String get pvpLose => 'YOU LOSE';
+
+  @override
+  String get pvpDraw => 'DRAW';
+
+  @override
+  String get uploading => 'Uploading...';
+
+  @override
+  String get uploadToLeaderboard => 'Upload to Leaderboard';
+
+  @override
+  String get scoreUploaded => 'Score uploaded!';
+
+  @override
+  String get uploadFailed => 'Upload failed. Check connection.';
+
+  @override
+  String get tutorialReset => 'Tutorial will show on next game';
+
+  @override
+  String get highScoresCleared => 'All high scores cleared';
+
+  @override
+  String get botBeginner => 'Beginner';
+
+  @override
+  String get botPro => 'Professional';
+
+  @override
+  String get botDestroyer => 'Destroyer';
+
+  @override
+  String get botGodlike => 'Godlike';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get engine => 'Engine';
+
+  @override
+  String get timer => 'TIMER';
+
+  @override
+  String get soundSubtitle => 'Game sound effects';
+
+  @override
+  String get hapticsSubtitle => 'Vibration feedback';
+
+  @override
+  String get musicSubtitle => 'Background music';
+
+  @override
+  String get tetSubtitle => 'Tet visual effects';
+
+  @override
+  String get tutorialSubtitle => 'Show tutorial again';
+
+  @override
+  String get resetSubtitle => 'Clear all high scores';
+
+  @override
+  String get shareScore => 'SHARE SCORE';
+
+  @override
+  String get you => 'YOU';
+
+  @override
+  String get rival => 'RIVAL';
 }

@@ -33,6 +33,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get share => 'CHIA SẺ';
 
   @override
+  String get restart => 'CHƠI LẠI';
+
+  @override
   String get settings => 'Cài đặt';
 
   @override
@@ -82,7 +85,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get tutorialTitle => 'Cách chơi';
 
   @override
-  String get tutorialStep1 => 'Kéo các khối gạch vào lưới 8x8';
+  String get tutorialStep1 => 'Kéo các khối gạch vào lưới';
 
   @override
   String get tutorialStep2 => 'Lấp đầy hàng ngang hoặc dọc để ghi điểm';
@@ -108,21 +111,21 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get memoryReveal => '👁️ Lộ diện!';
+  String get memoryReveal => 'Lộ diện!';
 
   @override
-  String get zenClear => '🧘 Tĩnh tâm!';
+  String get zenClear => 'Tĩnh tâm!';
 
   @override
   String autoHammer(int count) {
-    return '🔨 Búa Tự Động! ($count ô)';
+    return 'Búa Tự Động! ($count ô)';
   }
 
   @override
-  String get risingRow => '⬆️ Hàng đang dâng!';
+  String get risingRow => 'Hàng đang dâng!';
 
   @override
-  String get autoDrop => '⏰ Tự động thả!';
+  String get autoDrop => 'Tự động thả!';
 
   @override
   String get endSession => 'Kết thúc';
@@ -136,19 +139,25 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get zenSummaryTitle => 'Tổng kết Zen';
+  String get zenSummaryTitle => 'PHIÊN THIỀN KẾT THÚC';
 
   @override
-  String get totalLines => 'Số hàng đã xóa';
+  String get totalLines => 'Hàng xóa';
 
   @override
-  String get maxCombo => 'Combo cao nhất';
+  String get maxCombo => 'Combo max';
 
   @override
-  String get blocksPlaced => 'Số khối đã đặt';
+  String get blocksPlaced => 'Khối đặt';
 
   @override
-  String get playTime => 'Thời gian chơi';
+  String get playTime => 'Thời gian thiền';
+
+  @override
+  String get continueBtn => 'Tiếp tục';
+
+  @override
+  String get backToLobby => 'Về Lobby';
 
   @override
   String get easyMode => 'Dễ';
@@ -182,4 +191,179 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get start => 'BẮT ĐẦU!';
+
+  @override
+  String get stats => 'Thống kê';
+
+  @override
+  String get achievements => 'Thành tích';
+
+  @override
+  String get music => 'Nhạc nền';
+
+  @override
+  String get themes => 'Giao diện';
+
+  @override
+  String get language => 'Ngôn ngữ';
+
+  @override
+  String get chooseLanguage => 'Chọn ngôn ngữ';
+
+  @override
+  String get autoDevice => 'Tự động (Thiết bị)';
+
+  @override
+  String get data => 'Dữ liệu';
+
+  @override
+  String best(int score) {
+    return 'Cao nhất: $score';
+  }
+
+  @override
+  String get easyDesc => 'Lưới nhỏ, khối nhỏ nhiều';
+
+  @override
+  String get classicDesc => 'Hàng dâng lên, phá nhanh!';
+
+  @override
+  String get masterDesc => 'Khối tự đặt, tốc độ!';
+
+  @override
+  String get memoryDesc => 'Khối biến mất, nhớ vị trí';
+
+  @override
+  String get zenDesc => 'Thư giãn, không thua';
+
+  @override
+  String get pvpDesc => 'Đấu 1v1 trong 2 phút';
+
+  @override
+  String get pvpRankedSubtitle => 'Ghép ngẫu nhiên với người chơi thật';
+
+  @override
+  String get pvpPracticeSubtitle => 'Chơi solo với BOT • Không tính xếp hạng';
+
+  @override
+  String get soloPvp => 'Solo PvP';
+
+  @override
+  String gridInfo(int size) {
+    return 'Lưới $size×$size • 2 Phút';
+  }
+
+  @override
+  String get dailyChallenge => 'Thử thách mỗi ngày';
+
+  @override
+  String get dailyChallengeSubtitle => 'Thử thách mới mỗi ngày!';
+
+  @override
+  String get streak => 'Chuỗi';
+
+  @override
+  String get completed => 'Đã hoàn thành';
+
+  @override
+  String get play => 'CHƠI';
+
+  @override
+  String get noConnection => 'Không có kết nối';
+
+  @override
+  String get tetEffects => 'Hiệu ứng Tết';
+
+  @override
+  String get pause => 'Tạm dừng';
+
+  @override
+  String get resume => 'TIẾP TỤC';
+
+  @override
+  String get quit => 'THOÁT';
+
+  @override
+  String get paused => 'TẠM DỪNG';
+
+  @override
+  String get newFeatures => 'Tính năng mới';
+
+  @override
+  String get privacyPolicy => 'Chính sách bảo mật';
+
+  @override
+  String get pvpWin => 'BẠN THẮNG!';
+
+  @override
+  String get pvpLose => 'BẠN THUA';
+
+  @override
+  String get pvpDraw => 'HÒA';
+
+  @override
+  String get uploading => 'Đang tải...';
+
+  @override
+  String get uploadToLeaderboard => 'Gửi lên bảng xếp hạng';
+
+  @override
+  String get scoreUploaded => 'Đã gửi điểm!';
+
+  @override
+  String get uploadFailed => 'Gửi thất bại. Kiểm tra kết nối.';
+
+  @override
+  String get tutorialReset => 'Tutorial sẽ hiện lại lần chơi tiếp theo';
+
+  @override
+  String get highScoresCleared => 'Đã xóa tất cả điểm cao';
+
+  @override
+  String get botBeginner => 'Tập Sự';
+
+  @override
+  String get botPro => 'Chuyên Nghiệp';
+
+  @override
+  String get botDestroyer => 'Hủy Diệt';
+
+  @override
+  String get botGodlike => 'Siêu Thần';
+
+  @override
+  String get version => 'Phiên bản';
+
+  @override
+  String get engine => 'Engine';
+
+  @override
+  String get timer => 'TIMER';
+
+  @override
+  String get soundSubtitle => 'Hiệu ứng âm thanh';
+
+  @override
+  String get hapticsSubtitle => 'Phản hồi rung';
+
+  @override
+  String get musicSubtitle => 'Nhạc nền game';
+
+  @override
+  String get tetSubtitle => 'Hiệu ứng hình ảnh Tết';
+
+  @override
+  String get tutorialSubtitle => 'Hiện lại hướng dẫn';
+
+  @override
+  String get resetSubtitle => 'Xóa tất cả điểm cao';
+
+  @override
+  String get shareScore => 'CHIA SẺ ĐIỂM';
+
+  @override
+  String get you => 'BẠN';
+
+  @override
+  String get rival => 'ĐỐI THỦ';
 }

@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'shared/services/auth_service.dart';
 import 'shared/services/audio_service.dart';
 import 'shared/services/locale_provider.dart';
+import 'shared/services/theme_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'routes/app_router.dart';
 import 'core/constants/strings.dart';
@@ -33,6 +34,9 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
+
+  // Initialize lightweight services before runApp
+  await ThemeService.instance.init();
 
   // Launch app immediately — Firebase and audio init in background
   runApp(const GridMasterApp());

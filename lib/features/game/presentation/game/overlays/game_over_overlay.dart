@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:grid_master/l10n/generated/app_localizations.dart';
 import 'package:grid_master/features/game/domain/models/game_mode.dart';
@@ -52,8 +51,8 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
       if (mounted) {
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to upload score. Check connection.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.uploadFailed),
           ),
         );
       }
@@ -184,7 +183,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
               if (!widget.isPractice && widget.rivalName == null)
                 if (!_uploadSuccess)
                   _buildButton(
-                    _isUploading ? 'Đang tải...' : 'Gửi lên bảng xếp hạng',
+                    _isUploading ? AppLocalizations.of(context)!.uploading : AppLocalizations.of(context)!.uploadToLeaderboard,
                     [
                       const Color(0xFFFFD700).withValues(alpha: 0.2),
                       const Color(0xFFFFA500).withValues(alpha: 0.1),
@@ -219,7 +218,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Đã gửi điểm!',
+                        AppLocalizations.of(context)!.scoreUploaded,
                         style: TextStyle(
                           color: Colors.green.shade300,
                           fontWeight: FontWeight.bold,
@@ -239,18 +238,19 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
 
               // Share button
               _buildButton(
-                '📤 SHARE SCORE',
+                AppLocalizations.of(context)!.shareScore,
                 [
                   const Color(0xFF00B894).withValues(alpha: 0.2),
                   const Color(0xFF00CC76).withValues(alpha: 0.1),
                 ],
                 () {
+                  final l10n = AppLocalizations.of(context)!;
                   final text =
-                      '🎮 Grid Master - ${widget.mode.displayName}\n'
-                      '⭐ Score: ${widget.score}\n'
-                      '🏆 Best: ${widget.highScore}\n'
-                      '${widget.isNewHighScore ? '🎉 NEW HIGH SCORE!\n' : ''}'
-                      'Can you beat me? 💪';
+                      'Grid Master - ${widget.mode.displayName}\n'
+                      '${l10n.score}: ${widget.score}\n'
+                      '${l10n.highScore}: ${widget.highScore}\n'
+                      '${widget.isNewHighScore ? '${l10n.newHighScore}\n' : ''}'
+                      'Can you beat me?';
                   SharePlus.instance.share(ShareParams(text: text));
                 },
                 textColor: const Color(0xFF00B894),
@@ -317,9 +317,10 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
   }
 
   Widget _buildPvpResult() {
+    final l10n = AppLocalizations.of(context)!;
     final isWin = widget.score > widget.rivalScore;
     final isDraw = widget.score == widget.rivalScore;
-    final resultText = isDraw ? 'HÒA' : (isWin ? 'BẠN THẮNG!' : 'BẠN THUA');
+    final resultText = isDraw ? l10n.pvpDraw : (isWin ? l10n.pvpWin : l10n.pvpLose);
     final resultColor = isDraw
         ? Colors.amber
         : (isWin ? const Color(0xFF00B894) : const Color(0xFFFF6B6B));
@@ -352,7 +353,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildScoreColumn('BẠN', widget.score, isWin || isDraw),
+              _buildScoreColumn(l10n.you, widget.score, isWin || isDraw),
               Text(
                 'VS',
                 style: TextStyle(
@@ -362,7 +363,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                 ),
               ),
               _buildScoreColumn(
-                widget.rivalName ?? 'ĐỐI THỦ',
+                widget.rivalName ?? l10n.rival,
                 widget.rivalScore,
                 !isWin || isDraw,
               ),
