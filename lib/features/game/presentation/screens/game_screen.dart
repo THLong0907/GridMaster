@@ -33,7 +33,13 @@ class GameScreen extends StatefulWidget {
   final int? seed;
   final bool isDaily;
 
-  const GameScreen({super.key, required this.mode, this.isPractice = false, this.seed, this.isDaily = false});
+  const GameScreen({
+    super.key,
+    required this.mode,
+    this.isPractice = false,
+    this.seed,
+    this.isDaily = false,
+  });
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -156,6 +162,8 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+  Timer? _matchmakingTimeout;
+
   Future<void> _startPvpMatchmaking() async {
     setState(() => _isPvpSearching = true);
     try {
@@ -169,20 +177,23 @@ class _GameScreenState extends State<GameScreen> {
         // Wait for player 2
         _matchSub = PvpService.streamMatch(match.id).listen((updatedMatch) {
           if (updatedMatch.status == 'active' && _match?.status == 'waiting') {
+            _matchmakingTimeout?.cancel();
             _startPvpGame(updatedMatch);
+          }
+        });
+
+        // Auto-fallback to BOT after 10 seconds if no rival found
+        _matchmakingTimeout = Timer(const Duration(seconds: 10), () {
+          if (mounted && _isPvpSearching) {
+            _matchSub?.cancel();
+            _startPracticeGame();
           }
         });
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.matchmakingError(e.toString()),
-            ),
-          ),
-        );
-        context.go('/');
+        // Fallback to practice mode on error instead of going back to lobby
+        _startPracticeGame();
       }
     }
   }
@@ -295,6 +306,7 @@ class _GameScreenState extends State<GameScreen> {
     _matchSub?.cancel();
     _pvpTimer?.cancel();
     _botTimer?.cancel();
+    _matchmakingTimeout?.cancel();
     _timerPollTimer?.cancel();
     MusicService.instance.stop();
     super.dispose();
