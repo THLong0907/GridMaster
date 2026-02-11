@@ -34,37 +34,38 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_AUTH_DOMAIN',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyAlNVWOO-dZ2fSahzKHbNwW_TKm-JerV_8',
+    appId: '1:833190075426:web:705f11d51565a9df2afe7b',
+    messagingSenderId: '833190075426',
+    projectId: 'gridmaster-3b11e',
+    authDomain: 'gridmaster-3b11e.firebaseapp.com',
+    storageBucket: 'gridmaster-3b11e.firebasestorage.app',
+    measurementId: 'G-PSW42EY9BF',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyAlNVWOO-dZ2fSahzKHbNwW_TKm-JerV_8',
+    appId: '1:833190075426:web:705f11d51565a9df2afe7b',
+    messagingSenderId: '833190075426',
+    projectId: 'gridmaster-3b11e',
+    storageBucket: 'gridmaster-3b11e.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyAlNVWOO-dZ2fSahzKHbNwW_TKm-JerV_8',
+    appId: '1:833190075426:web:705f11d51565a9df2afe7b',
+    messagingSenderId: '833190075426',
+    projectId: 'gridmaster-3b11e',
+    storageBucket: 'gridmaster-3b11e.firebasestorage.app',
     iosBundleId: 'com.example.gridMaster',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_AUTH_DOMAIN',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'AIzaSyAlNVWOO-dZ2fSahzKHbNwW_TKm-JerV_8',
+    appId: '1:833190075426:web:705f11d51565a9df2afe7b',
+    messagingSenderId: '833190075426',
+    projectId: 'gridmaster-3b11e',
+    authDomain: 'gridmaster-3b11e.firebaseapp.com',
+    storageBucket: 'gridmaster-3b11e.firebasestorage.app',
   );
 }

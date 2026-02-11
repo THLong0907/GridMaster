@@ -35,27 +35,26 @@ void main() async {
     ),
   );
 
+  // Initialize Firebase before runApp (required for Auth/Firestore access)
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // Enable analytics
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+    await AuthService.signInAnonymously();
+  } catch (e) {
+    debugPrint('Firebase init failed: $e');
+  }
+
   // Initialize lightweight services before runApp
   await ThemeService.instance.init();
 
-  // Launch app immediately — Firebase and audio init in background
+  // Launch app
   runApp(const GridMasterApp());
 
-  // Defer heavy initialization to after first frame
+  // Defer audio initialization to after first frame
   WidgetsBinding.instance.addPostFrameCallback((_) async {
-    // Initialize Firebase (heavy, network-bound)
-    try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      // Enable analytics
-      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-      await AuthService.signInAnonymously();
-    } catch (e) {
-      debugPrint('Firebase init failed: $e');
-    }
-
-    // Initialize Audio (lightweight, just reads a pref)
     await AudioService.instance.init();
   });
 }

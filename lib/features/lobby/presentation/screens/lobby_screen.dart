@@ -62,7 +62,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A3E),
-        title: Text(AppLocalizations.of(context)!.changeName, style: GoogleFonts.fredoka()),
+        title: Text(
+          AppLocalizations.of(context)!.changeName,
+          style: GoogleFonts.fredoka(),
+        ),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -97,76 +100,80 @@ class _LobbyScreenState extends State<LobbyScreen> {
   Widget build(BuildContext context) {
     return ConnectivityBanner(
       child: Scaffold(
-      body: Stack(
-        children: [
-          // Animated block background
-          const AnimatedBlockBackground(
-            accentColor: Color(0xFF6C5CE7),
-            bgColor1: Color(0xFF0D0D1A),
-            bgColor2: Color(0xFF2D1B69),
-            shapeCount: 16,
-          ),
+        body: Stack(
+          children: [
+            // Animated block background
+            const AnimatedBlockBackground(
+              accentColor: Color(0xFF6C5CE7),
+              bgColor1: Color(0xFF0D0D1A),
+              bgColor2: Color(0xFF2D1B69),
+              shapeCount: 16,
+            ),
 
-          // Content
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
+            // Content
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 32),
+                            _buildTitle(),
+                            const SizedBox(height: 16),
+                            _buildProfileBar(),
+                            const SizedBox(height: 16),
+                            const DailyChallengeCard(),
+                            const SizedBox(height: 16),
+                            _buildLeaderboardButton(),
+                            const SizedBox(height: 12),
+                            // Stats & Achievements row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildSmallButton(
+                                  icon: Icons.bar_chart_rounded,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.stats.toUpperCase(),
+                                  color: const Color(0xFF00B894),
+                                  onTap: () => context.push('/stats'),
+                                ),
+                                const SizedBox(width: 12),
+                                _buildSmallButton(
+                                  icon: Icons.emoji_events_rounded,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.achievements.toUpperCase(),
+                                  color: const Color(0xFFFFD700),
+                                  onTap: () => context.push('/achievements'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            _buildSettingsButton(),
+                            const SizedBox(height: 32),
+                            _buildModeGrid(context),
+                            const SizedBox(height: 32),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 32),
-                          _buildTitle(),
-                          const SizedBox(height: 16),
-                          _buildProfileBar(),
-                          const SizedBox(height: 16),
-                          const DailyChallengeCard(),
-                          const SizedBox(height: 16),
-                          _buildLeaderboardButton(),
-                          const SizedBox(height: 12),
-                          // Stats & Achievements row
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildSmallButton(
-                                icon: Icons.bar_chart_rounded,
-                                label: AppLocalizations.of(context)!.stats.toUpperCase(),
-                                color: const Color(0xFF00B894),
-                                onTap: () => context.push('/stats'),
-                              ),
-                              const SizedBox(width: 12),
-                              _buildSmallButton(
-                                icon: Icons.emoji_events_rounded,
-                                label: AppLocalizations.of(context)!.achievements.toUpperCase(),
-                                color: const Color(0xFFFFD700),
-                                onTap: () => context.push('/achievements'),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          _buildSettingsButton(),
-                          const SizedBox(height: 32),
-                          _buildModeGrid(context),
-                          const SizedBox(height: 32),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -488,7 +495,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    highScore > 0 ? AppLocalizations.of(context)!.best(highScore) : ' ',
+                    highScore > 0
+                        ? AppLocalizations.of(context)!.best(highScore)
+                        : ' ',
                     style: TextStyle(
                       color: color.withValues(alpha: 0.6),
                       fontSize: 10,
@@ -526,9 +535,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
               ),
             ),
             const SizedBox(height: 20),
-              Text(
-                'SOLO PVP', // Keep or localize?
-                style: GoogleFonts.fredoka(
+            Text(
+              'SOLO PVP', // Keep or localize?
+              style: GoogleFonts.fredoka(
                 color: const Color(0xFFFD79A8),
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -555,18 +564,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 context.go('/game/soloPvP');
               },
             ),
-            const SizedBox(height: 12),
-            // Practice button
-            _buildPvpOption(
-              icon: Icons.sports_esports,
-              title: AppLocalizations.of(ctx)!.practiceMode,
-              subtitle: AppLocalizations.of(ctx)!.pvpPracticeSubtitle,
-              color: const Color(0xFF00B894),
-              onTap: () {
-                Navigator.pop(ctx);
-                context.go('/game/soloPvP?practice=true');
-              },
-            ),
+
             const SizedBox(height: 16),
           ],
         ),
