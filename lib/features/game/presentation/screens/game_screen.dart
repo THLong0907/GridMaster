@@ -163,36 +163,50 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Timer? _matchmakingTimeout;
+  bool _matchmakingResolved = false;
 
   Future<void> _startPvpMatchmaking() async {
     setState(() => _isPvpSearching = true);
+    _matchmakingResolved = false;
+
+    // Start 10-second timeout FIRST — fires even if findMatch() hangs
+    _matchmakingTimeout = Timer(const Duration(seconds: 10), () {
+      if (mounted && !_matchmakingResolved) {
+        _matchmakingResolved = true;
+        _matchSub?.cancel();
+        debugPrint('Matchmaking timeout — falling back to BOT');
+        _startPracticeGame();
+      }
+    });
+
     try {
       final match = await PvpService.findMatch();
+      if (_matchmakingResolved) return; // Already timed out
+
       _match = match;
       _isPlayer1 = match.player1Id == AuthService.uid;
 
       if (match.status == 'active') {
+        _matchmakingResolved = true;
+        _matchmakingTimeout?.cancel();
         _startPvpGame(match);
       } else {
         // Wait for player 2
         _matchSub = PvpService.streamMatch(match.id).listen((updatedMatch) {
-          if (updatedMatch.status == 'active' && _match?.status == 'waiting') {
+          if (!_matchmakingResolved &&
+              updatedMatch.status == 'active' &&
+              _match?.status == 'waiting') {
+            _matchmakingResolved = true;
             _matchmakingTimeout?.cancel();
             _startPvpGame(updatedMatch);
           }
         });
-
-        // Auto-fallback to BOT after 10 seconds if no rival found
-        _matchmakingTimeout = Timer(const Duration(seconds: 10), () {
-          if (mounted && _isPvpSearching) {
-            _matchSub?.cancel();
-            _startPracticeGame();
-          }
-        });
       }
     } catch (e) {
-      if (mounted) {
-        // Fallback to practice mode on error instead of going back to lobby
+      debugPrint('Matchmaking error: $e');
+      if (mounted && !_matchmakingResolved) {
+        _matchmakingResolved = true;
+        _matchmakingTimeout?.cancel();
         _startPracticeGame();
       }
     }
