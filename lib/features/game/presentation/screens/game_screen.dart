@@ -253,26 +253,61 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _startPracticeGame() {
-    // Randomly pick a BOT difficulty
-    final difficulties = [
-      // [name, scoreChance (out of 10), minPts, maxPts, comboChance (out of 100), comboMin, comboMax]
-      ['Rookie Bot', 2, 15, 60, 3, 100, 200],
-      ['Pro Bot', 3, 40, 120, 8, 200, 500],
-      ['Elite Bot', 4, 80, 200, 15, 400, 800],
-      ['Legend Bot', 5, 120, 300, 25, 600, 1500],
+    // Random human-like player names
+    final fakeNames = [
+      'Alex_2k5',
+      'MinhGamer',
+      'PuzzleKing99',
+      'ThuHa_VN',
+      'BlockMaster',
+      'NgocAnh03',
+      'ProPlayer_X',
+      'HoangLong',
+      'GridNinja',
+      'KhanhDuy',
+      'xXDarkLordXx',
+      'BaoNgoc',
+      'CubeHero',
+      'TuanAnh_98',
+      'StarBlitz',
+      'MaiLinhh',
+      'QuocBao_07',
+      'PixelWizard',
+      'ThanhTung',
+      'LinhChi',
+      'FastFingers',
+      'DucMinh_VN',
+      'NightOwl42',
+      'HaiYen99',
+      'TopScorer',
+      'PhucAn_03',
+      'GridLord',
+      'MyHanh',
+      'BrainStorm',
+      'VietPro_01',
     ];
-    final diff = difficulties[Random().nextInt(difficulties.length)];
-    final botName = diff[0] as String;
-    final scoreChance = diff[1] as int; // out of 10, checked each second
-    final minPts = diff[2] as int;
-    final maxPts = diff[3] as int;
-    final comboChance = diff[4] as int; // out of 100
-    final comboMin = diff[5] as int;
-    final comboMax = diff[6] as int;
+
+    // Randomly pick a BOT difficulty (tuned to feel like a real player)
+    final difficulties = [
+      // [scoreChance (out of 10), minPts, maxPts, comboChance (out of 100), comboMin, comboMax]
+      [5, 80, 200, 20, 300, 700], // Average player
+      [6, 100, 250, 30, 400, 900], // Good player
+      [7, 120, 300, 35, 500, 1200], // Strong player
+      [7, 150, 350, 40, 600, 1500], // Pro player
+    ];
+    final rng = Random();
+    final diff = difficulties[rng.nextInt(difficulties.length)];
+    final fakeName = fakeNames[rng.nextInt(fakeNames.length)];
+    final scoreChance = diff[0];
+    final minPts = diff[1];
+    final maxPts = diff[2];
+    final comboChance = diff[3];
+    final comboMin = diff[4];
+    final comboMax = diff[5];
 
     setState(() {
       _isPvpSearching = false;
-      _rivalName = botName;
+      _rivalName = fakeName;
       _rivalScore = 0;
     });
 
