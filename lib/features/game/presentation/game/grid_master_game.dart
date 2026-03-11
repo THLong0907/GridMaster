@@ -213,6 +213,7 @@ class GridMasterGame extends FlameGame with PanDetector {
 
   @override
   void onPanStart(DragStartInfo info) {
+    if (paused) return;
     final pos = info.eventPosition.global;
     for (final comp in _pieceComponents) {
       if (comp.containsWorldPoint(pos)) {
@@ -229,6 +230,7 @@ class GridMasterGame extends FlameGame with PanDetector {
 
   @override
   void onPanUpdate(DragUpdateInfo info) {
+    if (paused) return;
     final comp = _draggedPiece;
     if (comp == null) return;
 
@@ -263,6 +265,7 @@ class GridMasterGame extends FlameGame with PanDetector {
 
   @override
   void onPanEnd(DragEndInfo info) {
+    if (paused) return;
     final comp = _draggedPiece;
     if (comp == null) return;
     _draggedPiece = null;
@@ -337,12 +340,13 @@ class GridMasterGame extends FlameGame with PanDetector {
           HapticService.lineClear();
         }
 
-        // Theme change every 10 clears
+        // Theme change every 10 clears (visual grid theme only, not user block colors)
         _clearCountSinceThemeChange += result.linesCleared;
         if (_clearCountSinceThemeChange >= 10) {
           _clearCountSinceThemeChange = 0;
           final newTheme =
               GridTheme.themes[_rng.nextInt(GridTheme.themes.length)];
+          _userGridTheme = newTheme;
           _gridComponent.setTheme(newTheme);
           onThemeChanged?.call(newTheme);
         }
@@ -400,6 +404,7 @@ class GridMasterGame extends FlameGame with PanDetector {
         _currentPieces = BlockPiece.generateForMode(
           GameConstants.piecesPerRound,
           mode,
+          _rng,
         );
         _usedPieces = List.filled(GameConstants.piecesPerRound, false);
         if (mode == GameMode.master) {
@@ -546,9 +551,9 @@ class GridMasterGame extends FlameGame with PanDetector {
     onScoreChanged?.call(_score, _streak, 0, 'autoHammer:$destroyed');
     onHammerChanged?.call(_hammerCharges);
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _checkGameOver();
-    });
+    // Use addPostFrame-style delay to avoid race conditions
+    // but keep it synchronous to prevent user interaction during check
+    _checkGameOver();
   }
 
   // =================== CLASSIC RISING ROWS ===================
@@ -682,12 +687,13 @@ class GridMasterGame extends FlameGame with PanDetector {
         result.clearedCols,
         linesCleared: result.linesCleared,
       );
-      // Theme change every 10 clears
+      // Theme change every 10 clears (visual grid theme only)
       _clearCountSinceThemeChange += result.linesCleared;
       if (_clearCountSinceThemeChange >= 10) {
         _clearCountSinceThemeChange = 0;
         final newTheme =
             GridTheme.themes[_rng.nextInt(GridTheme.themes.length)];
+        _userGridTheme = newTheme;
         _gridComponent.setTheme(newTheme);
         Future.delayed(Duration.zero, () {
           onThemeChanged?.call(newTheme);
@@ -727,6 +733,7 @@ class GridMasterGame extends FlameGame with PanDetector {
       _currentPieces = BlockPiece.generateForMode(
         GameConstants.piecesPerRound,
         mode,
+        _rng,
       );
       _usedPieces = List.filled(GameConstants.piecesPerRound, false);
       _pieceTimers = List.filled(
@@ -752,6 +759,7 @@ class GridMasterGame extends FlameGame with PanDetector {
     _currentPieces = BlockPiece.generateForMode(
       GameConstants.piecesPerRound,
       mode,
+      _rng,
     );
     _usedPieces = List.filled(GameConstants.piecesPerRound, false);
 
@@ -786,10 +794,15 @@ class GridMasterGame extends FlameGame with PanDetector {
   }
 
   void _layoutComponents() {
-    // Remove old components (preserve particle effects)
-    final particlesToKeep = children
-        .whereType<ParticleSystemComponent>()
-        .toList();
+    // Remove old components (preserve particle effects, glow trail, hoa đào)
+    final componentsToKeep = <Component>[];
+    for (final child in children) {
+      if (child is ParticleSystemComponent ||
+          child == _glowTrail ||
+          child == _hoaDaoComponent) {
+        componentsToKeep.add(child);
+      }
+    }
     removeAll(children.toList());
     _pieceComponents.clear();
 
@@ -838,9 +851,9 @@ class GridMasterGame extends FlameGame with PanDetector {
     }
     add(_gridComponent);
 
-    // Re-add particle effects
-    for (final p in particlesToKeep) {
-      add(p);
+    // Re-add preserved components (particles, glow trail, hoa đào)
+    for (final c in componentsToKeep) {
+      add(c);
     }
 
     // Create piece components below grid

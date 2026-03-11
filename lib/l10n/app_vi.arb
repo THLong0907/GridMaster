@@ -114,6 +114,8 @@
   "resetSubtitle": "Xóa tất cả điểm cao",
   "shareScore": "CHIA SẺ ĐIỂM",
   "you": "BẠN",
-  "rival": "ĐỐI THỦ"
+  "rival": "ĐỐI THỦ",
+  "shareChallenge": "Bạn có thể vượt qua tôi không?",
+  "pvpRules": "{size}×{size} - 2 Phút"
 }
 

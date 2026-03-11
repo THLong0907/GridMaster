@@ -839,6 +839,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'RIVAL'**
   String get rival;
+
+  /// No description provided for @shareChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Can you beat me?'**
+  String get shareChallenge;
+
+  /// No description provided for @pvpRules.
+  ///
+  /// In en, this message translates to:
+  /// **'{size}×{size} - 2 Minutes'**
+  String pvpRules(int size);
 }
 
 class _AppLocalizationsDelegate

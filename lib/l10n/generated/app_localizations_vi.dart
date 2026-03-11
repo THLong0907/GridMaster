@@ -366,4 +366,12 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get rival => 'ĐỐI THỦ';
+
+  @override
+  String get shareChallenge => 'Bạn có thể vượt qua tôi không?';
+
+  @override
+  String pvpRules(int size) {
+    return '$size×$size - 2 Phút';
+  }
 }

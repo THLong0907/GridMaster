@@ -8,34 +8,37 @@ class LeaderboardService {
 
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Upload a high score for a specific mode
+  /// Upload a high score for a specific mode (only if higher than existing)
   static Future<void> uploadScore(int score, GameMode mode) async {
     final uid = AuthService.uid;
     if (uid == null) return;
 
     final name = await AuthService.getDisplayName();
 
-    final batch = _firestore.batch();
-
-    // 1. Reference to the score document for this user in this mode
+    // Reference to the score document for this user in this mode
     final scoreRef = _firestore
         .collection('leaderboards')
         .doc(mode.name)
         .collection('scores')
         .doc(uid);
 
-    // 2. Set/Update score if it's higher
-    batch.set(scoreRef, {
-      'score': score,
-      'name': name,
-      'timestamp': FieldValue.serverTimestamp(),
-      'uid': uid,
-    }, SetOptions(merge: true));
+    // Use transaction to only update if score is higher
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(scoreRef);
+      final currentScore = snapshot.exists
+          ? (snapshot.data()?['score'] as int? ?? 0)
+          : 0;
 
-    // 3. Optional: Global stats update
-    // (Could be used to track total crown count etc.)
-
-    await batch.commit();
+      // Only write if new score is higher
+      if (score > currentScore) {
+        transaction.set(scoreRef, {
+          'score': score,
+          'name': name,
+          'timestamp': FieldValue.serverTimestamp(),
+          'uid': uid,
+        }, SetOptions(merge: true));
+      }
+    });
   }
 
   /// Fetch top 10 players for a mode

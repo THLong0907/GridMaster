@@ -367,4 +367,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get rival => 'RIVAL';
+
+  @override
+  String get shareChallenge => 'Can you beat me?';
+
+  @override
+  String pvpRules(int size) {
+    return '$size×$size - 2 Minutes';
+  }
 }

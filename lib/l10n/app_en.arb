@@ -149,6 +149,15 @@
   "resetSubtitle": "Clear all high scores",
   "shareScore": "SHARE SCORE",
   "you": "YOU",
-  "rival": "RIVAL"
+  "rival": "RIVAL",
+  "shareChallenge": "Can you beat me?",
+  "pvpRules": "{size}×{size} - 2 Minutes",
+  "@pvpRules": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  }
 }
 

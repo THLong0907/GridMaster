@@ -84,6 +84,9 @@ class _GameScreenState extends State<GameScreen> {
   int _zenBlocksPlaced = 0;
   bool _showZenSummary = false;
 
+  // Total lines cleared for stats tracking
+  int _totalLinesCleared = 0;
+
   // Undo system
   int _undoCount = 1; // 1 free undo per game
 
@@ -396,23 +399,16 @@ class _GameScreenState extends State<GameScreen> {
       } else if (message.startsWith('megaClear:')) {
         final count = int.tryParse(message.split(':')[1]) ?? 4;
         localizedMessage = l10n.megaClear(count);
-      } else if (message == '👁️ Memory Reveal!') {
+      } else if (message == 'memoryReveal') {
         localizedMessage = l10n.memoryReveal;
-      } else if (message == '🧘 Zen Clear!') {
+      } else if (message == 'zenClear') {
         localizedMessage = l10n.zenClear;
-      } else if (message.startsWith('🔨 Auto Hammer!')) {
-        // message format: 🔨 Auto Hammer! ($destroyed cells)
-        // regex or simple parse. But GridMasterGame logic sets this string.
-        // Let's assume we update GridMasterGame to send keys for these too?
-        // For now, let's just handle exact matches or leave as is if not a key.
-        // Actually, I should update GridMasterGame to return keys for these events too.
-        // But for speed, I'll just leave mixed content if it's complex, or try to match.
-        // The GridMasterGame code had: '🔨 Auto Hammer! ($destroyed cells)'
-        // I'll leave it as is for now or do a best effort.
-        // Wait, I updated _getClearText but not the others in GridMasterGame.
-      } else if (message == '⬆️ Hàng dâng!') {
+      } else if (message.startsWith('autoHammer:')) {
+        final count = int.tryParse(message.split(':')[1]) ?? 0;
+        localizedMessage = l10n.autoHammer(count);
+      } else if (message == 'risingRow') {
         localizedMessage = l10n.risingRow;
-      } else if (message.startsWith('⏰ Auto Drop!')) {
+      } else if (message.startsWith('autoDrop:')) {
         localizedMessage = l10n.autoDrop;
       }
     }
@@ -444,11 +440,15 @@ class _GameScreenState extends State<GameScreen> {
       if (streak > _zenMaxCombo) {
         _zenMaxCombo = streak;
       }
-      if (linesCleared == 0 && message == null) {
-        _zenBlocksPlaced++;
-      } else if (linesCleared > 0) {
+      // Count all piece placements (regardless of message or line clears)
+      if (message == null || linesCleared > 0 || message == 'zenClear') {
         _zenBlocksPlaced++;
       }
+    }
+
+    // Accumulate total lines cleared for stats
+    if (linesCleared > 0) {
+      _totalLinesCleared += linesCleared;
     }
 
     if (widget.mode == GameMode.soloPvP && _match != null) {
@@ -504,7 +504,7 @@ class _GameScreenState extends State<GameScreen> {
     StatsService.recordGame(
       mode: widget.mode,
       score: score,
-      linesCleared: _streak,
+      linesCleared: _totalLinesCleared,
       secondsPlayed: secondsPlayed,
     ).then((_) async {
       final stats = await StatsService.getStats();
@@ -574,7 +574,7 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '8x8 - 2 Minutes',
+                    AppLocalizations.of(context)!.pvpRules(8),
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.5),
                     ),
@@ -648,14 +648,14 @@ class _GameScreenState extends State<GameScreen> {
                     color: const Color(0xFFA29BFE).withValues(alpha: 0.4),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.psychology, color: Color(0xFFA29BFE), size: 18),
-                    SizedBox(width: 6),
+                    const Icon(Icons.psychology, color: Color(0xFFA29BFE), size: 18),
+                    const SizedBox(width: 6),
                     Text(
-                      'Memory',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.memoryMode,
+                      style: const TextStyle(
                         color: Color(0xFFA29BFE),
                         fontSize: 12,
                         fontWeight: FontWeight.bold,

@@ -250,7 +250,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                       '${l10n.score}: ${widget.score}\n'
                       '${l10n.highScore}: ${widget.highScore}\n'
                       '${widget.isNewHighScore ? '${l10n.newHighScore}\n' : ''}'
-                      'Can you beat me?';
+                      '${l10n.shareChallenge}';
                   SharePlus.instance.share(ShareParams(text: text));
                 },
                 textColor: const Color(0xFF00B894),
