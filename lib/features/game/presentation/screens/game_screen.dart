@@ -172,41 +172,47 @@ class _GameScreenState extends State<GameScreen> {
     setState(() => _isPvpSearching = true);
     _matchmakingResolved = false;
 
-    // Start 10-second timeout FIRST — fires even if findMatch() hangs
-    _matchmakingTimeout = Timer(const Duration(seconds: 10), () {
-      if (mounted && !_matchmakingResolved) {
-        _matchmakingResolved = true;
-        _matchSub?.cancel();
-        debugPrint('Matchmaking timeout — falling back to BOT');
-        _startPracticeGame();
-      }
-    });
+    debugPrint('[PVP-SCREEN] Starting matchmaking. UID=${AuthService.uid}');
 
     try {
+      // Step 1: Find or create a match (this can be slow on mobile Firestore)
       final match = await PvpService.findMatch();
-      if (_matchmakingResolved) return; // Already timed out
+      if (!mounted) return;
 
       _match = match;
-      _isPlayer1 = match.player1Id == AuthService.uid;
+      // Use match creator tracking instead of UID (both devices may share same UID)
+      _isPlayer1 = (PvpService.myCreatedMatchId == match.id);
+      debugPrint('[PVP-SCREEN] findMatch returned: id=${match.id}, status=${match.status}, isPlayer1=$_isPlayer1');
 
       if (match.status == 'active') {
         _matchmakingResolved = true;
-        _matchmakingTimeout?.cancel();
+        debugPrint('[PVP-SCREEN] Match already active! Starting game.');
         _startPvpGame(match);
       } else {
-        // Wait for player 2
+        // Step 2: Match is 'waiting' — NOW start the timeout for waiting phase only
+        debugPrint('[PVP-SCREEN] Match is waiting. Starting 60s timeout for opponent...');
+        _matchmakingTimeout = Timer(const Duration(seconds: 60), () {
+          if (mounted && !_matchmakingResolved) {
+            _matchmakingResolved = true;
+            _matchSub?.cancel();
+            debugPrint('[PVP-SCREEN] Waiting timeout — falling back to BOT');
+            _startPracticeGame();
+          }
+        });
+
+        // Listen for opponent joining
         _matchSub = PvpService.streamMatch(match.id).listen((updatedMatch) {
-          if (!_matchmakingResolved &&
-              updatedMatch.status == 'active' &&
-              _match?.status == 'waiting') {
+          debugPrint('[PVP-SCREEN] Stream update: status=${updatedMatch.status}, p2=${updatedMatch.player2Name}');
+          if (!_matchmakingResolved && updatedMatch.status == 'active') {
             _matchmakingResolved = true;
             _matchmakingTimeout?.cancel();
+            debugPrint('[PVP-SCREEN] Opponent found! Starting PvP game.');
             _startPvpGame(updatedMatch);
           }
         });
       }
     } catch (e) {
-      debugPrint('Matchmaking error: $e');
+      debugPrint('[PVP-SCREEN] Matchmaking error: $e');
       if (mounted && !_matchmakingResolved) {
         _matchmakingResolved = true;
         _matchmakingTimeout?.cancel();
@@ -259,35 +265,45 @@ class _GameScreenState extends State<GameScreen> {
     // Random human-like player names
     final fakeNames = [
       'Alex_2k5',
-      'MinhGamer',
       'PuzzleKing99',
-      'ThuHa_VN',
       'BlockMaster',
-      'NgocAnh03',
       'ProPlayer_X',
-      'HoangLong',
       'GridNinja',
-      'KhanhDuy',
       'xXDarkLordXx',
-      'BaoNgoc',
       'CubeHero',
-      'TuanAnh_98',
       'StarBlitz',
-      'MaiLinhh',
-      'QuocBao_07',
       'PixelWizard',
-      'ThanhTung',
-      'LinhChi',
       'FastFingers',
-      'DucMinh_VN',
       'NightOwl42',
-      'HaiYen99',
       'TopScorer',
-      'PhucAn_03',
       'GridLord',
-      'MyHanh',
       'BrainStorm',
-      'VietPro_01',
+      'ShadowFox_',
+      'IceBreaker7',
+      'NovaStrike',
+      'ZeroGravity',
+      'ThunderBolt',
+      'CyberWolf88',
+      'BlazeMaster',
+      'DragonSlyr',
+      'CosmicRay_X',
+      'StormRider',
+      'PhantomAce',
+      'NeonKnight',
+      'TurboMax99',
+      'ViperKing',
+      'RocketFuel_',
+      'GhostReaper',
+      'AtomicBlast',
+      'SilverArrow',
+      'DarkPhoenix',
+      'MegaNova_01',
+      'CrystalEdge',
+      'SteelWolf77',
+      'FlashPoint',
+      'OmegaPro_X',
+      'FireStorm22',
+      'QuantumLeap',
     ];
 
     // Randomly pick a BOT difficulty (tuned to feel like a real player)

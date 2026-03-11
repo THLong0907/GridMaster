@@ -128,13 +128,17 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
                     children: [
                       Row(
                         children: [
-                          Text(
-                            AppLocalizations.of(context)!.dailyChallenge.toUpperCase(),
-                            style: GoogleFonts.fredoka(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
+                          Flexible(
+                            child: Text(
+                              AppLocalizations.of(context)!.dailyChallenge.toUpperCase(),
+                              style: GoogleFonts.fredoka(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 8),

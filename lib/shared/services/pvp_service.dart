@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
 
 class PvpMatch {
@@ -32,9 +33,9 @@ class PvpMatch {
     final data = doc.data() as Map<String, dynamic>;
     return PvpMatch(
       id: doc.id,
-      player1Id: data['player1Id'],
+      player1Id: data['player1Id'] ?? '',
       player2Id: data['player2Id'],
-      player1Name: data['player1Name'],
+      player1Name: data['player1Name'] ?? 'Unknown',
       player2Name: data['player2Name'],
       player1Score: data['player1Score'] ?? 0,
       player2Score: data['player2Score'] ?? 0,
@@ -49,40 +50,92 @@ class PvpService {
   PvpService._();
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  /// Each session gets a unique device ID so the same Firebase user
+  /// on different devices can still match with each other.
+  static String? _sessionDeviceId;
+  static String _getDeviceId() {
+    _sessionDeviceId ??= '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(999999)}';
+    return _sessionDeviceId!;
+  }
+
+  /// Track the match ID we created this session (so we don't join our OWN match)
+  static String? myCreatedMatchId;
+
   /// Find or create a match
   static Future<PvpMatch> findMatch() async {
     final uid = AuthService.uid;
     if (uid == null) throw Exception('User not logged in');
     final name = await AuthService.getDisplayName();
+    final deviceId = _getDeviceId();
 
-    // 1. Try to find a waiting match
-    final waitingMatches = await _firestore
-        .collection('matches')
-        .where('status', isEqualTo: 'waiting')
-        .limit(1)
-        .get();
+    debugPrint('[PVP] ===== findMatch START =====');
+    debugPrint('[PVP] UID: $uid, Name: $name, DeviceID: $deviceId');
 
-    if (waitingMatches.docs.isNotEmpty) {
-      final doc = waitingMatches.docs.first;
-      final match = PvpMatch.fromFirestore(doc);
+    // Reset tracked match
+    myCreatedMatchId = null;
 
-      // Don't join your own match
-      if (match.player1Id != uid) {
-        await doc.reference.update({
-          'player2Id': uid,
-          'player2Name': name,
-          'status': 'active',
-          'startTime': FieldValue.serverTimestamp(),
-        });
-        return PvpMatch.fromFirestore(await doc.reference.get());
+    // 1. Try to find ANY waiting match
+    try {
+      final waitingMatches = await _firestore
+          .collection('matches')
+          .where('status', isEqualTo: 'waiting')
+          .get();
+
+      debugPrint('[PVP] Found ${waitingMatches.docs.length} waiting match(es)');
+
+      for (final doc in waitingMatches.docs) {
+        final data = doc.data();
+        final matchDeviceId = data['deviceId'] ?? '';
+        final matchPlayerName = data['player1Name'] ?? 'Unknown';
+
+        debugPrint('[PVP] Match ${doc.id}: deviceId=$matchDeviceId, name=$matchPlayerName');
+
+        // Skip if this match was created by THIS device session
+        if (matchDeviceId == deviceId) {
+          debugPrint('[PVP] -> Skipping (same device session)');
+          continue;
+        }
+
+        // Check if match is stale (older than 2 minutes)
+        final createdAt = (data['createdAt'] as Timestamp?)?.toDate();
+        if (createdAt != null) {
+          final age = DateTime.now().difference(createdAt);
+          if (age.inMinutes > 2) {
+            debugPrint('[PVP] -> Deleting stale match (${age.inSeconds}s old)');
+            try { await doc.reference.delete(); } catch (_) {}
+            continue;
+          }
+        }
+
+        // Found a valid match — join it!
+        debugPrint('[PVP] -> JOINING match ${doc.id}!');
+        try {
+          await doc.reference.update({
+            'player2Id': uid,
+            'player2Name': name,
+            'player2DeviceId': deviceId,
+            'status': 'active',
+            'startTime': FieldValue.serverTimestamp(),
+          });
+          final joined = PvpMatch.fromFirestore(await doc.reference.get());
+          debugPrint('[PVP] ===== JOINED! Rival: $matchPlayerName =====');
+          return joined;
+        } catch (e) {
+          debugPrint('[PVP] -> Join failed: $e');
+          continue;
+        }
       }
+    } catch (e) {
+      debugPrint('[PVP] Query error: $e');
     }
 
-    // 2. No match found, create one
+    // 2. No valid match found → create a new one
+    debugPrint('[PVP] No match to join, creating new one...');
     final seed = Random().nextInt(1000000);
     final ref = await _firestore.collection('matches').add({
       'player1Id': uid,
       'player1Name': name,
+      'deviceId': deviceId,
       'player2Id': null,
       'player2Name': null,
       'player1Score': 0,
@@ -92,7 +145,10 @@ class PvpService {
       'createdAt': FieldValue.serverTimestamp(),
     });
 
-    return PvpMatch.fromFirestore(await ref.get());
+    myCreatedMatchId = ref.id;
+    final created = PvpMatch.fromFirestore(await ref.get());
+    debugPrint('[PVP] ===== CREATED match ${ref.id}. Waiting... =====');
+    return created;
   }
 
   /// Listen to match updates
@@ -110,15 +166,23 @@ class PvpService {
     int score,
     bool isPlayer1,
   ) async {
-    await _firestore.collection('matches').doc(matchId).update({
-      isPlayer1 ? 'player1Score' : 'player2Score': score,
-    });
+    try {
+      await _firestore.collection('matches').doc(matchId).update({
+        isPlayer1 ? 'player1Score' : 'player2Score': score,
+      });
+    } catch (e) {
+      debugPrint('[PVP] updateMyScore error: $e');
+    }
   }
 
   /// Set match to finished
   static Future<void> finishMatch(String matchId) async {
-    await _firestore.collection('matches').doc(matchId).update({
-      'status': 'finished',
-    });
+    try {
+      await _firestore.collection('matches').doc(matchId).update({
+        'status': 'finished',
+      });
+    } catch (e) {
+      debugPrint('[PVP] finishMatch error: $e');
+    }
   }
 }

@@ -556,12 +556,26 @@ class _LobbyScreenState extends State<LobbyScreen> {
             // Ranked Match button
             _buildPvpOption(
               icon: Icons.people,
-              title: AppLocalizations.of(ctx)!.pvpMode, // Or specialized key
+              title: AppLocalizations.of(ctx)!.pvpMode,
               subtitle: AppLocalizations.of(ctx)!.pvpRankedSubtitle,
               color: const Color(0xFF6C5CE7),
               onTap: () {
                 Navigator.pop(ctx);
                 context.go('/game/soloPvP');
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            // Practice vs BOT button
+            _buildPvpOption(
+              icon: Icons.smart_toy,
+              title: AppLocalizations.of(ctx)!.practiceMode,
+              subtitle: AppLocalizations.of(ctx)!.pvpPracticeSubtitle,
+              color: const Color(0xFFFF7675),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.go('/game/soloPvP?practice=true');
               },
             ),
 
