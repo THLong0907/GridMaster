@@ -54,14 +54,137 @@ class PvpService {
   /// on different devices can still match with each other.
   static String? _sessionDeviceId;
   static String _getDeviceId() {
-    _sessionDeviceId ??= '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(999999)}';
+    _sessionDeviceId ??=
+        '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(999999)}';
     return _sessionDeviceId!;
   }
 
   /// Track the match ID we created this session (so we don't join our OWN match)
   static String? myCreatedMatchId;
 
-  /// Find or create a match
+  /// Active polling timer (cancelled when match found or user leaves)
+  static Timer? _pollingTimer;
+
+  /// Completer for the polling flow
+  static Completer<PvpMatch>? _matchCompleter;
+
+  /// Clean up stale matches older than 2 minutes
+  static Future<void> _cleanStaleMatches() async {
+    try {
+      final waitingMatches = await _firestore
+          .collection('matches')
+          .where('status', isEqualTo: 'waiting')
+          .get();
+
+      for (final doc in waitingMatches.docs) {
+        final data = doc.data();
+        final createdAt = (data['createdAt'] as Timestamp?)?.toDate();
+        if (createdAt != null) {
+          final age = DateTime.now().difference(createdAt);
+          if (age.inMinutes > 2) {
+            debugPrint('[PVP] Cleaning stale match ${doc.id} (${age.inSeconds}s old)');
+            try {
+              await doc.reference.delete();
+            } catch (_) {}
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[PVP] cleanStaleMatches error: $e');
+    }
+  }
+
+  /// Try to join an existing waiting match using a Firestore transaction
+  /// to prevent two players from joining the same match simultaneously.
+  static Future<PvpMatch?> _tryJoinExistingMatch(
+      String uid, String name, String deviceId) async {
+    try {
+      final waitingMatches = await _firestore
+          .collection('matches')
+          .where('status', isEqualTo: 'waiting')
+          .get();
+
+      debugPrint(
+          '[PVP] Found ${waitingMatches.docs.length} waiting match(es)');
+
+      for (final doc in waitingMatches.docs) {
+        final data = doc.data();
+        final matchDeviceId = data['deviceId'] ?? '';
+
+        // Skip our own match
+        if (matchDeviceId == deviceId) {
+          debugPrint('[PVP] -> Skipping match ${doc.id} (own device)');
+          continue;
+        }
+
+        // Skip stale matches
+        final createdAt = (data['createdAt'] as Timestamp?)?.toDate();
+        if (createdAt != null &&
+            DateTime.now().difference(createdAt).inMinutes > 2) {
+          debugPrint('[PVP] -> Skipping stale match ${doc.id}');
+          continue;
+        }
+
+        // Try to join with a transaction (atomic — prevents race condition)
+        debugPrint('[PVP] -> Attempting to JOIN match ${doc.id} via transaction');
+        try {
+          final result =
+              await _firestore.runTransaction<PvpMatch?>((transaction) async {
+            final freshDoc = await transaction.get(doc.reference);
+            if (!freshDoc.exists) return null;
+
+            final freshData = freshDoc.data() as Map<String, dynamic>;
+
+            // Double-check it's still 'waiting' inside the transaction
+            if (freshData['status'] != 'waiting') {
+              debugPrint('[PVP] -> Match ${doc.id} no longer waiting');
+              return null;
+            }
+
+            // Join the match!
+            transaction.update(doc.reference, {
+              'player2Id': uid,
+              'player2Name': name,
+              'player2DeviceId': deviceId,
+              'status': 'active',
+              'startTime': FieldValue.serverTimestamp(),
+            });
+
+            // Return a match object with updated data
+            return PvpMatch(
+              id: doc.id,
+              player1Id: freshData['player1Id'] ?? '',
+              player2Id: uid,
+              player1Name: freshData['player1Name'] ?? 'Unknown',
+              player2Name: name,
+              player1Score: 0,
+              player2Score: 0,
+              seed: freshData['seed'] ?? 0,
+              status: 'active',
+              startTime: DateTime.now(),
+            );
+          });
+
+          if (result != null) {
+            debugPrint('[PVP] ===== JOINED match ${doc.id}! =====');
+            return result;
+          }
+        } catch (e) {
+          debugPrint('[PVP] -> Transaction failed for ${doc.id}: $e');
+          continue;
+        }
+      }
+    } catch (e) {
+      debugPrint('[PVP] _tryJoinExistingMatch error: $e');
+    }
+    return null;
+  }
+
+  /// Find or create a match.
+  /// This is the main entry point. Flow:
+  /// 1. Clean up stale matches
+  /// 2. Try to join an existing waiting match (with transaction)
+  /// 3. If no match available → create one + start polling to keep retrying
   static Future<PvpMatch> findMatch() async {
     final uid = AuthService.uid;
     if (uid == null) throw Exception('User not logged in');
@@ -71,65 +194,20 @@ class PvpService {
     debugPrint('[PVP] ===== findMatch START =====');
     debugPrint('[PVP] UID: $uid, Name: $name, DeviceID: $deviceId');
 
-    // Reset tracked match
+    // Cancel any previous polling
+    cancelPolling();
     myCreatedMatchId = null;
 
-    // 1. Try to find ANY waiting match
-    try {
-      final waitingMatches = await _firestore
-          .collection('matches')
-          .where('status', isEqualTo: 'waiting')
-          .get();
+    // Step 1: Clean stale matches
+    await _cleanStaleMatches();
 
-      debugPrint('[PVP] Found ${waitingMatches.docs.length} waiting match(es)');
-
-      for (final doc in waitingMatches.docs) {
-        final data = doc.data();
-        final matchDeviceId = data['deviceId'] ?? '';
-        final matchPlayerName = data['player1Name'] ?? 'Unknown';
-
-        debugPrint('[PVP] Match ${doc.id}: deviceId=$matchDeviceId, name=$matchPlayerName');
-
-        // Skip if this match was created by THIS device session
-        if (matchDeviceId == deviceId) {
-          debugPrint('[PVP] -> Skipping (same device session)');
-          continue;
-        }
-
-        // Check if match is stale (older than 2 minutes)
-        final createdAt = (data['createdAt'] as Timestamp?)?.toDate();
-        if (createdAt != null) {
-          final age = DateTime.now().difference(createdAt);
-          if (age.inMinutes > 2) {
-            debugPrint('[PVP] -> Deleting stale match (${age.inSeconds}s old)');
-            try { await doc.reference.delete(); } catch (_) {}
-            continue;
-          }
-        }
-
-        // Found a valid match — join it!
-        debugPrint('[PVP] -> JOINING match ${doc.id}!');
-        try {
-          await doc.reference.update({
-            'player2Id': uid,
-            'player2Name': name,
-            'player2DeviceId': deviceId,
-            'status': 'active',
-            'startTime': FieldValue.serverTimestamp(),
-          });
-          final joined = PvpMatch.fromFirestore(await doc.reference.get());
-          debugPrint('[PVP] ===== JOINED! Rival: $matchPlayerName =====');
-          return joined;
-        } catch (e) {
-          debugPrint('[PVP] -> Join failed: $e');
-          continue;
-        }
-      }
-    } catch (e) {
-      debugPrint('[PVP] Query error: $e');
+    // Step 2: Try to join an existing match
+    final joined = await _tryJoinExistingMatch(uid, name, deviceId);
+    if (joined != null) {
+      return joined;
     }
 
-    // 2. No valid match found → create a new one
+    // Step 3: No match found → create a new one
     debugPrint('[PVP] No match to join, creating new one...');
     final seed = Random().nextInt(1000000);
     final ref = await _firestore.collection('matches').add({
@@ -146,9 +224,70 @@ class PvpService {
     });
 
     myCreatedMatchId = ref.id;
+    debugPrint('[PVP] ===== CREATED match ${ref.id}. Starting polling... =====');
+
+    // Step 4: Start a polling timer that keeps trying to join OTHER matches
+    // This handles the race condition: if both clients created matches,
+    // one of them will eventually find and join the other's match.
+    _matchCompleter = Completer<PvpMatch>();
+
+    _pollingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      if (_matchCompleter == null || _matchCompleter!.isCompleted) {
+        timer.cancel();
+        return;
+      }
+
+      debugPrint('[PVP] Polling... trying to find another match to join');
+
+      // Check if our own match was already joined (someone else found us)
+      try {
+        final ourDoc = await _firestore.collection('matches').doc(ref.id).get();
+        if (ourDoc.exists) {
+          final data = ourDoc.data()!;
+          if (data['status'] == 'active') {
+            debugPrint('[PVP] Our match was joined by someone else!');
+            timer.cancel();
+            if (!_matchCompleter!.isCompleted) {
+              _matchCompleter!.complete(PvpMatch.fromFirestore(ourDoc));
+            }
+            return;
+          }
+        }
+      } catch (e) {
+        debugPrint('[PVP] Poll check own match error: $e');
+      }
+
+      // Try to join someone else's match
+      final found = await _tryJoinExistingMatch(uid, name, deviceId);
+      if (found != null) {
+        timer.cancel();
+        // Delete our own waiting match since we joined another
+        try {
+          await _firestore.collection('matches').doc(ref.id).delete();
+          debugPrint('[PVP] Deleted our own waiting match ${ref.id}');
+        } catch (_) {}
+        if (!_matchCompleter!.isCompleted) {
+          // We joined someone else's match, so we are NOT player1
+          myCreatedMatchId = null;
+          _matchCompleter!.complete(found);
+        }
+      }
+    });
+
+    // Return our created match immediately — game_screen will use streamMatch
+    // to detect when it goes active (either via polling join or opponent joining)
     final created = PvpMatch.fromFirestore(await ref.get());
-    debugPrint('[PVP] ===== CREATED match ${ref.id}. Waiting... =====');
     return created;
+  }
+
+  /// Cancel polling (call when leaving matchmaking or match found)
+  static void cancelPolling() {
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+    if (_matchCompleter != null && !_matchCompleter!.isCompleted) {
+      _matchCompleter!.completeError('Cancelled');
+    }
+    _matchCompleter = null;
   }
 
   /// Listen to match updates
@@ -183,6 +322,22 @@ class PvpService {
       });
     } catch (e) {
       debugPrint('[PVP] finishMatch error: $e');
+    }
+  }
+
+  /// Cancel/delete a waiting match (user left matchmaking screen)
+  static Future<void> cancelMatch(String matchId) async {
+    try {
+      final doc = await _firestore.collection('matches').doc(matchId).get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        if (data['status'] == 'waiting') {
+          await doc.reference.delete();
+          debugPrint('[PVP] Cancelled and deleted match $matchId');
+        }
+      }
+    } catch (e) {
+      debugPrint('[PVP] cancelMatch error: $e');
     }
   }
 }
