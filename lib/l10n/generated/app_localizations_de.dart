@@ -374,4 +374,55 @@ class AppLocalizationsDe extends AppLocalizations {
   String pvpRules(int size) {
     return '$size×$size - 2 Minutes';
   }
+
+  @override
+  String get tutorialStepTitle1 => 'Drag & Drop';
+
+  @override
+  String get tutorialStepTitle2 => 'Clear Lines';
+
+  @override
+  String get tutorialStepTitle3 => 'Combo & Streak';
+
+  @override
+  String get tutorialStepTitle4 => 'Hammer Power';
+
+  @override
+  String get tutorialStepTitle5 => 'Game Modes';
+
+  @override
+  String get tutorialStepTitle6 => 'Good Luck!';
+
+  @override
+  String get tutorialStep5 =>
+      'Build combos by clearing lines consecutively for huge bonus points!';
+
+  @override
+  String get tutorialStep6 =>
+      'Try Easy, Classic, Master, Memory, Zen, and PvP modes — each has unique rules!';
+
+  @override
+  String get offlineBanner => 'Offline — Some features unavailable';
+
+  @override
+  String get offlineLeaderboard => 'Leaderboard requires internet';
+
+  @override
+  String get offlinePvp => 'PvP requires internet connection';
+
+  @override
+  String get consentTitle => 'Privacy & Data';
+
+  @override
+  String get consentMessage =>
+      'We collect anonymous game analytics (scores, play sessions) to improve your experience. No personal data is collected or shared with third parties.';
+
+  @override
+  String get consentAccept => 'Accept';
+
+  @override
+  String get consentDecline => 'Decline';
+
+  @override
+  String get consentLearnMore => 'Learn More';
 }

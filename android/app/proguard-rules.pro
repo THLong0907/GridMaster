@@ -27,6 +27,9 @@
 ## In App Review
 -keep class com.google.android.play.core.** { *; }
 
+## Firebase Crashlytics
+-keep class com.google.firebase.crashlytics.** { *; }
+
 ## Share Plus
 -keep class dev.fluttercommunity.plus.share.** { *; }
 

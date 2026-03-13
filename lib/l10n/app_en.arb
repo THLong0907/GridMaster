@@ -158,6 +158,22 @@
         "type": "int"
       }
     }
-  }
+  },
+  "tutorialStepTitle1": "Drag & Drop",
+  "tutorialStepTitle2": "Clear Lines",
+  "tutorialStepTitle3": "Combo & Streak",
+  "tutorialStepTitle4": "Hammer Power",
+  "tutorialStepTitle5": "Game Modes",
+  "tutorialStepTitle6": "Good Luck!",
+  "tutorialStep5": "Build combos by clearing lines consecutively for huge bonus points!",
+  "tutorialStep6": "Try Easy, Classic, Master, Memory, Zen, and PvP modes — each has unique rules!",
+  "offlineBanner": "Offline — Some features unavailable",
+  "offlineLeaderboard": "Leaderboard requires internet",
+  "offlinePvp": "PvP requires internet connection",
+  "consentTitle": "Privacy & Data",
+  "consentMessage": "We collect anonymous game analytics (scores, play sessions) to improve your experience. No personal data is collected or shared with third parties.",
+  "consentAccept": "Accept",
+  "consentDecline": "Decline",
+  "consentLearnMore": "Learn More"
 }
 

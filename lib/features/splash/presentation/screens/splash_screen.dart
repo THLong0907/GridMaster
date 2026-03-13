@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grid_master/shared/widgets/animated_block_background.dart';
 
-/// Splash screen reusing the lobby's AnimatedBlockBackground,
-/// with "GRID MASTER" title and a loading bar that fills up.
+/// Splash screen with animated puzzle icon, GRID MASTER title,
+/// loading bar with percentage, and version number.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -17,12 +17,27 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _loadingController;
   late AnimationController _titleController;
   late AnimationController _shimmerController;
+  late AnimationController _iconController;
   late Animation<double> _titleFade;
   late Animation<double> _titleScale;
+  late Animation<double> _iconRotation;
+  late Animation<double> _iconScale;
 
   @override
   void initState() {
     super.initState();
+
+    // Icon animation — scale + gentle rotation
+    _iconController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _iconRotation = Tween<double>(begin: -0.05, end: 0.05).animate(
+      CurvedAnimation(parent: _iconController, curve: Curves.easeInOut),
+    );
+    _iconScale = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _iconController, curve: Curves.elasticOut),
+    );
 
     // Title animation
     _titleController = AnimationController(
@@ -49,13 +64,18 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 3000),
     );
 
-    // Sequence: show title → start loading → navigate
-    Future.delayed(const Duration(milliseconds: 200), () {
+    // Sequence: icon → title → loading → navigate
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+      _iconController.forward();
+    });
+
+    Future.delayed(const Duration(milliseconds: 400), () {
       if (!mounted) return;
       _titleController.forward();
     });
 
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 700), () {
       if (!mounted) return;
       _loadingController.forward();
     });
@@ -76,6 +96,7 @@ class _SplashScreenState extends State<SplashScreen>
     _loadingController.dispose();
     _titleController.dispose();
     _shimmerController.dispose();
+    _iconController.dispose();
     super.dispose();
   }
 
@@ -98,7 +119,28 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Spacer(flex: 3),
+                  const Spacer(flex: 2),
+
+                  // Animated puzzle piece icon
+                  AnimatedBuilder(
+                    animation: _iconController,
+                    builder: (context, _) {
+                      return Transform.scale(
+                        scale: _iconScale.value,
+                        child: Transform.rotate(
+                          angle: _iconRotation.value,
+                          child: CustomPaint(
+                            size: const Size(80, 80),
+                            painter: _PuzzleIconPainter(
+                              progress: _iconController.value,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
 
                   // Title "GRID MASTER" - same style as lobby
                   Center(
@@ -163,9 +205,9 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
 
-                  const Spacer(flex: 4),
+                  const Spacer(flex: 3),
 
-                  // Loading bar - centered
+                  // Loading bar with percentage
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 48),
                     child: AnimatedBuilder(
@@ -179,7 +221,22 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 24),
+
+                  // Version number
+                  FadeTransition(
+                    opacity: _titleFade,
+                    child: Text(
+                      'v1.0.0',
+                      style: GoogleFonts.fredoka(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.25),
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -192,15 +249,16 @@ class _SplashScreenState extends State<SplashScreen>
   Widget _buildLoadingBar() {
     final progress = _loadingController.value;
     final shimmer = _shimmerController.value;
+    final percent = (progress * 100).toInt();
 
     return Column(
       children: [
-        // Loading text
+        // Loading text with percentage
         AnimatedOpacity(
           opacity: progress > 0 ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 300),
           child: Text(
-            'Loading...',
+            'Loading... $percent%',
             textAlign: TextAlign.center,
             style: GoogleFonts.fredoka(
               fontSize: 14,
@@ -288,4 +346,91 @@ class _SplashScreenState extends State<SplashScreen>
       ],
     );
   }
+}
+
+/// Custom painter that draws a colorful 3x3 block grid icon
+class _PuzzleIconPainter extends CustomPainter {
+  final double progress;
+
+  _PuzzleIconPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cellSize = size.width / 3.5;
+    final originX = (size.width - cellSize * 3) / 2;
+    final originY = (size.height - cellSize * 3) / 2;
+
+    final colors = [
+      const Color(0xFF6C5CE7),
+      const Color(0xFF00B894),
+      const Color(0xFFFF6B6B),
+      const Color(0xFFFDCB6E),
+      const Color(0xFF74B9FF),
+      const Color(0xFFA29BFE),
+      const Color(0xFFE17055),
+      const Color(0xFF55EFC4),
+      const Color(0xFFFF9FF3),
+    ];
+
+    // Draw 3x3 grid of colorful blocks with staggered animation
+    int idx = 0;
+    for (int r = 0; r < 3; r++) {
+      for (int c = 0; c < 3; c++) {
+        final delay = (r * 3 + c) * 0.08;
+        final localProgress = ((progress - delay) / 0.6).clamp(0.0, 1.0);
+
+        if (localProgress > 0) {
+          final paint = Paint()
+            ..color = colors[idx].withValues(alpha: localProgress * 0.85)
+            ..style = PaintingStyle.fill;
+
+          final x = originX + c * cellSize;
+          final y = originY + r * cellSize;
+          final scale = localProgress;
+
+          canvas.save();
+          canvas.translate(x + cellSize / 2, y + cellSize / 2);
+          canvas.scale(scale);
+          canvas.translate(-cellSize / 2, -cellSize / 2);
+
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              Rect.fromLTWH(1, 1, cellSize - 2, cellSize - 2),
+              const Radius.circular(4),
+            ),
+            paint,
+          );
+
+          // Inner highlight
+          final highlightPaint = Paint()
+            ..color = Colors.white.withValues(alpha: localProgress * 0.15)
+            ..style = PaintingStyle.fill;
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              Rect.fromLTWH(2, 2, cellSize / 2 - 2, cellSize / 3),
+              const Radius.circular(2),
+            ),
+            highlightPaint,
+          );
+
+          canvas.restore();
+        }
+        idx++;
+      }
+    }
+
+    // Glow behind the grid
+    final glowPaint = Paint()
+      ..color = const Color(0xFF6C5CE7).withValues(alpha: progress * 0.15)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 20);
+    canvas.drawCircle(
+      Offset(size.width / 2, size.height / 2),
+      size.width / 2.5,
+      glowPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _PuzzleIconPainter old) =>
+      old.progress != progress;
 }

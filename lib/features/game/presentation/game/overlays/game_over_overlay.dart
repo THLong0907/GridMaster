@@ -64,9 +64,11 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
     return Container(
       color: Colors.black54,
       child: Center(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 40),
-          padding: const EdgeInsets.all(32),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 32),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
@@ -269,6 +271,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

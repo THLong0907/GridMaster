@@ -12,6 +12,7 @@ import 'package:grid_master/shared/widgets/connectivity_widget.dart';
 import 'package:grid_master/features/lobby/presentation/widgets/daily_challenge_card.dart';
 import 'package:grid_master/l10n/generated/app_localizations.dart';
 
+
 /// Lobby screen with 5 game mode selection cards
 class LobbyScreen extends StatefulWidget {
   const LobbyScreen({super.key});
@@ -117,8 +118,10 @@ class _LobbyScreenState extends State<LobbyScreen> {
               child: SafeArea(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+            return SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: constraints.maxWidth < 360 ? 16 : 24,
+                      ),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
                           minHeight: constraints.maxHeight,
@@ -126,15 +129,15 @@ class _LobbyScreenState extends State<LobbyScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(height: 32),
+                            SizedBox(height: constraints.maxHeight < 700 ? 16 : 32),
                             _buildTitle(),
-                            const SizedBox(height: 16),
+                            SizedBox(height: constraints.maxHeight < 700 ? 8 : 16),
                             _buildProfileBar(),
-                            const SizedBox(height: 16),
+                            SizedBox(height: constraints.maxHeight < 700 ? 8 : 16),
                             const DailyChallengeCard(),
-                            const SizedBox(height: 16),
+                            SizedBox(height: constraints.maxHeight < 700 ? 8 : 16),
                             _buildLeaderboardButton(),
-                            const SizedBox(height: 12),
+                            SizedBox(height: constraints.maxHeight < 700 ? 6 : 12),
                             // Stats & Achievements row
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -158,11 +161,11 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: constraints.maxHeight < 700 ? 6 : 12),
                             _buildSettingsButton(),
-                            const SizedBox(height: 32),
+                            SizedBox(height: constraints.maxHeight < 700 ? 16 : 32),
                             _buildModeGrid(context),
-                            const SizedBox(height: 32),
+                            SizedBox(height: constraints.maxHeight < 700 ? 16 : 32),
                           ],
                         ),
                       ),
@@ -178,45 +181,54 @@ class _LobbyScreenState extends State<LobbyScreen> {
   }
 
   Widget _buildTitle() {
-    return Column(
-      children: [
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE), Color(0xFF74B9FF)],
-            ).createShader(bounds),
-            child: Text(
-              'GRID',
-              style: GoogleFonts.fredoka(
-                fontSize: 100,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: 16,
-                height: 1.0,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmall = constraints.maxWidth < 360;
+        final titleSize = isSmall ? 64.0 : 100.0;
+        final subtitleSize = isSmall ? 48.0 : 80.0;
+        final titleSpacing = isSmall ? 8.0 : 16.0;
+        final subtitleSpacing = isSmall ? 6.0 : 12.0;
+        return Column(
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE), Color(0xFF74B9FF)],
+                ).createShader(bounds),
+                child: Text(
+                  'GRID',
+                  style: GoogleFonts.fredoka(
+                    fontSize: titleSize,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: titleSpacing,
+                    height: 1.0,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53), Color(0xFFFFC107)],
-            ).createShader(bounds),
-            child: Text(
-              'MASTER',
-              style: GoogleFonts.fredoka(
-                fontSize: 80,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: 12,
-                height: 1.0,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53), Color(0xFFFFC107)],
+                ).createShader(bounds),
+                child: Text(
+                  'MASTER',
+                  style: GoogleFonts.fredoka(
+                    fontSize: subtitleSize,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: subtitleSpacing,
+                    height: 1.0,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -439,76 +451,89 @@ class _LobbyScreenState extends State<LobbyScreen> {
           context.go('/game/${mode.name}');
         }
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.15),
-              blurRadius: 12,
-              spreadRadius: 1,
+      child: Builder(
+        builder: (context) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final isCompact = screenWidth < 380;
+          final titleFontSize = isCompact ? 13.0 : 15.0;
+          final descFontSize = isCompact ? 10.0 : 11.0;
+          final iconBoxSize = isCompact ? 28.0 : 34.0;
+          final iconSize = isCompact ? 14.0 : 18.0;
+          final vPadding = isCompact ? 8.0 : 12.0;
+          final hPadding = isCompact ? 8.0 : 10.0;
+
+          return Container(
+            padding: EdgeInsets.symmetric(vertical: vPadding, horizontal: hPadding),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.15),
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 18),
+            child: Row(
+              children: [
+                Container(
+                  width: iconBoxSize,
+                  height: iconBoxSize,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, color: color, size: iconSize),
+                ),
+                const SizedBox(width: 8),
+                if (_top1Status[mode] == true)
+                  const Padding(
+                    padding: EdgeInsets.only(right: 4),
+                    child: CrownWidget(size: 14),
+                  ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${_getModeName(context, mode)} ${mode.gridSize}×${mode.gridSize}',
+                        style: GoogleFonts.fredoka(
+                          color: color,
+                          fontSize: titleFontSize,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        _getModeDesc(context, mode),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: descFontSize,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        highScore > 0
+                            ? AppLocalizations.of(context)!.best(highScore)
+                            : ' ',
+                        style: TextStyle(
+                          color: color.withValues(alpha: 0.6),
+                          fontSize: isCompact ? 9.0 : 10.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            if (_top1Status[mode] == true)
-              const Padding(
-                padding: EdgeInsets.only(right: 4),
-                child: CrownWidget(size: 14),
-              ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${_getModeName(context, mode)} ${mode.gridSize}×${mode.gridSize}',
-                    style: GoogleFonts.fredoka(
-                      color: color,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    _getModeDesc(context, mode),
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 11,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    highScore > 0
-                        ? AppLocalizations.of(context)!.best(highScore)
-                        : ' ',
-                    style: TextStyle(
-                      color: color.withValues(alpha: 0.6),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

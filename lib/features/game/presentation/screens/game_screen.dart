@@ -175,61 +175,20 @@ class _GameScreenState extends State<GameScreen> {
     debugPrint('[PVP-SCREEN] Starting matchmaking. UID=${AuthService.uid}');
 
     try {
-      // Step 1: Find or create a match
-      // PvpService.findMatch() now handles retrying via polling internally
+      // findMatch() blocks until an ACTIVE match is found (or throws on timeout)
       final match = await PvpService.findMatch();
       if (!mounted) return;
 
-      _match = match;
-      _isPlayer1 = (PvpService.myCreatedMatchId == match.id);
-      debugPrint('[PVP-SCREEN] findMatch returned: id=${match.id}, status=${match.status}, isPlayer1=$_isPlayer1');
-
-      if (match.status == 'active') {
-        // Joined an existing match immediately
-        _matchmakingResolved = true;
-        PvpService.cancelPolling();
-        debugPrint('[PVP-SCREEN] Match already active! Starting game.');
-        _startPvpGame(match);
-      } else {
-        // Match is 'waiting' — listen for status change
-        // PvpService is also polling in the background to handle race conditions
-        debugPrint('[PVP-SCREEN] Match is waiting. Listening for opponent...');
-
-        // Timeout after 60s → fallback to BOT
-        _matchmakingTimeout = Timer(const Duration(seconds: 60), () {
-          if (mounted && !_matchmakingResolved) {
-            _matchmakingResolved = true;
-            _matchSub?.cancel();
-            PvpService.cancelPolling();
-            // Delete our waiting match
-            if (_match != null) {
-              PvpService.cancelMatch(_match!.id);
-            }
-            debugPrint('[PVP-SCREEN] Waiting timeout — falling back to BOT');
-            _startPracticeGame();
-          }
-        });
-
-        // Listen for our match becoming active (opponent joined us)
-        // OR the polling in PvpService finding another match
-        _matchSub = PvpService.streamMatch(match.id).listen((updatedMatch) {
-          debugPrint('[PVP-SCREEN] Stream update: status=${updatedMatch.status}, p2=${updatedMatch.player2Name}');
-          if (!_matchmakingResolved && updatedMatch.status == 'active') {
-            _matchmakingResolved = true;
-            _matchmakingTimeout?.cancel();
-            PvpService.cancelPolling();
-            _isPlayer1 = (PvpService.myCreatedMatchId == updatedMatch.id);
-            debugPrint('[PVP-SCREEN] Opponent found via stream! Starting PvP game. isPlayer1=$_isPlayer1');
-            _startPvpGame(updatedMatch);
-          }
-        });
-      }
+      _matchmakingResolved = true;
+      _isPlayer1 = PvpService.isPlayer1;
+      debugPrint('[PVP-SCREEN] Match found! id=${match.id}, isPlayer1=$_isPlayer1');
+      _startPvpGame(match);
     } catch (e) {
-      debugPrint('[PVP-SCREEN] Matchmaking error: $e');
+      debugPrint('[PVP-SCREEN] Matchmaking failed: $e');
       if (mounted && !_matchmakingResolved) {
         _matchmakingResolved = true;
-        _matchmakingTimeout?.cancel();
-        PvpService.cancelPolling();
+        // Timeout or cancelled → fall back to BOT
+        debugPrint('[PVP-SCREEN] Falling back to BOT');
         _startPracticeGame();
       }
     }
@@ -390,7 +349,7 @@ class _GameScreenState extends State<GameScreen> {
     _botTimer?.cancel();
     _matchmakingTimeout?.cancel();
     _timerPollTimer?.cancel();
-    PvpService.cancelPolling();
+    PvpService.cancelMatchmaking();
     MusicService.instance.stop();
     super.dispose();
   }
@@ -615,7 +574,7 @@ class _GameScreenState extends State<GameScreen> {
                     onPressed: () {
                       _matchSub?.cancel();
                       _pvpTimer?.cancel();
-                      PvpService.cancelPolling();
+                      PvpService.cancelMatchmaking();
                       // Delete our waiting match if we created one
                       if (_match != null) {
                         PvpService.cancelMatch(_match!.id);

@@ -374,4 +374,55 @@ class AppLocalizationsVi extends AppLocalizations {
   String pvpRules(int size) {
     return '$size×$size - 2 Phút';
   }
+
+  @override
+  String get tutorialStepTitle1 => 'Kéo & Thả';
+
+  @override
+  String get tutorialStepTitle2 => 'Xóa Hàng';
+
+  @override
+  String get tutorialStepTitle3 => 'Combo & Chuỗi';
+
+  @override
+  String get tutorialStepTitle4 => 'Sức Mạnh Búa';
+
+  @override
+  String get tutorialStepTitle5 => 'Chế Độ Chơi';
+
+  @override
+  String get tutorialStepTitle6 => 'Chúc May Mắn!';
+
+  @override
+  String get tutorialStep5 =>
+      'Xóa hàng liên tiếp để tạo combo và nhận điểm thưởng khổng lồ!';
+
+  @override
+  String get tutorialStep6 =>
+      'Thử các chế độ Dễ, Cổ điển, Bậc thầy, Trí nhớ, Thư giãn và PvP — mỗi chế độ có luật riêng!';
+
+  @override
+  String get offlineBanner => 'Ngoại tuyến — Một số tính năng không khả dụng';
+
+  @override
+  String get offlineLeaderboard => 'Bảng xếp hạng cần kết nối mạng';
+
+  @override
+  String get offlinePvp => 'PvP cần kết nối mạng';
+
+  @override
+  String get consentTitle => 'Quyền Riêng Tư & Dữ Liệu';
+
+  @override
+  String get consentMessage =>
+      'Chúng tôi thu thập phân tích game ẩn danh (điểm số, phiên chơi) để cải thiện trải nghiệm. Không có dữ liệu cá nhân nào được thu thập hay chia sẻ.';
+
+  @override
+  String get consentAccept => 'Đồng ý';
+
+  @override
+  String get consentDecline => 'Từ chối';
+
+  @override
+  String get consentLearnMore => 'Tìm hiểu thêm';
 }

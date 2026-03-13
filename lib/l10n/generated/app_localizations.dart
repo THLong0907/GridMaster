@@ -851,6 +851,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{size}×{size} - 2 Minutes'**
   String pvpRules(int size);
+
+  /// No description provided for @tutorialStepTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag & Drop'**
+  String get tutorialStepTitle1;
+
+  /// No description provided for @tutorialStepTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Lines'**
+  String get tutorialStepTitle2;
+
+  /// No description provided for @tutorialStepTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Combo & Streak'**
+  String get tutorialStepTitle3;
+
+  /// No description provided for @tutorialStepTitle4.
+  ///
+  /// In en, this message translates to:
+  /// **'Hammer Power'**
+  String get tutorialStepTitle4;
+
+  /// No description provided for @tutorialStepTitle5.
+  ///
+  /// In en, this message translates to:
+  /// **'Game Modes'**
+  String get tutorialStepTitle5;
+
+  /// No description provided for @tutorialStepTitle6.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Luck!'**
+  String get tutorialStepTitle6;
+
+  /// No description provided for @tutorialStep5.
+  ///
+  /// In en, this message translates to:
+  /// **'Build combos by clearing lines consecutively for huge bonus points!'**
+  String get tutorialStep5;
+
+  /// No description provided for @tutorialStep6.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Easy, Classic, Master, Memory, Zen, and PvP modes — each has unique rules!'**
+  String get tutorialStep6;
+
+  /// No description provided for @offlineBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — Some features unavailable'**
+  String get offlineBanner;
+
+  /// No description provided for @offlineLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard requires internet'**
+  String get offlineLeaderboard;
+
+  /// No description provided for @offlinePvp.
+  ///
+  /// In en, this message translates to:
+  /// **'PvP requires internet connection'**
+  String get offlinePvp;
+
+  /// No description provided for @consentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Data'**
+  String get consentTitle;
+
+  /// No description provided for @consentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We collect anonymous game analytics (scores, play sessions) to improve your experience. No personal data is collected or shared with third parties.'**
+  String get consentMessage;
+
+  /// No description provided for @consentAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get consentAccept;
+
+  /// No description provided for @consentDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get consentDecline;
+
+  /// No description provided for @consentLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn More'**
+  String get consentLearnMore;
 }
 
 class _AppLocalizationsDelegate

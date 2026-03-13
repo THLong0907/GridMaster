@@ -116,6 +116,22 @@
   "you": "BẠN",
   "rival": "ĐỐI THỦ",
   "shareChallenge": "Bạn có thể vượt qua tôi không?",
-  "pvpRules": "{size}×{size} - 2 Phút"
+  "pvpRules": "{size}×{size} - 2 Phút",
+  "tutorialStepTitle1": "Kéo & Thả",
+  "tutorialStepTitle2": "Xóa Hàng",
+  "tutorialStepTitle3": "Combo & Chuỗi",
+  "tutorialStepTitle4": "Sức Mạnh Búa",
+  "tutorialStepTitle5": "Chế Độ Chơi",
+  "tutorialStepTitle6": "Chúc May Mắn!",
+  "tutorialStep5": "Xóa hàng liên tiếp để tạo combo và nhận điểm thưởng khổng lồ!",
+  "tutorialStep6": "Thử các chế độ Dễ, Cổ điển, Bậc thầy, Trí nhớ, Thư giãn và PvP — mỗi chế độ có luật riêng!",
+  "offlineBanner": "Ngoại tuyến — Một số tính năng không khả dụng",
+  "offlineLeaderboard": "Bảng xếp hạng cần kết nối mạng",
+  "offlinePvp": "PvP cần kết nối mạng",
+  "consentTitle": "Quyền Riêng Tư & Dữ Liệu",
+  "consentMessage": "Chúng tôi thu thập phân tích game ẩn danh (điểm số, phiên chơi) để cải thiện trải nghiệm. Không có dữ liệu cá nhân nào được thu thập hay chia sẻ.",
+  "consentAccept": "Đồng ý",
+  "consentDecline": "Từ chối",
+  "consentLearnMore": "Tìm hiểu thêm"
 }
 

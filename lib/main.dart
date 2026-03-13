@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
@@ -10,8 +11,10 @@ import 'shared/services/audio_service.dart';
 import 'shared/services/locale_provider.dart';
 import 'shared/services/theme_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'routes/app_router.dart';
 import 'core/constants/strings.dart';
+import 'core/utils/firebase_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,11 +43,27 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    // Enable analytics
+    FirebaseHelper.isAvailable = true;
+
+    // Initialize Crashlytics
+    if (!kIsWeb) {
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    }
+
+    // Enable analytics & crashlytics
     await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+    if (!kIsWeb) {
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    }
+
     await AuthService.signInAnonymously();
   } catch (e) {
     debugPrint('Firebase init failed: $e');
+    FirebaseHelper.isAvailable = false;
   }
 
   // Initialize lightweight services before runApp

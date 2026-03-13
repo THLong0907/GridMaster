@@ -27,6 +27,7 @@ dependencies:
   cloud_firestore: ^6.1.2
   firebase_auth: ^6.1.4
   firebase_analytics: ^12.1.1
+  firebase_crashlytics: ^5.0.7
   in_app_review: ^2.0.10
   flutter_localizations:
     sdk: flutter
