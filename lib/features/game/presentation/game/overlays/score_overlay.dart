@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grid_master/shared/widgets/crown_widget.dart';
-import 'package:grid_master/shared/widgets/heart_score_widget.dart';
+import 'package:grid_master/shared/widgets/energy_orb_score_widget.dart';
 
 /// Score and streak overlay displayed on top of the Flame game
-/// Layout: [Pause | Crown+Best] ... [Mode + Fire Score] ... [Hammer | Streak/Rival]
+/// Layout: [Pause | Crown+Best] ... [Mode + Energy Orb Score] ... [Hammer | Streak/Rival]
 class ScoreOverlay extends StatelessWidget {
   final int score;
   final int highScore;
@@ -79,7 +79,7 @@ class ScoreOverlay extends StatelessWidget {
               ),
             ),
 
-            // CENTER: Mode name + Fire score
+            // CENTER: Mode name + Energy Orb score
             Flexible(
               flex: 0,
               child: Column(
@@ -100,7 +100,7 @@ class ScoreOverlay extends StatelessWidget {
                       ),
                     ),
                   const SizedBox(height: 6),
-                  HeartScoreWidget(
+                  EnergyOrbScoreWidget(
                     score: score,
                     size: 85,
                     isNewRecord: isNewRecord,
